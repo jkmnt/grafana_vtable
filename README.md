@@ -1,44 +1,21 @@
-# Grafana Panel Plugin Template
+# Grafana vertical table plugin
 
-[![Build](https://github.com/grafana/grafana-starter-panel/workflows/CI/badge.svg)](https://github.com/grafana/grafana-starter-panel/actions?query=workflow%3A%22CI%22)
+This plugin is dirty and hackish. I know nothing about JS, TS, React and all this hipster stuff,
+prefering the old good C and Python. Just fiddle with some code until it kind of works.
 
-This template is a starting point for building Grafana Panel Plugins in Grafana 7.0+
+Build-in grafana table is tailored to displaying time frames as rows.
+Each column contains same metric of same type.
+A lot of metrics means a lot of columns.
 
-## What is Grafana Panel Plugin?
+There is a need to display a table for the single time frame partitioned by
+entity number (think sensor number). Each row contains metric of same type.
+A lot of metrics means a lot of rows.
+That's the plugin idea.
 
-Panels are the building blocks of Grafana. They allow you to visualize data in different ways. While Grafana has several types of panels already built-in, you can also build your own panel, to add support for other visualizations.
+[TODO: image here]
 
-For more information about panels, refer to the documentation on [Panels](https://grafana.com/docs/grafana/latest/features/panels/panels/)
-
-## Getting started
-
-1. Install dependencies
-
-   ```bash
-   yarn install
-   ```
-
-2. Build plugin in development mode or run in watch mode
-
-   ```bash
-   yarn dev
-   ```
-
-   or
-
-   ```bash
-   yarn watch
-   ```
-
-3. Build plugin in production mode
-
-   ```bash
-   yarn build
-   ```
-
-## Learn more
-
-- [Build a panel plugin tutorial](https://grafana.com/tutorials/build-a-panel-plugin)
-- [Grafana documentation](https://grafana.com/docs/)
-- [Grafana Tutorials](https://grafana.com/tutorials/) - Grafana Tutorials are step-by-step guides that help you make the most of Grafana
-- [Grafana UI Library](https://developers.grafana.com/ui) - UI components to help you build interfaces using Grafana Design System
+Feel free to hack/fork it
+.
+Maybe the Grafana guys would stop coding all this shiny new stuff
+and make the base platform much more powerful and robust.
+... No, it's boring, I know. The JS mindset tells us to go for the new and shiny.
