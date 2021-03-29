@@ -72,13 +72,15 @@ function hack_presentation(field, v, text) {
   if (!field.config.pr || field.config.pr == 'number')
     return text;
 
+  if (v == null)
+    return text;
+
   // this ugly line handles the case of text being mapped to some value
   if (text != v.toString())
     return text;
 
   const pr = field.config.pr;
 
-  console.log(field);
 
   if (pr == 'ts_m') {
     const m = moment.unix(v * 60);

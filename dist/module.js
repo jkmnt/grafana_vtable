@@ -462,11 +462,11 @@ var VTableGaugeValsRow = function VTableGaugeValsRow(_a) {
 
 
 function hack_presentation(field, v, text) {
-  if (!field.config.pr || field.config.pr == 'number') return text; // this ugly line handles the case of text being mapped to some value
+  if (!field.config.pr || field.config.pr == 'number') return text;
+  if (v == null) return text; // this ugly line handles the case of text being mapped to some value
 
   if (text != v.toString()) return text;
   var pr = field.config.pr;
-  console.log(field);
 
   if (pr == 'ts_m') {
     var m = moment__WEBPACK_IMPORTED_MODULE_5___default.a.unix(v * 60);
