@@ -11,15 +11,9 @@ import moment from 'moment';
 const defaultGaugeScale: ThresholdsConfig = {
   mode: ThresholdsMode.Absolute,
   steps: [
-    {
-      color: 'blue',
-      value: -Infinity,
-    },
-    {
-      color: 'green',
-      value: 20,
-    },
-  ],
+    { color: 'blue', value: -Infinity },
+    { color: 'green', value: 20 }
+  ]
 };
 
 interface Props extends PanelProps<VTableOptions> {
@@ -41,7 +35,7 @@ interface VTableCellProps {
 }
 
 
-const VTableGaugeValsRow: React.FC<VTableCellProps> = ({ field, values, show_unit }) => {
+function VTableGaugeValsRow({ field, values, show_unit }: VTableCellProps) {
 
   let config = field.config;
 
@@ -52,19 +46,21 @@ const VTableGaugeValsRow: React.FC<VTableCellProps> = ({ field, values, show_uni
 
   field.display = getDisplayProcessor({ field });
 
-  return values.toArray().map((v) => {
+  const row = values.toArray().map((v, i) => {
 
     let dv = field.display(v);
     if (!show_unit)
       dv = { ...dv, suffix: null };
 
     return (
-      <td>
+      <td key={i}>
         <BarGauge width={200} field={config} value={dv} theme={theme} orientation={VizOrientation.Horizontal} text={{ valueSize: 14 }}
           displayMode={BarGaugeDisplayMode.Gradient} />
       </td>
     )
   })
+
+  return <>{row}</>
 }
 
 // temporary hacks here just for test
@@ -105,21 +101,29 @@ function hack_presentation(field, v, text) {
   return text;
 }
 
-const VTableSimpleValsRow: React.FC<VTableCellProps> = ({ field, values, show_unit }) => {
+function VTableSimpleValsRow({ field, values, show_unit }: VTableCellProps) {
 
-  if (!field.display)
-    return values.toArray().map((v) => <td className={styles.valcol}>{v}</td>)
+  let row;
 
-  return values.toArray().map((v) => {
-    const dv = field.display(v);
-    let text = show_unit ? formattedValueToString(dv) : dv.text;
-    const color = colorize_cell(field.config.custom ?.display_mode, dv.color);
+  // XXX: the key attributes are likely needed here for react ?
 
-    text = hack_presentation(field, v, text);
+  if (!field.display) {
+    row = values.toArray().map((v, i) =>
+      <td key={i} className={styles.valcol}>{v}</td>)
+  }
+  else {
+    row = values.toArray().map((v, i) => {
+      const dv = field.display(v);
+      let text = show_unit ? formattedValueToString(dv) : dv.text;
+      const color = colorize_cell(field.config.custom?.display_mode, dv.color);
 
+      text = hack_presentation(field, v, text);
 
-    return <td className={cx(color, styles.valcol)}>{text}</td>
-  })
+      return <td key={i} className={cx(color, styles.valcol)}>{text}</td>
+    })
+  }
+
+  return <>{row}</>
 }
 
 interface VTableRowProps {
@@ -127,55 +131,57 @@ interface VTableRowProps {
   df: DataFrame;
 }
 
-const VTableRow: React.FC<VTableRowProps> = ({ field, df }) => {
+function VTableRow({ field, df }: VTableRowProps) {
 
   const field_name = getFieldDisplayName(field, df);
-  let unit = field.config ?.unit;
+  let unit = field.config?.unit;
   if (unit == 'none')
     unit = null;
 
-  const use_gauge = field.config.custom ?.display_mode == 'gradient';
+  const use_gauge = field.config.custom?.display_mode == 'gradient';
 
-  return (<tr>
-    <td className={styles.namecol}>{field_name}{unit ? `, ${unit}` : ''}</td>
-    {
-      use_gauge ? <VTableGaugeValsRow field={field} values={field.values} show_unit={false} />
-        : <VTableSimpleValsRow field={field} values={field.values} show_unit={false} />
-
-    }
-  </tr>)
+  return (
+    <tr>
+      <td className={styles.namecol}>{field_name}{unit ? `, ${unit}` : ''}</td>
+      { use_gauge ?
+        <VTableGaugeValsRow field={field} values={field.values} show_unit={false} />
+        :
+        <VTableSimpleValsRow field={field} values={field.values} show_unit={false} />
+      }
+    </tr>)
 }
 
 
-export const VTable: React.FC<Props> = ({ data }) => {
-  const count = data.series ?.length;
+export function VTable({ data }: Props) {
+  const count = data.series?.length;
   const df = data.series[0];
 
-  const has_fields = df ?.fields.length;
+  const has_fields = df?.fields.length;
 
   // TBD: add some memoization ?
 
-  if (!count || !has_fields) {
+  if (!count || !has_fields)
     return <div>No data</div>;
-  }
 
   return (
-    <CustomScrollbar autoHide>
+    <CustomScrollbar autoHide={true}>
       <table className={styles.table}>
         <tbody>
-          {df.fields.map((field, i) => <VTableRow field={field} df={df} />)}
+          {df.fields.map((field, i) => <VTableRow key={field.name} field={field} df={df} />)}
         </tbody>
       </table>
     </CustomScrollbar>
   )
 };
 
+// TODO: add sticky ?
 // style this
 const styles = {
   table: css`
   {
     margin-top: 4px;
     margin-bottom: 4px;
+    white-space: nowrap;
 
     /*
     tbody {

@@ -429,7 +429,7 @@ function colorize_cell(mode, color) {
   return '';
 }
 
-var VTableGaugeValsRow = function VTableGaugeValsRow(_a) {
+function VTableGaugeValsRow(_a) {
   var field = _a.field,
       values = _a.values,
       show_unit = _a.show_unit;
@@ -441,12 +441,14 @@ var VTableGaugeValsRow = function VTableGaugeValsRow(_a) {
   field.display = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getDisplayProcessor"])({
     field: field
   });
-  return values.toArray().map(function (v) {
+  var row = values.toArray().map(function (v, i) {
     var dv = field.display(v);
     if (!show_unit) dv = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])(Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({}, dv), {
       suffix: null
     });
-    return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("td", null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_grafana_ui__WEBPACK_IMPORTED_MODULE_4__["BarGauge"], {
+    return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("td", {
+      key: i
+    }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_grafana_ui__WEBPACK_IMPORTED_MODULE_4__["BarGauge"], {
       width: 200,
       field: config,
       value: dv,
@@ -458,7 +460,8 @@ var VTableGaugeValsRow = function VTableGaugeValsRow(_a) {
       displayMode: _grafana_ui__WEBPACK_IMPORTED_MODULE_4__["BarGaugeDisplayMode"].Gradient
     }));
   });
-}; // temporary hacks here just for test
+  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, row);
+} // temporary hacks here just for test
 
 
 function hack_presentation(field, v, text) {
@@ -491,29 +494,38 @@ function hack_presentation(field, v, text) {
   return text;
 }
 
-var VTableSimpleValsRow = function VTableSimpleValsRow(_a) {
+function VTableSimpleValsRow(_a) {
   var field = _a.field,
       values = _a.values,
       show_unit = _a.show_unit;
-  if (!field.display) return values.toArray().map(function (v) {
-    return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("td", {
-      className: styles.valcol
-    }, v);
-  });
-  return values.toArray().map(function (v) {
-    var _a;
+  var row; // XXX: the key attributes are likely needed here for react ?
 
-    var dv = field.display(v);
-    var text = show_unit ? Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["formattedValueToString"])(dv) : dv.text;
-    var color = colorize_cell((_a = field.config.custom) === null || _a === void 0 ? void 0 : _a.display_mode, dv.color);
-    text = hack_presentation(field, v, text);
-    return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("td", {
-      className: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["cx"])(color, styles.valcol)
-    }, text);
-  });
-};
+  if (!field.display) {
+    row = values.toArray().map(function (v, i) {
+      return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("td", {
+        key: i,
+        className: styles.valcol
+      }, v);
+    });
+  } else {
+    row = values.toArray().map(function (v, i) {
+      var _a;
 
-var VTableRow = function VTableRow(_a) {
+      var dv = field.display(v);
+      var text = show_unit ? Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["formattedValueToString"])(dv) : dv.text;
+      var color = colorize_cell((_a = field.config.custom) === null || _a === void 0 ? void 0 : _a.display_mode, dv.color);
+      text = hack_presentation(field, v, text);
+      return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("td", {
+        key: i,
+        className: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["cx"])(color, styles.valcol)
+      }, text);
+    });
+  }
+
+  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, row);
+}
+
+function VTableRow(_a) {
   var _b, _c;
 
   var field = _a.field,
@@ -533,9 +545,9 @@ var VTableRow = function VTableRow(_a) {
     values: field.values,
     show_unit: false
   }));
-};
+}
 
-var VTable = function VTable(_a) {
+function VTable(_a) {
   var _b;
 
   var data = _a.data;
@@ -543,24 +555,24 @@ var VTable = function VTable(_a) {
   var df = data.series[0];
   var has_fields = df === null || df === void 0 ? void 0 : df.fields.length; // TBD: add some memoization ?
 
-  if (!count || !has_fields) {
-    return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", null, "No data");
-  }
-
+  if (!count || !has_fields) return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", null, "No data");
   return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_grafana_ui__WEBPACK_IMPORTED_MODULE_4__["CustomScrollbar"], {
     autoHide: true
   }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("table", {
     className: styles.table
   }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("tbody", null, df.fields.map(function (field, i) {
     return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(VTableRow, {
+      key: field.name,
       field: field,
       df: df
     });
   }))));
-}; // style this
+}
+; // TODO: add sticky ?
+// style this
 
 var styles = {
-  table: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_3 || (templateObject_3 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    margin-top: 4px;\n    margin-bottom: 4px;\n\n    /*\n    tbody {\n      tr:nth-child(odd) {\n        background: #1f1f20;\n      }\n    }\n    */\n\n    td {\n      padding: 4px 8px;\n      border: 1px solid #1f1f20;\n    }\n  }"], ["\n  {\n    margin-top: 4px;\n    margin-bottom: 4px;\n\n    /*\n    tbody {\n      tr:nth-child(odd) {\n        background: #1f1f20;\n      }\n    }\n    */\n\n    td {\n      padding: 4px 8px;\n      border: 1px solid #1f1f20;\n    }\n  }"]))),
+  table: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_3 || (templateObject_3 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    margin-top: 4px;\n    margin-bottom: 4px;\n    white-space: nowrap;\n\n    /*\n    tbody {\n      tr:nth-child(odd) {\n        background: #1f1f20;\n      }\n    }\n    */\n\n    td {\n      padding: 4px 8px;\n      border: 1px solid #1f1f20;\n    }\n  }"], ["\n  {\n    margin-top: 4px;\n    margin-bottom: 4px;\n    white-space: nowrap;\n\n    /*\n    tbody {\n      tr:nth-child(odd) {\n        background: #1f1f20;\n      }\n    }\n    */\n\n    td {\n      padding: 4px 8px;\n      border: 1px solid #1f1f20;\n    }\n  }"]))),
   namecol: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_4 || (templateObject_4 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    color: #33a2e5;\n  }\n  "], ["\n  {\n    color: #33a2e5;\n  }\n  "]))),
   valcol: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_5 || (templateObject_5 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    text-align: right;\n  }\n  "], ["\n  {\n    text-align: right;\n  }\n  "]))),
   unitcol: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_6 || (templateObject_6 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n\n  }\n  "], ["\n  {\n\n  }\n  "])))
