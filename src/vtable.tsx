@@ -3,7 +3,7 @@ import React from 'react';
 import { PanelProps, getFieldDisplayName, formattedValueToString, Field, FormattedValue, DataFrame, ThresholdsConfig, Vector } from '@grafana/data';
 import { VTableOptions } from './types';
 import { css, cx } from 'emotion';
-import { CustomScrollbar, getTextColorForBackground, useTheme } from '@grafana/ui';
+import { Button, CustomScrollbar, getTextColorForBackground, useTheme } from '@grafana/ui';
 import { BarGauge, BarGaugeDisplayMode } from '@grafana/ui';
 import { VizOrientation, ThresholdsMode, FieldType, getDisplayProcessor, DisplayValueAlignmentFactors } from '@grafana/data';
 import moment from 'moment';
@@ -32,6 +32,8 @@ interface VTableCellProps {
   field: Field;
   values: Vector;
   show_unit: boolean;
+  use_inputs: boolean;
+  is_header?: boolean;
 }
 
 
@@ -101,7 +103,7 @@ function hack_presentation(field, v, text) {
   return text;
 }
 
-function VTableSimpleValsRow({ field, values, show_unit }: VTableCellProps) {
+function VTableSimpleValsRow({ field, values, show_unit, use_inputs, is_header }: VTableCellProps) {
 
   let row;
 
@@ -109,7 +111,10 @@ function VTableSimpleValsRow({ field, values, show_unit }: VTableCellProps) {
 
   if (!field.display) {
     row = values.toArray().map((v, i) =>
-      <td key={i} className={styles.valcol}>{v}</td>)
+      {!use_inputs ? <span key={i} className={styles.valcol}>{v}</span>
+        :
+        <input value={v}></input>}
+      )
   }
   else {
     row = values.toArray().map((v, i) => {
@@ -119,7 +124,10 @@ function VTableSimpleValsRow({ field, values, show_unit }: VTableCellProps) {
 
       text = hack_presentation(field, v, text);
 
-      return <td key={i} className={cx(color, styles.valcol)}>{text}</td>
+      return (
+        !use_inputs ? <span key={i} className={cx(color, !is_header ? styles.valcol: styles.header)}>{text}</span>
+        : <input className={styles.input} value={text}></input>
+      )
     })
   }
 
@@ -129,9 +137,11 @@ function VTableSimpleValsRow({ field, values, show_unit }: VTableCellProps) {
 interface VTableRowProps {
   field: Field;
   df: DataFrame;
+  use_inputs: boolean;
+  is_header?: boolean;
 }
 
-function VTableRow({ field, df }: VTableRowProps) {
+function VTableRow({ field, df, use_inputs, is_header }: VTableRowProps) {
 
   const field_name = getFieldDisplayName(field, df);
   let unit = field.config?.unit;
@@ -141,14 +151,19 @@ function VTableRow({ field, df }: VTableRowProps) {
   const use_gauge = field.config.custom?.display_mode == 'gradient';
 
   return (
-    <tr>
-      <td className={styles.namecol}>{field_name}{unit ? `, ${unit}` : ''}</td>
+    <>
+      <span className={!is_header ? styles.namecol: styles.corner}>{field_name}{unit ? `, ${unit}` : ''}</span>
       { use_gauge ?
-        <VTableGaugeValsRow field={field} values={field.values} show_unit={false} />
+        <VTableGaugeValsRow field={field} values={field.values} show_unit={false}
+        use_inputs={use_inputs}
+        />
         :
-        <VTableSimpleValsRow field={field} values={field.values} show_unit={false} />
+        <VTableSimpleValsRow field={field} values={field.values} show_unit={false}
+        use_inputs={use_inputs}
+        is_header={is_header}/>
       }
-    </tr>)
+    </>
+    )
 }
 
 
@@ -160,17 +175,60 @@ export function VTable({ data, width, height }: Props) {
 
   // TBD: add some memoization ?
 
+  const [show_inputs, set_show_inputs] = React.useState(false);
+  const [is_horizontal, set_is_horizontal] = React.useState(false);
+
+  const toggle_inputs = () => {
+    set_show_inputs(!show_inputs);
+  }
+
+  const toggle_is_horizontal = () => {
+    set_is_horizontal(!is_horizontal);
+  }
+
   if (!count || !has_fields)
     return <div>No data</div>;
 
+  const table_style = ! is_horizontal ?  css`
+  {
+    display: grid;
+    grid-template-columns: 128px repeat(${df.fields[0].values.length}, 1fr);
+    grid-template-rows: repeat(${df.fields.length}, 32px);
+    width: ${width}px;
+    height: ${height - 32}px;
+    overflow: auto;
+  }`:
+  css`{
+    display: grid;
+    grid-template-columns: repeat(${df.fields.length}, 120px);
+    grid-template-rows: 128px repeat(${df.fields[0].values.length}, 32px);
+    grid-auto-flow: column;
+    width: ${width}px;
+    height: ${height - 32}px;
+    overflow: auto;
+  }`;
+
+
+  //grid-auto-flow: row;
+
+  //grid-template-columns: repeat(${df.fields[0].values.length + 1}, 1fr);
+
+  //<div style={{width: width, height: height, overflow: 'auto'}}></div>
+
   return (
-    <div style={{width: width, height: height, overflow: 'auto'}}>
-      <table className={styles.table}>
-        <tbody>
-          {df.fields.map((field, i) => <VTableRow key={field.name} field={field} df={df} />)}
-        </tbody>
-      </table>
+    <>
+    <div>
+      <Button onClick={toggle_inputs}> Toggle !</Button>
+      <Button onClick={toggle_is_horizontal}> H/V !</Button>
+
     </div>
+      <div className={table_style}>
+          {df.fields.map((field, i) =>
+          <VTableRow key={field.name} field={field} df={df}
+          use_inputs={show_inputs} is_header={! i}
+          />)}
+    </div>
+    </>
   )
 };
 
@@ -179,36 +237,52 @@ export function VTable({ data, width, height }: Props) {
 const styles = {
   table: css`
   {
-    margin-top: 4px;
-    margin-bottom: 4px;
-    white-space: nowrap;
-
-    /*
-    tbody {
-      tr:nth-child(odd) {
-        background: #1f1f20;
-      }
-    }
-    */
-
-    td {
-      padding: 4px 8px;
-      border: 1px solid #1f1f20;
-    }
+    display: grid;
+    grid-template-columns: repeat(31, 1fr);
+  }`,
+  corner: css`
+  {
+      position: sticky;
+      left: 0;
+      top: 0;
+      z-index: 1;
+      background-color: #141619;
+      color: #33a2e5;
   }`,
   namecol: css`
   {
+    position: sticky;
+    left: 0;
+    border-right: 1px solid black;
+    background-color: #141619;
     color: #33a2e5;
+    padding: 4px;
+  }`,
+  header: css`
+  {
+    position: sticky;
+    top: 0;
+    border-bottom: 1px solid black;
+    background-color: #141619;
+    color: #33a2e5;
+    padding: 4px;
   }
   `,
   valcol: css`
   {
     text-align: right;
+    padding: 4px;
   }
   `,
   unitcol: css`
   {
 
+  }
+  `,
+  input: css`
+  {
+    margin: 4px;
+    width: 64px;
   }
   `
 };

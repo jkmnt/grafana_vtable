@@ -497,15 +497,19 @@ function hack_presentation(field, v, text) {
 function VTableSimpleValsRow(_a) {
   var field = _a.field,
       values = _a.values,
-      show_unit = _a.show_unit;
+      show_unit = _a.show_unit,
+      use_inputs = _a.use_inputs,
+      is_header = _a.is_header;
   var row; // XXX: the key attributes are likely needed here for react ?
 
   if (!field.display) {
     row = values.toArray().map(function (v, i) {
-      return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("td", {
+      !use_inputs ? react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("span", {
         key: i,
         className: styles.valcol
-      }, v);
+      }, v) : react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("input", {
+        value: v
+      });
     });
   } else {
     row = values.toArray().map(function (v, i) {
@@ -515,10 +519,13 @@ function VTableSimpleValsRow(_a) {
       var text = show_unit ? Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["formattedValueToString"])(dv) : dv.text;
       var color = colorize_cell((_a = field.config.custom) === null || _a === void 0 ? void 0 : _a.display_mode, dv.color);
       text = hack_presentation(field, v, text);
-      return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("td", {
+      return !use_inputs ? react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("span", {
         key: i,
-        className: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["cx"])(color, styles.valcol)
-      }, text);
+        className: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["cx"])(color, !is_header ? styles.valcol : styles.header)
+      }, text) : react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("input", {
+        className: styles.input,
+        value: text
+      });
     });
   }
 
@@ -529,21 +536,26 @@ function VTableRow(_a) {
   var _b, _c;
 
   var field = _a.field,
-      df = _a.df;
+      df = _a.df,
+      use_inputs = _a.use_inputs,
+      is_header = _a.is_header;
   var field_name = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getFieldDisplayName"])(field, df);
   var unit = (_b = field.config) === null || _b === void 0 ? void 0 : _b.unit;
   if (unit == 'none') unit = null;
   var use_gauge = ((_c = field.config.custom) === null || _c === void 0 ? void 0 : _c.display_mode) == 'gradient';
-  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("tr", null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("td", {
-    className: styles.namecol
+  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("span", {
+    className: !is_header ? styles.namecol : styles.corner
   }, field_name, unit ? ", " + unit : ''), use_gauge ? react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(VTableGaugeValsRow, {
     field: field,
     values: field.values,
-    show_unit: false
+    show_unit: false,
+    use_inputs: use_inputs
   }) : react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(VTableSimpleValsRow, {
     field: field,
     values: field.values,
-    show_unit: false
+    show_unit: false,
+    use_inputs: use_inputs,
+    is_header: is_header
   }));
 }
 
@@ -557,33 +569,56 @@ function VTable(_a) {
   var df = data.series[0];
   var has_fields = df === null || df === void 0 ? void 0 : df.fields.length; // TBD: add some memoization ?
 
+  var _c = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__read"])(react__WEBPACK_IMPORTED_MODULE_1___default.a.useState(false), 2),
+      show_inputs = _c[0],
+      set_show_inputs = _c[1];
+
+  var _d = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__read"])(react__WEBPACK_IMPORTED_MODULE_1___default.a.useState(false), 2),
+      is_horizontal = _d[0],
+      set_is_horizontal = _d[1];
+
+  var toggle_inputs = function toggle_inputs() {
+    set_show_inputs(!show_inputs);
+  };
+
+  var toggle_is_horizontal = function toggle_is_horizontal() {
+    set_is_horizontal(!is_horizontal);
+  };
+
   if (!count || !has_fields) return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", null, "No data");
-  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
-    style: {
-      width: width,
-      height: height,
-      overflow: 'auto'
-    }
-  }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("table", {
-    className: styles.table
-  }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("tbody", null, df.fields.map(function (field, i) {
+  var table_style = !is_horizontal ? Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_3 || (templateObject_3 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    display: grid;\n    grid-template-columns: 128px repeat(", ", 1fr);\n    grid-template-rows: repeat(", ", 32px);\n    width: ", "px;\n    height: ", "px;\n    overflow: auto;\n  }"], ["\n  {\n    display: grid;\n    grid-template-columns: 128px repeat(", ", 1fr);\n    grid-template-rows: repeat(", ", 32px);\n    width: ", "px;\n    height: ", "px;\n    overflow: auto;\n  }"])), df.fields[0].values.length, df.fields.length, width, height - 32) : Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_4 || (templateObject_4 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["{\n    display: grid;\n    grid-template-columns: repeat(", ", 120px);\n    grid-template-rows: 128px repeat(", ", 32px);\n    grid-auto-flow: column;\n    width: ", "px;\n    height: ", "px;\n    overflow: auto;\n  }"], ["{\n    display: grid;\n    grid-template-columns: repeat(", ", 120px);\n    grid-template-rows: 128px repeat(", ", 32px);\n    grid-auto-flow: column;\n    width: ", "px;\n    height: ", "px;\n    overflow: auto;\n  }"])), df.fields.length, df.fields[0].values.length, width, height - 32); //grid-auto-flow: row;
+  //grid-template-columns: repeat(${df.fields[0].values.length + 1}, 1fr);
+  //<div style={{width: width, height: height, overflow: 'auto'}}></div>
+
+  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_grafana_ui__WEBPACK_IMPORTED_MODULE_4__["Button"], {
+    onClick: toggle_inputs
+  }, " Toggle !"), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_grafana_ui__WEBPACK_IMPORTED_MODULE_4__["Button"], {
+    onClick: toggle_is_horizontal
+  }, " H/V !")), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
+    className: table_style
+  }, df.fields.map(function (field, i) {
     return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(VTableRow, {
       key: field.name,
       field: field,
-      df: df
+      df: df,
+      use_inputs: show_inputs,
+      is_header: !i
     });
-  }))));
+  })));
 }
 ; // TODO: add sticky ?
 // style this
 
 var styles = {
-  table: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_3 || (templateObject_3 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    margin-top: 4px;\n    margin-bottom: 4px;\n    white-space: nowrap;\n\n    /*\n    tbody {\n      tr:nth-child(odd) {\n        background: #1f1f20;\n      }\n    }\n    */\n\n    td {\n      padding: 4px 8px;\n      border: 1px solid #1f1f20;\n    }\n  }"], ["\n  {\n    margin-top: 4px;\n    margin-bottom: 4px;\n    white-space: nowrap;\n\n    /*\n    tbody {\n      tr:nth-child(odd) {\n        background: #1f1f20;\n      }\n    }\n    */\n\n    td {\n      padding: 4px 8px;\n      border: 1px solid #1f1f20;\n    }\n  }"]))),
-  namecol: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_4 || (templateObject_4 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    color: #33a2e5;\n  }\n  "], ["\n  {\n    color: #33a2e5;\n  }\n  "]))),
-  valcol: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_5 || (templateObject_5 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    text-align: right;\n  }\n  "], ["\n  {\n    text-align: right;\n  }\n  "]))),
-  unitcol: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_6 || (templateObject_6 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n\n  }\n  "], ["\n  {\n\n  }\n  "])))
+  table: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_5 || (templateObject_5 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    display: grid;\n    grid-template-columns: repeat(31, 1fr);\n  }"], ["\n  {\n    display: grid;\n    grid-template-columns: repeat(31, 1fr);\n  }"]))),
+  corner: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_6 || (templateObject_6 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n      position: sticky;\n      left: 0;\n      top: 0;\n      z-index: 1;\n      background-color: #141619;\n      color: #33a2e5;\n  }"], ["\n  {\n      position: sticky;\n      left: 0;\n      top: 0;\n      z-index: 1;\n      background-color: #141619;\n      color: #33a2e5;\n  }"]))),
+  namecol: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_7 || (templateObject_7 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    position: sticky;\n    left: 0;\n    border-right: 1px solid black;\n    background-color: #141619;\n    color: #33a2e5;\n    padding: 4px;\n  }"], ["\n  {\n    position: sticky;\n    left: 0;\n    border-right: 1px solid black;\n    background-color: #141619;\n    color: #33a2e5;\n    padding: 4px;\n  }"]))),
+  header: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_8 || (templateObject_8 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    position: sticky;\n    top: 0;\n    border-bottom: 1px solid black;\n    background-color: #141619;\n    color: #33a2e5;\n    padding: 4px;\n  }\n  "], ["\n  {\n    position: sticky;\n    top: 0;\n    border-bottom: 1px solid black;\n    background-color: #141619;\n    color: #33a2e5;\n    padding: 4px;\n  }\n  "]))),
+  valcol: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_9 || (templateObject_9 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    text-align: right;\n    padding: 4px;\n  }\n  "], ["\n  {\n    text-align: right;\n    padding: 4px;\n  }\n  "]))),
+  unitcol: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_10 || (templateObject_10 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n\n  }\n  "], ["\n  {\n\n  }\n  "]))),
+  input: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_11 || (templateObject_11 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    margin: 4px;\n    width: 64px;\n  }\n  "], ["\n  {\n    margin: 4px;\n    width: 64px;\n  }\n  "])))
 };
-var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5, templateObject_6;
+var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5, templateObject_6, templateObject_7, templateObject_8, templateObject_9, templateObject_10, templateObject_11;
 
 /***/ }),
 
