@@ -550,14 +550,20 @@ function VTableRow(_a) {
 function VTable(_a) {
   var _b;
 
-  var data = _a.data;
+  var data = _a.data,
+      width = _a.width,
+      height = _a.height;
   var count = (_b = data.series) === null || _b === void 0 ? void 0 : _b.length;
   var df = data.series[0];
   var has_fields = df === null || df === void 0 ? void 0 : df.fields.length; // TBD: add some memoization ?
 
   if (!count || !has_fields) return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", null, "No data");
-  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_grafana_ui__WEBPACK_IMPORTED_MODULE_4__["CustomScrollbar"], {
-    autoHide: true
+  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
+    style: {
+      width: width,
+      height: height,
+      overflow: 'auto'
+    }
   }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("table", {
     className: styles.table
   }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("tbody", null, df.fields.map(function (field, i) {

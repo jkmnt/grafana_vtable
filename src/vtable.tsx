@@ -152,7 +152,7 @@ function VTableRow({ field, df }: VTableRowProps) {
 }
 
 
-export function VTable({ data }: Props) {
+export function VTable({ data, width, height }: Props) {
   const count = data.series?.length;
   const df = data.series[0];
 
@@ -164,13 +164,13 @@ export function VTable({ data }: Props) {
     return <div>No data</div>;
 
   return (
-    <CustomScrollbar autoHide={true}>
+    <div style={{width: width, height: height, overflow: 'auto'}}>
       <table className={styles.table}>
         <tbody>
           {df.fields.map((field, i) => <VTableRow key={field.name} field={field} df={df} />)}
         </tbody>
       </table>
-    </CustomScrollbar>
+    </div>
   )
 };
 
