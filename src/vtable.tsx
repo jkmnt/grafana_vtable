@@ -241,7 +241,6 @@ function hack_presentation(field, v, text) {
 
 interface VTableCoreProps {
   widths: string[];
-  heights: string[];
 
   height: number;
   width: number;
@@ -249,11 +248,11 @@ interface VTableCoreProps {
   children: any[];
 }
 
-function VTableCore({widths, heights, height, width, children}: VTableCoreProps) {
+function VTableCore({widths, height, width, children: rows}: VTableCoreProps) {
 
   // compose heights
   const gtc = widths.map(e => {return e ?? 'max-content'}).join(' ');
-  const gtr = heights.map(e => {return e ?? 'max-content'}).join(' ');
+  const gtr = rows.map(e => {return e.height ?? 'max-content'}).join(' ');
 
   const style =  css`
   {
@@ -265,8 +264,16 @@ function VTableCore({widths, heights, height, width, children}: VTableCoreProps)
     overflow: auto;
   }`;
 
+  console.log('here');
+
+  var cells = [];
+
+  rows.forEach(c => {
+    cells = cells.concat(c.cols)
+  })
+
   return (<div className={style}>
-      {children}
+      {cells}
   </div>)
 }
 
@@ -315,7 +322,7 @@ function create_row(field, df, options, is_header) {
             </span>);
   })
 
-  return {height: '40px', cells:[namecell, ...valcells]}
+  return {height: '40px', cols:[namecell, ...valcells]}
 }
 
 function create_group(name, fields, df, options) {
@@ -328,7 +335,7 @@ function create_group(name, fields, df, options) {
 
   const rows = fields.map(f => create_row(f, df, options, false));
 
-  return [{height: '40px', cells:[groupcell]}, ...rows]
+  return [{height: '40px', cols:[groupcell]}, ...rows]
 }
 
 export function VTable({ data, options, height, width, onOptionsChange }: Props) {
@@ -340,6 +347,7 @@ export function VTable({ data, options, height, width, onOptionsChange }: Props)
   if (!count || !has_fields)
     return <div>No data</div>;
 
+  /*
   const styles = get_styles(
       {
         is_horizontal:options.is_horizontal,
@@ -351,6 +359,7 @@ export function VTable({ data, options, height, width, onOptionsChange }: Props)
         valcol_width: options.valcol_width
       }
   )
+  */
 
   //grid-auto-flow: row;
 
@@ -358,38 +367,25 @@ export function VTable({ data, options, height, width, onOptionsChange }: Props)
 
   //<div style={{width: width, height: height, overflow: 'auto'}}></div>
 
-  let cells = [];
-  let heights = [];
-  let widths = [options.namecol_width ? options.namecol_width + 'px' : undefined];
+  let widths = Array(df.fields[0].values.length + 1);
 
-  df.fields[0].values.toArray().forEach(f=>
-    {
-      widths.push(options.valcol_width ? options.valcol_width + 'px' : undefined);
-    }
+  widths[0] = options.namecol_width ? options.namecol_width + 'px' : undefined;
+  widths.fill(options.valcol_width ? options.valcol_width + 'px' : undefined, 1)
+
+  const rows = df.fields.map((f, i) =>
+    create_row(f, df, options, i == 0 && options.first_field_is_header)
   )
 
-  df.fields.forEach((f, i) => {
-    const row = create_row(f, df, options, i == 0 && options.first_field_is_header);
-
-    heights.push(row.height);
-    cells = [...cells, row.cells];
-  })
-
-  /*
   const g = create_group('Fofofo', df.fields.slice(0, 10), df, options);
-  g.forEach(e => {
-    heights.push(e.height);
-    cells = [...cells, e.cells];
-  })
-  */
+
+  const allrows = rows.concat(g);
 
   return (<VTableCore
     height={height}
     width={width}
-    heights={heights}
     widths={widths}
   >
-    {cells}
+    {allrows}
   </VTableCore>)
 };
 

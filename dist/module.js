@@ -534,21 +534,27 @@ function hack_presentation(field, v, text) {
 
 function VTableCore(_a) {
   var widths = _a.widths,
-      heights = _a.heights,
       height = _a.height,
       width = _a.width,
-      children = _a.children; // compose heights
+      rows = _a.children; // compose heights
 
   var gtc = widths.map(function (e) {
     return e !== null && e !== void 0 ? e : 'max-content';
   }).join(' ');
-  var gtr = heights.map(function (e) {
-    return e !== null && e !== void 0 ? e : 'max-content';
+  var gtr = rows.map(function (e) {
+    var _a;
+
+    return (_a = e.height) !== null && _a !== void 0 ? _a : 'max-content';
   }).join(' ');
   var style = Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_14 || (templateObject_14 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    display: grid;\n    grid-template-columns: ", ";\n    grid-template-rows: ", ";\n    height: ", "px;\n    width: ", "px;\n    overflow: auto;\n  }"], ["\n  {\n    display: grid;\n    grid-template-columns: ", ";\n    grid-template-rows: ", ";\n    height: ", "px;\n    width: ", "px;\n    overflow: auto;\n  }"])), gtc, gtr, height, width);
+  console.log('here');
+  var cells = [];
+  rows.forEach(function (c) {
+    cells = cells.concat(c.cols);
+  });
   return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
     className: style
-  }, children);
+  }, cells);
 }
 
 function create_row(field, df, options, is_header) {
@@ -598,7 +604,7 @@ function create_row(field, df, options, is_header) {
   });
   return {
     height: '40px',
-    cells: Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])([namecell], valcells)
+    cols: Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])([namecell], valcells)
   };
 }
 
@@ -612,7 +618,7 @@ function create_group(name, fields, df, options) {
   });
   return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])([{
     height: '40px',
-    cells: [groupcell]
+    cols: [groupcell]
   }], rows);
 }
 
@@ -628,43 +634,36 @@ function VTable(_a) {
   var df = data.series[0];
   var has_fields = df === null || df === void 0 ? void 0 : df.fields.length;
   if (!count || !has_fields) return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", null, "No data");
-  var styles = get_styles({
-    is_horizontal: options.is_horizontal,
-    nfields: df.fields.length,
-    nvalues: df.fields[0].values.length,
-    namecol_width: options.namecol_width,
-    height: height,
-    width: width,
-    valcol_width: options.valcol_width
-  }); //grid-auto-flow: row;
+  /*
+  const styles = get_styles(
+      {
+        is_horizontal:options.is_horizontal,
+        nfields:df.fields.length,
+        nvalues:df.fields[0].values.length,
+        namecol_width: options.namecol_width,
+        height: height,
+        width: width,
+        valcol_width: options.valcol_width
+      }
+  )
+  */
+  //grid-auto-flow: row;
   //grid-template-columns: repeat(${df.fields[0].values.length + 1}, 1fr);
   //<div style={{width: width, height: height, overflow: 'auto'}}></div>
 
-  var cells = [];
-  var heights = [];
-  var widths = [options.namecol_width ? options.namecol_width + 'px' : undefined];
-  df.fields[0].values.toArray().forEach(function (f) {
-    widths.push(options.valcol_width ? options.valcol_width + 'px' : undefined);
+  var widths = Array(df.fields[0].values.length + 1);
+  widths[0] = options.namecol_width ? options.namecol_width + 'px' : undefined;
+  widths.fill(options.valcol_width ? options.valcol_width + 'px' : undefined, 1);
+  var rows = df.fields.map(function (f, i) {
+    return create_row(f, df, options, i == 0 && options.first_field_is_header);
   });
-  df.fields.forEach(function (f, i) {
-    var row = create_row(f, df, options, i == 0 && options.first_field_is_header);
-    heights.push(row.height);
-    cells = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(cells, [row.cells]);
-  });
-  /*
-  const g = create_group('Fofofo', df.fields.slice(0, 10), df, options);
-  g.forEach(e => {
-    heights.push(e.height);
-    cells = [...cells, e.cells];
-  })
-  */
-
+  var g = create_group('Fofofo', df.fields.slice(0, 10), df, options);
+  var allrows = rows.concat(g);
   return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(VTableCore, {
     height: height,
     width: width,
-    heights: heights,
     widths: widths
-  }, cells);
+  }, allrows);
 }
 ;
 var STYLES = {
