@@ -7,6 +7,27 @@ export interface CustomFieldConfig {
 }
 
 export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
+    .setPanelOptions((builder) => {
+        builder
+            .addNumberInput({
+                path: 'namecol_width',
+                name: 'Name column width',
+            })
+            .addNumberInput({
+                path: 'valcol_width',
+                name: 'Values columns width',
+            })
+            .addBooleanSwitch({
+                path: 'first_field_is_header',
+                name: 'First field is header',
+                defaultValue: false,
+            })
+            .addBooleanSwitch({
+                path: 'is_horizontal',
+                name: 'Layout horizontally',
+                defaultValue: false,
+            })
+    })
     .useFieldConfig({
         useCustomConfig: (builder) => {
             builder

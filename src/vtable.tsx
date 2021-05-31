@@ -16,6 +16,8 @@ const defaultGaugeScale: ThresholdsConfig = {
   ]
 };
 
+const HEADER_BG = 'rgb(32, 34, 38)';
+
 interface Props extends PanelProps<VTableOptions> {
 }
 
@@ -34,8 +36,146 @@ interface VTableCellProps {
   show_unit: boolean;
   use_inputs: boolean;
   is_header?: boolean;
+  styles: any;
 }
 
+function get_styles(options) {
+
+  const namecol_size = options.namecol_width ? options.namecol_width + 'px' : 'max-content';
+  const valcol_size = options.valcol_width ? options.valcol_width + 'px' : 'max-content';
+
+
+  const styles = ! options.is_horizontal ?
+  {
+    table: css`
+    {
+      display: grid;
+      grid-template-columns: ${namecol_size} repeat(${options.nvalues}, ${valcol_size});
+      grid-auto-rows: 32px;
+      height: ${options.height}px;
+      width: ${options.width}px;
+      overflow: auto;
+    }`,
+    corner: css`
+    {
+        position: sticky;
+        left: 0;
+        top: 0;
+        z-index: 1;
+        background-color: ${HEADER_BG};
+        border-bottom: 1px solid black;
+        border-right: 1px solid black;
+        color: #33a2e5;
+        padding: 4px;
+    }`,
+    namecol: css`
+    {
+      position: sticky;
+      left: 0;
+      border-right: 1px solid black;
+      background-color: ${HEADER_BG};
+      color: #33a2e5;
+      padding: 4px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      /* grid-column: 1 / -1; this is fantastic option but should be debugged */
+    }`,
+    header: css`
+    {
+      position: sticky;
+      top: 0;
+      border-bottom: 1px solid black;
+      background-color: ${HEADER_BG};
+      color: #33a2e5;
+      text-align: right;
+      padding: 4px;
+    }
+    `,
+    valcol: css`
+    {
+      text-align: right;
+      padding: 4px;
+    }
+    `,
+    unitcol: css`
+    {
+
+    }
+    `,
+    input: css`
+    {
+      margin: 4px;
+      width: 64px;
+    }
+    `
+  } :
+  // horizontal
+  {
+    table: css`
+    {
+      display: grid;
+      grid-template-columns: repeat(${options.nfields}, ${valcol_size});
+      grid-template-rows: ${namecol_size} repeat(${options.nvalues}, 32px);
+      grid-auto-flow: column;
+      height: ${options.height}px;
+      width: ${options.width}px;
+      overflow: auto;
+    }`,
+    corner: css`
+    {
+        position: sticky;
+        left: 0;
+        top: 0;
+        z-index: 1;
+        background-color: ${HEADER_BG};
+        border-bottom: 1px solid black;
+        border-right: 1px solid black;
+        color: #33a2e5;
+        padding: 4px;
+    }`,
+    namecol: css`
+    {
+      position: sticky;
+      top: 0;
+      border-bottom: 1px solid black;
+      background-color: ${HEADER_BG};
+      color: #33a2e5;
+      text-align: right;
+      padding: 4px;
+    }`,
+    header: css`
+    {
+      position: sticky;
+      left: 0;
+      border-right: 1px solid black;
+      background-color: ${HEADER_BG};
+      color: #33a2e5;
+      text-align: left;
+      padding: 4px;
+    }
+    `,
+    valcol: css`
+    {
+      text-align: right;
+      padding: 4px;
+    }
+    `,
+    unitcol: css`
+    {
+
+    }
+    `,
+    input: css`
+    {
+      margin: 4px;
+      width: 64px;
+    }
+    `
+  }
+
+  return styles;
+}
 
 function VTableGaugeValsRow({ field, values, show_unit }: VTableCellProps) {
 
@@ -55,10 +195,9 @@ function VTableGaugeValsRow({ field, values, show_unit }: VTableCellProps) {
       dv = { ...dv, suffix: null };
 
     return (
-      <td key={i}>
-        <BarGauge width={200} field={config} value={dv} theme={theme} orientation={VizOrientation.Horizontal} text={{ valueSize: 14 }}
+        <BarGauge key={i} width={200} field={config} value={dv} theme={theme} orientation={VizOrientation.Horizontal} text={{ valueSize: 14 }}
           displayMode={BarGaugeDisplayMode.Gradient} />
-      </td>
+
     )
   })
 
@@ -103,7 +242,7 @@ function hack_presentation(field, v, text) {
   return text;
 }
 
-function VTableSimpleValsRow({ field, values, show_unit, use_inputs, is_header }: VTableCellProps) {
+function VTableSimpleValsRow({ field, values, show_unit, use_inputs, is_header, styles }: VTableCellProps) {
 
   let row;
 
@@ -139,9 +278,10 @@ interface VTableRowProps {
   df: DataFrame;
   use_inputs: boolean;
   is_header?: boolean;
+  styles: any;
 }
 
-function VTableRow({ field, df, use_inputs, is_header }: VTableRowProps) {
+function VTableRow({ field, df, use_inputs, is_header, styles }: VTableRowProps) {
 
   const field_name = getFieldDisplayName(field, df);
   let unit = field.config?.unit;
@@ -155,10 +295,12 @@ function VTableRow({ field, df, use_inputs, is_header }: VTableRowProps) {
       <span className={!is_header ? styles.namecol: styles.corner}>{field_name}{unit ? `, ${unit}` : ''}</span>
       { use_gauge ?
         <VTableGaugeValsRow field={field} values={field.values} show_unit={false}
+        styles={styles}
         use_inputs={use_inputs}
         />
         :
         <VTableSimpleValsRow field={field} values={field.values} show_unit={false}
+        styles={styles}
         use_inputs={use_inputs}
         is_header={is_header}/>
       }
@@ -167,7 +309,7 @@ function VTableRow({ field, df, use_inputs, is_header }: VTableRowProps) {
 }
 
 
-export function VTable({ data, width, height }: Props) {
+export function VTable({ data, options, height, width, onOptionsChange }: Props) {
   const count = data.series?.length;
   const df = data.series[0];
 
@@ -176,38 +318,25 @@ export function VTable({ data, width, height }: Props) {
   // TBD: add some memoization ?
 
   const [show_inputs, set_show_inputs] = React.useState(false);
-  const [is_horizontal, set_is_horizontal] = React.useState(false);
 
   const toggle_inputs = () => {
     set_show_inputs(!show_inputs);
   }
 
   const toggle_is_horizontal = () => {
-    set_is_horizontal(!is_horizontal);
+    onOptionsChange({...options, is_horizontal: !options.is_horizontal});
   }
 
   if (!count || !has_fields)
     return <div>No data</div>;
 
-  const table_style = ! is_horizontal ?  css`
-  {
-    display: grid;
-    grid-template-columns: 128px repeat(${df.fields[0].values.length}, 1fr);
-    grid-template-rows: repeat(${df.fields.length}, 32px);
-    width: ${width}px;
-    height: ${height - 32}px;
-    overflow: auto;
-  }`:
-  css`{
-    display: grid;
-    grid-template-columns: repeat(${df.fields.length}, 120px);
-    grid-template-rows: 128px repeat(${df.fields[0].values.length}, 32px);
-    grid-auto-flow: column;
-    width: ${width}px;
-    height: ${height - 32}px;
-    overflow: auto;
-  }`;
-
+  const styles = get_styles(
+      {is_horizontal:options.is_horizontal, nfields:df.fields.length, nvalues:df.fields[0].values.length, namecol_width: options.namecol_width,
+        height: height - 32,
+        width: width,
+        valcol_width: options.valcol_width
+      }
+  )
 
   //grid-auto-flow: row;
 
@@ -217,72 +346,17 @@ export function VTable({ data, width, height }: Props) {
 
   return (
     <>
-    <div>
-      <Button onClick={toggle_inputs}> Toggle !</Button>
-      <Button onClick={toggle_is_horizontal}> H/V !</Button>
+      <div>
+        <Button onClick={toggle_inputs}> Toggle !</Button>
+        <Button onClick={toggle_is_horizontal}> H/V !</Button>
 
-    </div>
-      <div className={table_style}>
-          {df.fields.map((field, i) =>
-          <VTableRow key={field.name} field={field} df={df}
-          use_inputs={show_inputs} is_header={! i}
-          />)}
-    </div>
+      </div>
+        <div className={styles.table}>
+            {df.fields.map((field, i) =>
+            <VTableRow key={field.name} field={field} df={df} styles={styles}
+            use_inputs={show_inputs} is_header={options.first_field_is_header && i == 0}
+            />)}
+        </div>
     </>
   )
-};
-
-// TODO: add sticky ?
-// style this
-const styles = {
-  table: css`
-  {
-    display: grid;
-    grid-template-columns: repeat(31, 1fr);
-  }`,
-  corner: css`
-  {
-      position: sticky;
-      left: 0;
-      top: 0;
-      z-index: 1;
-      background-color: #141619;
-      color: #33a2e5;
-  }`,
-  namecol: css`
-  {
-    position: sticky;
-    left: 0;
-    border-right: 1px solid black;
-    background-color: #141619;
-    color: #33a2e5;
-    padding: 4px;
-  }`,
-  header: css`
-  {
-    position: sticky;
-    top: 0;
-    border-bottom: 1px solid black;
-    background-color: #141619;
-    color: #33a2e5;
-    padding: 4px;
-  }
-  `,
-  valcol: css`
-  {
-    text-align: right;
-    padding: 4px;
-  }
-  `,
-  unitcol: css`
-  {
-
-  }
-  `,
-  input: css`
-  {
-    margin: 4px;
-    width: 64px;
-  }
-  `
 };
