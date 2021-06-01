@@ -17,15 +17,42 @@ export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
                 path: 'valcol_width',
                 name: 'Values columns width',
             })
-            .addBooleanSwitch({
-                path: 'first_field_is_header',
-                name: 'First field is header',
-                defaultValue: false,
+            .addRadio({
+                path: 'show_header',
+                name: 'Show header',
+                defaultValue: 'off',
+                settings: {
+                    options: [
+                        {value: 'firstfield', label: 'First field'},
+                        {value: 'off', label: 'No'},
+                        {value: 'custom', label: 'Custom header'},
+                    ]
+                }
+            })
+            .addTextInput({
+                path: 'custom_header',
+                name: 'Comma-separated custom header',
             })
             .addBooleanSwitch({
                 path: 'is_horizontal',
                 name: 'Layout horizontally',
                 defaultValue: false,
+            })
+            .addRadio({
+                path: 'show_unit',
+                name: 'Show unit',
+                settings: {
+                    options: [
+                        {value: 'name', label: 'Next to name'},
+                        {value: 'eachcol', label: 'Each column'},
+                        {value: 'off', label: 'No'},
+                    ]
+                },
+                defaultValue: 'name'
+            })
+            .addTextInput({
+                path: 'group_by_label',
+                name: 'Group by label',
             })
     })
     .useFieldConfig({
@@ -40,9 +67,9 @@ export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
                             { value: 'auto', label: 'Auto' },
                             { value: 'fg', label: 'Color text' },
                             { value: 'bg', label: 'Color background' },
-                            { value: 'gradient', label: 'Gradient gauge' },
                         ],
                     },
+                    defaultValue: 'auto'
                 })
         }
     }
