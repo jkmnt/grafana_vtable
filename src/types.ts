@@ -1,9 +1,8 @@
 export interface VTableOptions {
-    namecol_width?: number;
-    valcol_width?: number;
+    custom_widths?: string;
     show_header?: string;
     custom_header?: string;
     is_horizontal?: boolean;
-    show_unit?: string;
+    show_common_unit?: boolean;
     group_by_label?: string;
 }

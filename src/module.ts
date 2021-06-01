@@ -9,13 +9,10 @@ export interface CustomFieldConfig {
 export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
     .setPanelOptions((builder) => {
         builder
-            .addNumberInput({
-                path: 'namecol_width',
-                name: 'Name column width',
-            })
-            .addNumberInput({
-                path: 'valcol_width',
-                name: 'Values columns width',
+            .addTextInput({
+                path: 'custom_widths',
+                name: 'Column widths',
+                description: 'Comma-separated columns widths in px'
             })
             .addRadio({
                 path: 'show_header',
@@ -38,17 +35,10 @@ export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
                 name: 'Layout horizontally',
                 defaultValue: false,
             })
-            .addRadio({
-                path: 'show_unit',
-                name: 'Show unit',
-                settings: {
-                    options: [
-                        {value: 'name', label: 'Next to name'},
-                        {value: 'eachcol', label: 'Each column'},
-                        {value: 'off', label: 'No'},
-                    ]
-                },
-                defaultValue: 'name'
+            .addBooleanSwitch({
+                path: 'show_common_unit',
+                name: 'Show common unit',
+                defaultValue: true,
             })
             .addTextInput({
                 path: 'group_by_label',
