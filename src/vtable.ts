@@ -7,7 +7,7 @@ import { getTextColorForBackground, useTheme } from '@grafana/ui';
 import { getDisplayProcessor } from '@grafana/data';
 import moment from 'moment';
 
-var e = React.createElement;
+var rce = React.createElement;
 
 //const HEADER_BG = 'rgb(32, 34, 38)';
 const HEADER_BG = '#141619';
@@ -76,11 +76,12 @@ interface GridProps {
   nfields: number;
 
   rowmaker: any;
+  groupmaker: any;
 
-  first_value_is_category?: boolean;
+  firstcat?: boolean;
 }
 
-function Grid({ widths, height, width, horizontal, nrows, nfields, rowmaker, first_value_is_category}: GridProps) {
+function Grid({ widths, height, width, horizontal, nrows, nfields, rowmaker, firstcat}: GridProps) {
 
   var cells = [];
   var nvalues = 0;
@@ -100,15 +101,18 @@ function Grid({ widths, height, width, horizontal, nrows, nfields, rowmaker, fir
   }
 
   for (var i = 0; i < nfields; i++) {
-    const is_cat = first_value_is_category && i == 0;
+    const is_cat = firstcat && i == 0;
 
     const row = rowmaker(i, {
       styles: is_cat ? catstyle : plainstyle,
       header: is_cat
     })
 
-    cells.push(row.ncell)
-    cells.push(row.vcells);
+    cells.push(rce('div', {key:row.key, className: styles.namecell}, row.ncell));
+    row.vcells.forEach((c, i) => {
+      cells.push(rce('div', {key:row.key + '.' + i, className: styles.valcell}, c));
+    });
+
     // if (i == 0)
     nvalues = row.vcells.length;
   }
@@ -183,7 +187,7 @@ function Grid({ widths, height, width, horizontal, nrows, nfields, rowmaker, fir
   `;
 
 
-  return e('div', {className:style}, cells);
+  return rce('div', {className:style}, cells);
 }
 
 
@@ -197,7 +201,7 @@ function create_row({field, df, options, props}) {
     common_unit = undefined;
 
   const text = common_unit ? `${field_name}, ${common_unit}` : field_name;
-  const ncell = e('div', {key: field.name, className: props.styles.namecell}, text);
+  const ncell = rce('div', {key: field.name, className: props.styles.namecell}, text);
 
   if (! field.display)
     field.display = getDisplayProcessor({ field });
@@ -215,16 +219,16 @@ function create_row({field, df, options, props}) {
     const color = colorize_cell(field.config.custom?.display_mode, dv.color);
 
     text = hack_presentation(field, v, text);
-    const cell = e('div', {key:key, className: cx(color, props.styles.valcell)}, text);
+    const cell = rce('div', {key:key, className: cx(color, props.styles.valcell)}, text);
 
     vcells.push(cell);
   }
 
-  return {group:undefined, ncell, vcells}
+  return {key:field.name, group:undefined, ncell, vcells}
 }
 
 function create_group(name, fields, df, options) {
-  const groupcell = e('div', {key:'__group.' + name, className:options.style.groupcell}, name);
+  const groupcell = rce('div', {key:'__group.' + name, className:options.style.groupcell}, name);
   const cells = fields.map(f => create_row(f, df, options, false));
 
   return [groupcell, ...cells];
@@ -264,7 +268,7 @@ export function VTable({ data, options: opts, height, width }: Props) {
   const has_fields = df?.fields.length;
 
   if (!count || !has_fields)
-    return e('div', null, 'No data');
+    return rce('div', null, 'No data');
 
   const is_hor = opts.is_horizontal;
 
@@ -298,16 +302,16 @@ export function VTable({ data, options: opts, height, width }: Props) {
   }
   */
 
-  return e(Grid, {
+  return rce(Grid, {
     height,
     width,
     widths,
-    first_value_is_category: options.first_value_is_category,
+    firstcat: options.first_value_is_category,
     horizontal:is_hor,
     nrows:df.fields[0].values.length,
     nfields: df.fields.length,
-    rowmaker: (i, props) => create_row(
-      {field:df.fields[i], df, options, props})
+    rowmaker: (i, props) => create_row({field:df.fields[i], df, options, props}),
+    groupmaker: (name, props) => {}
     }
   )
 };

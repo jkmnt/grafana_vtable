@@ -429,7 +429,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var e = react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement; //const HEADER_BG = 'rgb(32, 34, 38)';
+var rce = react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement; //const HEADER_BG = 'rgb(32, 34, 38)';
 
 var HEADER_BG = '#141619';
 var BORDER_BG = "rgb(44, 50, 53)";
@@ -480,7 +480,7 @@ function Grid(_a) {
       nrows = _a.nrows,
       nfields = _a.nfields,
       rowmaker = _a.rowmaker,
-      first_value_is_category = _a.first_value_is_category;
+      firstcat = _a.firstcat;
   var cells = [];
   var nvalues = 0; // ok, should we groupby here ?
 
@@ -494,16 +494,28 @@ function Grid(_a) {
     valcell: styles.valcell
   };
 
-  for (var i = 0; i < nfields; i++) {
-    var is_cat = first_value_is_category && i == 0;
+  var _loop_1 = function _loop_1() {
+    var is_cat = firstcat && i == 0;
     var row = rowmaker(i, {
       styles: is_cat ? catstyle : plainstyle,
       header: is_cat
     });
-    cells.push(row.ncell);
-    cells.push(row.vcells); // if (i == 0)
+    cells.push(rce('div', {
+      key: row.key,
+      className: styles.namecell
+    }, row.ncell));
+    row.vcells.forEach(function (c, i) {
+      cells.push(rce('div', {
+        key: row.key + '.' + i,
+        className: styles.valcell
+      }, c));
+    }); // if (i == 0)
 
     nvalues = row.vcells.length;
+  };
+
+  for (var i = 0; i < nfields; i++) {
+    _loop_1();
   } // compose heights
   // XXX: custom widths are disabled now
   // const gtc = widths.map(e => { return e ?? 'minmax(max-content, 1fr)' }).join(' ');
@@ -513,7 +525,7 @@ function Grid(_a) {
   var groupcorn = Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_5 || (templateObject_5 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      position: sticky;\n      top: 0;\n      left: 0;\n      grid-row: 1 / 2;\n      grid-column: 1 / 2;\n      text-align: center;\n      border-right: 1px solid ", ";\n      background-color: ", ";\n      padding: 8px;\n      z-index: 4;\n    }\n    "], ["\n    {\n      position: sticky;\n      top: 0;\n      left: 0;\n      grid-row: 1 / 2;\n      grid-column: 1 / 2;\n      text-align: center;\n      border-right: 1px solid ", ";\n      background-color: ", ";\n      padding: 8px;\n      z-index: 4;\n    }\n    "])), BORDER_BG, HEADER_BG);
   var group0 = Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_6 || (templateObject_6 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    position: sticky;\n    top: 0;\n    grid-row: 1 / 2;\n    grid-column: 2 / 4;\n    text-align: center;\n    border-right: 1px solid ", ";\n    background-color: ", ";\n    padding: 8px;\n  }\n  "], ["\n  {\n    position: sticky;\n    top: 0;\n    grid-row: 1 / 2;\n    grid-column: 2 / 4;\n    text-align: center;\n    border-right: 1px solid ", ";\n    background-color: ", ";\n    padding: 8px;\n  }\n  "])), BORDER_BG, HEADER_BG);
   var group1 = Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_7 || (templateObject_7 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    position: sticky;\n    top: 0;\n    grid-row: 1 / 2;\n    grid-column: 4 / 7;\n    text-align: center;\n    border-right: 1px solid ", ";\n    background-color: ", ";\n    padding: 8px;\n  }\n  "], ["\n  {\n    position: sticky;\n    top: 0;\n    grid-row: 1 / 2;\n    grid-column: 4 / 7;\n    text-align: center;\n    border-right: 1px solid ", ";\n    background-color: ", ";\n    padding: 8px;\n  }\n  "])), BORDER_BG, HEADER_BG);
-  return e('div', {
+  return rce('div', {
     className: style
   }, cells);
 }
@@ -530,7 +542,7 @@ function create_row(_a) {
   var common_unit = options.show_common_unit && ((_b = field.config) === null || _b === void 0 ? void 0 : _b.unit);
   if (common_unit == 'none') common_unit = undefined;
   var text = common_unit ? field_name + ", " + common_unit : field_name;
-  var ncell = e('div', {
+  var ncell = rce('div', {
     key: field.name,
     className: props.styles.namecell
   }, text);
@@ -546,7 +558,7 @@ function create_row(_a) {
     var text_1 = options.show_common_unit ? dv.text : Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["formattedValueToString"])(dv);
     var color = colorize_cell((_c = field.config.custom) === null || _c === void 0 ? void 0 : _c.display_mode, dv.color);
     text_1 = hack_presentation(field, v, text_1);
-    var cell = e('div', {
+    var cell = rce('div', {
       key: key,
       className: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["cx"])(color, props.styles.valcell)
     }, text_1);
@@ -554,6 +566,7 @@ function create_row(_a) {
   }
 
   return {
+    key: field.name,
     group: undefined,
     ncell: ncell,
     vcells: vcells
@@ -561,7 +574,7 @@ function create_row(_a) {
 }
 
 function create_group(name, fields, df, options) {
-  var groupcell = e('div', {
+  var groupcell = rce('div', {
     key: '__group.' + name,
     className: options.style.groupcell
   }, name);
@@ -609,7 +622,7 @@ function VTable(_a) {
   var count = (_b = data.series) === null || _b === void 0 ? void 0 : _b.length;
   var df = data.series[0];
   var has_fields = df === null || df === void 0 ? void 0 : df.fields.length;
-  if (!count || !has_fields) return e('div', null, 'No data');
+  if (!count || !has_fields) return rce('div', null, 'No data');
   var is_hor = opts.is_horizontal;
 
   var options = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])(Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({}, opts), {
@@ -642,11 +655,11 @@ function VTable(_a) {
   }
   */
 
-  return e(Grid, {
+  return rce(Grid, {
     height: height,
     width: width,
     widths: widths,
-    first_value_is_category: options.first_value_is_category,
+    firstcat: options.first_value_is_category,
     horizontal: is_hor,
     nrows: df.fields[0].values.length,
     nfields: df.fields.length,
@@ -657,7 +670,8 @@ function VTable(_a) {
         options: options,
         props: props
       });
-    }
+    },
+    groupmaker: function groupmaker(name, props) {}
   });
 }
 ;
