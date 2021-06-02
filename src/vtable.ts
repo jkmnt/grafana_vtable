@@ -25,8 +25,6 @@ function colorize_cell(mode: string, color: string) {
 }
 
 
-
-
 // temporary hacks here just for test
 function hack_presentation(field, v, text) {
   if (!field.config.pr || field.config.pr == 'number')
@@ -75,20 +73,58 @@ interface GridProps {
 
   nrows?: number;
 
-  cells: any[];
+  nfields: number;
+
+  rowmaker: any;
+
+  first_value_is_category?: boolean;
 }
 
-function Grid({ widths, height, width, cells, horizontal, nrows }: GridProps) {
+function Grid({ widths, height, width, horizontal, nrows, nfields, rowmaker, first_value_is_category}: GridProps) {
+
+  var cells = [];
+  var nvalues = 0;
+
+  // ok, should we groupby here ?
+
+  const styles = get_vstyles()
+
+  const catstyle = {
+    namecell: styles.corner,
+    valcell: styles.headercell,
+  };
+
+  const plainstyle = {
+    namecell: styles.namecell,
+    valcell: styles.valcell,
+  }
+
+  for (var i = 0; i < nfields; i++) {
+    const is_cat = first_value_is_category && i == 0;
+
+    const row = rowmaker(i, {
+      styles: is_cat ? catstyle : plainstyle,
+      header: is_cat
+    })
+
+    cells.push(row.ncell)
+    cells.push(row.vcells);
+    // if (i == 0)
+    nvalues = row.vcells.length;
+  }
 
   // compose heights
-  const gtc = widths.map(e => { return e ?? 'minmax(max-content, 1fr)' }).join(' ');
+
+  // XXX: custom widths are disabled now
+
+  // const gtc = widths.map(e => { return e ?? 'minmax(max-content, 1fr)' }).join(' ');
 
   const style = ! horizontal ?
     css`
     {
       display: grid;
-      grid-template-columns: ${gtc};
-      grid-auto-rows: minmax(max-content, 40px);
+      grid-template-columns: minmax(max-content, 1fr) repeat(${nvalues}, minmax(max-content, 1fr));
+      grid-template-rows: repeat(${nfields}, minmax(max-content, 40px));
       height: ${height ? height + 'px' : '100%'};
       width: ${width ? width + 'px' : '100%'};
       overflow: auto;
@@ -146,24 +182,22 @@ function Grid({ widths, height, width, cells, horizontal, nrows }: GridProps) {
   }
   `;
 
+
   return e('div', {className:style}, cells);
 }
 
 
-function create_row(field, df, options, is_header) {
+function create_row({field, df, options, props}) {
 
-  const cells = [];
+  const vcells = [];
 
   const field_name = getFieldDisplayName(field, df);
   let common_unit = options.show_common_unit && field.config?.unit;
   if (common_unit == 'none')
     common_unit = undefined;
 
-  const style = is_header ? options.style.corner : options.style.namecell;
   const text = common_unit ? `${field_name}, ${common_unit}` : field_name;
-  const namecell = e('div', {key: field.name, className: style}, text);
-
-  cells.push(namecell);
+  const ncell = e('div', {key: field.name, className: props.styles.namecell}, text);
 
   if (! field.display)
     field.display = getDisplayProcessor({ field });
@@ -181,13 +215,12 @@ function create_row(field, df, options, is_header) {
     const color = colorize_cell(field.config.custom?.display_mode, dv.color);
 
     text = hack_presentation(field, v, text);
-    const style = is_header ? options.style.headercell : cx(color, options.style.valcell);
-    const cell = e('div', {key:key, className: style}, text);
+    const cell = e('div', {key:key, className: cx(color, props.styles.valcell)}, text);
 
-    cells.push(cell);
+    vcells.push(cell);
   }
 
-  return cells;
+  return {group:undefined, ncell, vcells}
 }
 
 function create_group(name, fields, df, options) {
@@ -254,36 +287,29 @@ export function VTable({ data, options: opts, height, width }: Props) {
 
   console.log('here');
 
-  let fields = df.fields;
-  let cells = [];
-
-  if (options.first_value_is_category) {
-    cells.push(create_row(fields[0], df, options, true));
-    fields = fields.slice(1);
-  }
-
-  // ok, grouping here
+    // ok, grouping here
   const label = options.group_by_label;
 
-  if (label) {
+  /*
+  if (false && label) {
     cells.push(
       create_groups(fields, df, options, label)
     );
   }
-  else {
-      cells.push(
-        fields.map(f => create_row(f, df, options, false))
-      )
-  }
+  */
 
   return e(Grid, {
     height,
     width,
     widths,
+    first_value_is_category: options.first_value_is_category,
     horizontal:is_hor,
     nrows:df.fields[0].values.length,
-    cells: cells,
-    })
+    nfields: df.fields.length,
+    rowmaker: (i, props) => create_row(
+      {field:df.fields[i], df, options, props})
+    }
+  )
 };
 
 

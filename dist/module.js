@@ -476,14 +476,40 @@ function Grid(_a) {
   var widths = _a.widths,
       height = _a.height,
       width = _a.width,
-      cells = _a.cells,
       horizontal = _a.horizontal,
-      nrows = _a.nrows; // compose heights
+      nrows = _a.nrows,
+      nfields = _a.nfields,
+      rowmaker = _a.rowmaker,
+      first_value_is_category = _a.first_value_is_category;
+  var cells = [];
+  var nvalues = 0; // ok, should we groupby here ?
 
-  var gtc = widths.map(function (e) {
-    return e !== null && e !== void 0 ? e : 'minmax(max-content, 1fr)';
-  }).join(' ');
-  var style = !horizontal ? Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_3 || (templateObject_3 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      display: grid;\n      grid-template-columns: ", ";\n      grid-auto-rows: minmax(max-content, 40px);\n      height: ", ";\n      width: ", ";\n      overflow: auto;\n    }"], ["\n    {\n      display: grid;\n      grid-template-columns: ", ";\n      grid-auto-rows: minmax(max-content, 40px);\n      height: ", ";\n      width: ", ";\n      overflow: auto;\n    }"])), gtc, height ? height + 'px' : '100%', width ? width + 'px' : '100%') : Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_4 || (templateObject_4 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      display: grid;\n      grid-template-rows: 32px max-content repeat(", ", 1fr);\n      /* grid-auto-columns: minmax(max-content, 1fr); */\n      grid-auto-flow: column;\n      height: ", ";\n      width: ", ";\n      overflow: auto;\n    }"], ["\n    {\n      display: grid;\n      grid-template-rows: 32px max-content repeat(", ", 1fr);\n      /* grid-auto-columns: minmax(max-content, 1fr); */\n      grid-auto-flow: column;\n      height: ", ";\n      width: ", ";\n      overflow: auto;\n    }"])), nrows, height ? height + 'px' : '100%', width ? width + 'px' : '100%');
+  var styles = get_vstyles();
+  var catstyle = {
+    namecell: styles.corner,
+    valcell: styles.headercell
+  };
+  var plainstyle = {
+    namecell: styles.namecell,
+    valcell: styles.valcell
+  };
+
+  for (var i = 0; i < nfields; i++) {
+    var is_cat = first_value_is_category && i == 0;
+    var row = rowmaker(i, {
+      styles: is_cat ? catstyle : plainstyle,
+      header: is_cat
+    });
+    cells.push(row.ncell);
+    cells.push(row.vcells); // if (i == 0)
+
+    nvalues = row.vcells.length;
+  } // compose heights
+  // XXX: custom widths are disabled now
+  // const gtc = widths.map(e => { return e ?? 'minmax(max-content, 1fr)' }).join(' ');
+
+
+  var style = !horizontal ? Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_3 || (templateObject_3 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      display: grid;\n      grid-template-columns: minmax(max-content, 1fr) repeat(", ", minmax(max-content, 1fr));\n      grid-template-rows: repeat(", ", minmax(max-content, 40px));\n      height: ", ";\n      width: ", ";\n      overflow: auto;\n    }"], ["\n    {\n      display: grid;\n      grid-template-columns: minmax(max-content, 1fr) repeat(", ", minmax(max-content, 1fr));\n      grid-template-rows: repeat(", ", minmax(max-content, 40px));\n      height: ", ";\n      width: ", ";\n      overflow: auto;\n    }"])), nvalues, nfields, height ? height + 'px' : '100%', width ? width + 'px' : '100%') : Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_4 || (templateObject_4 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      display: grid;\n      grid-template-rows: 32px max-content repeat(", ", 1fr);\n      /* grid-auto-columns: minmax(max-content, 1fr); */\n      grid-auto-flow: column;\n      height: ", ";\n      width: ", ";\n      overflow: auto;\n    }"], ["\n    {\n      display: grid;\n      grid-template-rows: 32px max-content repeat(", ", 1fr);\n      /* grid-auto-columns: minmax(max-content, 1fr); */\n      grid-auto-flow: column;\n      height: ", ";\n      width: ", ";\n      overflow: auto;\n    }"])), nrows, height ? height + 'px' : '100%', width ? width + 'px' : '100%');
   var groupcorn = Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_5 || (templateObject_5 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      position: sticky;\n      top: 0;\n      left: 0;\n      grid-row: 1 / 2;\n      grid-column: 1 / 2;\n      text-align: center;\n      border-right: 1px solid ", ";\n      background-color: ", ";\n      padding: 8px;\n      z-index: 4;\n    }\n    "], ["\n    {\n      position: sticky;\n      top: 0;\n      left: 0;\n      grid-row: 1 / 2;\n      grid-column: 1 / 2;\n      text-align: center;\n      border-right: 1px solid ", ";\n      background-color: ", ";\n      padding: 8px;\n      z-index: 4;\n    }\n    "])), BORDER_BG, HEADER_BG);
   var group0 = Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_6 || (templateObject_6 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    position: sticky;\n    top: 0;\n    grid-row: 1 / 2;\n    grid-column: 2 / 4;\n    text-align: center;\n    border-right: 1px solid ", ";\n    background-color: ", ";\n    padding: 8px;\n  }\n  "], ["\n  {\n    position: sticky;\n    top: 0;\n    grid-row: 1 / 2;\n    grid-column: 2 / 4;\n    text-align: center;\n    border-right: 1px solid ", ";\n    background-color: ", ";\n    padding: 8px;\n  }\n  "])), BORDER_BG, HEADER_BG);
   var group1 = Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_7 || (templateObject_7 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    position: sticky;\n    top: 0;\n    grid-row: 1 / 2;\n    grid-column: 4 / 7;\n    text-align: center;\n    border-right: 1px solid ", ";\n    background-color: ", ";\n    padding: 8px;\n  }\n  "], ["\n  {\n    position: sticky;\n    top: 0;\n    grid-row: 1 / 2;\n    grid-column: 4 / 7;\n    text-align: center;\n    border-right: 1px solid ", ";\n    background-color: ", ";\n    padding: 8px;\n  }\n  "])), BORDER_BG, HEADER_BG);
@@ -492,20 +518,22 @@ function Grid(_a) {
   }, cells);
 }
 
-function create_row(field, df, options, is_header) {
-  var _a, _b;
+function create_row(_a) {
+  var _b, _c;
 
-  var cells = [];
+  var field = _a.field,
+      df = _a.df,
+      options = _a.options,
+      props = _a.props;
+  var vcells = [];
   var field_name = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getFieldDisplayName"])(field, df);
-  var common_unit = options.show_common_unit && ((_a = field.config) === null || _a === void 0 ? void 0 : _a.unit);
+  var common_unit = options.show_common_unit && ((_b = field.config) === null || _b === void 0 ? void 0 : _b.unit);
   if (common_unit == 'none') common_unit = undefined;
-  var style = is_header ? options.style.corner : options.style.namecell;
   var text = common_unit ? field_name + ", " + common_unit : field_name;
-  var namecell = e('div', {
+  var ncell = e('div', {
     key: field.name,
-    className: style
+    className: props.styles.namecell
   }, text);
-  cells.push(namecell);
   if (!field.display) field.display = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getDisplayProcessor"])({
     field: field
   });
@@ -516,17 +544,20 @@ function create_row(field, df, options, is_header) {
     if (v == null) v = undefined;
     var dv = field.display(v);
     var text_1 = options.show_common_unit ? dv.text : Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["formattedValueToString"])(dv);
-    var color = colorize_cell((_b = field.config.custom) === null || _b === void 0 ? void 0 : _b.display_mode, dv.color);
+    var color = colorize_cell((_c = field.config.custom) === null || _c === void 0 ? void 0 : _c.display_mode, dv.color);
     text_1 = hack_presentation(field, v, text_1);
-    var style_1 = is_header ? options.style.headercell : Object(emotion__WEBPACK_IMPORTED_MODULE_3__["cx"])(color, options.style.valcell);
     var cell = e('div', {
       key: key,
-      className: style_1
+      className: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["cx"])(color, props.styles.valcell)
     }, text_1);
-    cells.push(cell);
+    vcells.push(cell);
   }
 
-  return cells;
+  return {
+    group: undefined,
+    ncell: ncell,
+    vcells: vcells
+  };
 }
 
 function create_group(name, fields, df, options) {
@@ -600,33 +631,33 @@ function VTable(_a) {
     });
   }
 
-  console.log('here');
-  var fields = df.fields;
-  var cells = [];
-
-  if (options.first_value_is_category) {
-    cells.push(create_row(fields[0], df, options, true));
-    fields = fields.slice(1);
-  } // ok, grouping here
-
+  console.log('here'); // ok, grouping here
 
   var label = options.group_by_label;
-
-  if (label) {
-    cells.push(create_groups(fields, df, options, label));
-  } else {
-    cells.push(fields.map(function (f) {
-      return create_row(f, df, options, false);
-    }));
+  /*
+  if (false && label) {
+    cells.push(
+      create_groups(fields, df, options, label)
+    );
   }
+  */
 
   return e(Grid, {
     height: height,
     width: width,
     widths: widths,
+    first_value_is_category: options.first_value_is_category,
     horizontal: is_hor,
     nrows: df.fields[0].values.length,
-    cells: cells
+    nfields: df.fields.length,
+    rowmaker: function rowmaker(i, props) {
+      return create_row({
+        field: df.fields[i],
+        df: df,
+        options: options,
+        props: props
+      });
+    }
   });
 }
 ;
