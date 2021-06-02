@@ -7,6 +7,8 @@ import { getTextColorForBackground, useTheme } from '@grafana/ui';
 import { getDisplayProcessor } from '@grafana/data';
 import moment from 'moment';
 
+var e = React.createElement;
+
 //const HEADER_BG = 'rgb(32, 34, 38)';
 const HEADER_BG = '#141619';
 const BORDER_BG = `rgb(44, 50, 53)`
@@ -73,10 +75,10 @@ interface GridProps {
 
   nrows?: number;
 
-  children: any[];
+  cells: any[];
 }
 
-function Grid({ widths, height, width, children, horizontal, nrows }: GridProps) {
+function Grid({ widths, height, width, cells, horizontal, nrows }: GridProps) {
 
   // compose heights
   const gtc = widths.map(e => { return e ?? 'minmax(max-content, 1fr)' }).join(' ');
@@ -95,18 +97,56 @@ function Grid({ widths, height, width, children, horizontal, nrows }: GridProps)
     css`
     {
       display: grid;
-      grid-template-rows: max-content repeat(${nrows}, 1fr);
-      grid-auto-rows: max-content;
+      grid-template-rows: 32px max-content repeat(${nrows}, 1fr);
+      /* grid-auto-columns: minmax(max-content, 1fr); */
       grid-auto-flow: column;
       height: ${height ? height + 'px' : '100%'};
       width: ${width ? width + 'px' : '100%'};
       overflow: auto;
     }`
 
-  return (
-    <div className={style}>
-      {children}
-    </div>)
+  const groupcorn = css`
+    {
+      position: sticky;
+      top: 0;
+      left: 0;
+      grid-row: 1 / 2;
+      grid-column: 1 / 2;
+      text-align: center;
+      border-right: 1px solid ${BORDER_BG};
+      background-color: ${HEADER_BG};
+      padding: 8px;
+      z-index: 4;
+    }
+    `;
+
+  const group0 = css`
+  {
+    position: sticky;
+    top: 0;
+    grid-row: 1 / 2;
+    grid-column: 2 / 4;
+    text-align: center;
+    border-right: 1px solid ${BORDER_BG};
+    background-color: ${HEADER_BG};
+    padding: 8px;
+  }
+  `;
+
+  const group1 = css`
+  {
+    position: sticky;
+    top: 0;
+    grid-row: 1 / 2;
+    grid-column: 4 / 7;
+    text-align: center;
+    border-right: 1px solid ${BORDER_BG};
+    background-color: ${HEADER_BG};
+    padding: 8px;
+  }
+  `;
+
+  return e('div', {className:style}, cells);
 }
 
 
@@ -121,7 +161,7 @@ function create_row(field, df, options, is_header) {
 
   const style = is_header ? options.style.corner : options.style.namecell;
   const text = common_unit ? `${field_name}, ${common_unit}` : field_name;
-  const namecell = <div key={field.name} className={style}>{text}</div>
+  const namecell = e('div', {key: field.name, className: style}, text);
 
   cells.push(namecell);
 
@@ -142,7 +182,7 @@ function create_row(field, df, options, is_header) {
 
     text = hack_presentation(field, v, text);
     const style = is_header ? options.style.headercell : cx(color, options.style.valcell);
-    const cell = <div key={key} className={style}>{text}</div>;
+    const cell = e('div', {key:key, className: style}, text);
 
     cells.push(cell);
   }
@@ -151,28 +191,12 @@ function create_row(field, df, options, is_header) {
 }
 
 function create_group(name, fields, df, options) {
-  const groupcell = <div key={'__group.' + name} className={options.style.groupcell}>{name}</div>;
+  const groupcell = e('div', {key:'__group.' + name, className:options.style.groupcell}, name);
   const cells = fields.map(f => create_row(f, df, options, false));
 
   return [groupcell, ...cells];
 }
 
-function create_custom_header(str: string, nfields: number, options) {
-
-  // trim if extra fields supplied
-  const names = str.split(';').map(s => s.trim()).slice(0, nfields);
-
-  const cells = names.map((c, i) => {
-    const style = i == 0  ? options.style.corner : options.style.headercell;
-    return <div key={'__custom_header.' + i} className={style}>{c}</div>;
-  })
-
-  // tail if unsufficient strings supplied
-  for (var i = cells.length; i < nfields; i++)
-    cells.push(<div key={'__custom_header.' + i} className={options.style.headercell}></div>);
-
-  return cells;
-}
 
 // ugly, but at least extracted here from the main flow
 function create_groups(fields, df, options, label) {
@@ -207,7 +231,7 @@ export function VTable({ data, options: opts, height, width }: Props) {
   const has_fields = df?.fields.length;
 
   if (!count || !has_fields)
-    return <div>No data</div>;
+    return e('div', null, 'No data');
 
   const is_hor = opts.is_horizontal;
 
@@ -233,10 +257,7 @@ export function VTable({ data, options: opts, height, width }: Props) {
   let fields = df.fields;
   let cells = [];
 
-  if (options.show_header == 'custom' && options.custom_header) {
-    cells.push(create_custom_header(options.custom_header, widths.length, options));
-  }
-  else if (options.show_header == 'firstfield') {
+  if (options.first_value_is_category) {
     cells.push(create_row(fields[0], df, options, true));
     fields = fields.slice(1);
   }
@@ -255,15 +276,14 @@ export function VTable({ data, options: opts, height, width }: Props) {
       )
   }
 
-  return (<Grid
-    height={height}
-    width={width}
-    widths={widths}
-    horizontal={is_hor}
-    nrows={df.fields[0].values.length}
-  >
-    {cells}
-  </Grid>)
+  return e(Grid, {
+    height,
+    width,
+    widths,
+    horizontal:is_hor,
+    nrows:df.fields[0].values.length,
+    cells: cells,
+    })
 };
 
 
@@ -345,7 +365,7 @@ function get_hstyles() {
     {
         position: sticky;
         left: 0;
-        top: 0;
+        top: 32px;
         z-index: 2;
         background-color: ${HEADER_BG};
         border-bottom: 1px solid ${BORDER_BG};
@@ -360,7 +380,7 @@ function get_hstyles() {
     namecell: css`
     {
       position: sticky;
-      top: 0;
+      top: 32px;
       /* border-right: 1px solid ${BORDER_BG}; */
       border-bottom: 1px solid ${BORDER_BG};
       background-color: ${HEADER_BG};

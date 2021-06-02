@@ -14,21 +14,10 @@ export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
                 name: 'Column widths',
                 description: 'Comma-separated columns widths in px'
             })
-            .addRadio({
-                path: 'show_header',
-                name: 'Show header',
-                defaultValue: 'off',
-                settings: {
-                    options: [
-                        {value: 'firstfield', label: 'First field'},
-                        {value: 'off', label: 'No'},
-                        {value: 'custom', label: 'Custom header'},
-                    ]
-                }
-            })
-            .addTextInput({
-                path: 'custom_header',
-                name: 'Comma-separated custom header',
+            .addBooleanSwitch({
+                path: 'first_value_is_category',
+                name: 'First value is category',
+                defaultValue: true,
             })
             .addBooleanSwitch({
                 path: 'is_horizontal',
