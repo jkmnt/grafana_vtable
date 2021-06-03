@@ -166,6 +166,10 @@ function extract_groups(fields, df, options, label) : GridGroup[] {
   return [{label: undefined, fields:ungrouped.map(f => create_field(f, df, options))}, ...grouped]
 }
 
+function parse_sizes(str: string) {
+  return str.split(';').map(f => Number.parseInt(f) || 0)
+}
+
 export function VTable({ data, options: opts, height, width }: Props) {
   const count = data.series?.length;
   const df = data.series[0];
@@ -179,20 +183,7 @@ export function VTable({ data, options: opts, height, width }: Props) {
 
   const options = {...opts, style: is_hor ? get_hstyles() : get_vstyles()}
 
-  let widths;
-
-  widths = Array(df.fields[0].values.length + 1);
-
-  widths.fill(undefined);
-  const custom_widths = options.custom_widths?.split(';').map(f => f.trim()) ?? [];
-
-  if (custom_widths.length) {
-    const cwl = custom_widths.length;
-    widths = widths.map((_, i) => {
-      const cw = Number.parseInt(custom_widths[(i < cwl) ? i : (cwl - 1)]);
-      return (Number.isFinite(cw) && cw) ? cw + 'px' : undefined;
-    })
-  }
+  const colws = options.custom_widths ? parse_sizes(options.custom_widths) : undefined
 
   console.log('here');
 
@@ -221,8 +212,8 @@ export function VTable({ data, options: opts, height, width }: Props) {
   return rce(options.is_horizontal ? HGrid : VGrid, {
     height,
     width,
-    widths,
     groups,
+    colws,
   })
 };
 

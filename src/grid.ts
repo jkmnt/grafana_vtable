@@ -10,19 +10,36 @@ export interface GridGroup {
 }
 
 export interface GridProps {
-    widths: string[];
+    colws?: number[];
+    rowhs?: number[];
+
     height?: number;
     width?: number;
 
     groups: GridGroup[];
 }
 
+function calc_sizes(spec: number[], n: number, defsize: string) {
+    const sizes = Array(n).fill(defsize)
+    if (! (spec && spec.length))
+        return sizes;
+
+    const sl = spec.length;
+    for (var i = 0; i < n; i++) {
+        const v = spec[i < sl ? i : (sl - 1)];
+        if (v && v > 0)
+            sizes[i] = v + 'px';
+    }
+
+    return sizes;
+}
 
 export function VGrid(props: GridProps) {
-    const { widths, height, width, groups} = props;
+    const groups = props.groups;
 
-    var cells: React.ReactNode[] = [];
-    const ncols = (groups.length ? groups[0].fields[0].values.length : 0);
+    const cells: React.ReactNode[] = [];
+    const ncols = groups.find(g => g.fields.length)?.fields[0].values.length ?? 0;
+    let nrows = 0;
 
     groups.forEach(g => {
         // NOTE: justify-self is for the [likely to be used] sticky to work
@@ -31,16 +48,18 @@ export function VGrid(props: GridProps) {
             cells.push(React.cloneElement(g.label, {style: new_style}));
         }
         g.fields.forEach(f => cells.push(...f.values))
+        nrows += g.fields.length;
     })
 
-    // XXX: custom widths are disabled now
-    // const gtc = widths.map(e => { return e ?? 'minmax(max-content, 1fr)' }).join(' ');
+    const gtcs = calc_sizes(props.colws, ncols, 'minmax(max-content, 1fr)')
+    const gtrs = calc_sizes(props.rowhs, nrows, 'max-content')
+
     const style = {
         'display': 'grid',
-        'grid-template-columns': `repeat(${ncols}, minmax(max-content, 1fr))`,
-        'grid-auto-rows': 'max-content',
-        'height': `${height ? height + 'px' : '100%'}`,
-        'width': `${width ? width + 'px' : '100%'}`,
+        'grid-template-columns': gtcs.join(' '),
+        'grid-template-rows': gtrs.join(' '),
+        'height': `${props.height ? props.height + 'px' : '100%'}`,
+        'width': `${props.width ? props.width + 'px' : '100%'}`,
         'overflow': 'auto',
     }
 
@@ -49,18 +68,18 @@ export function VGrid(props: GridProps) {
 
 
 export function HGrid(props: GridProps) {
-    const { widths, height, width, groups} = props;
+    const groups = props.groups;
 
-    var cells: React.ReactNode[] = [];
+    const cells: React.ReactNode[] = [];
 
-    const nrows = groups.length ? groups[0].fields[0].values.length : 0;
-    const anygroups = groups.find(g => g.label);
+    const any_labels = groups.find(g => g.label);
+    let nrows = groups.find(g => g.fields.length)?.fields[0].values.length ?? 0;
 
-    let col1 = 1;
+    // fixed layout all the groups label first, then let the cssgrid autolayout fields
+    if (any_labels) {
+        nrows += 1;
+        let col1 = 1;
 
-    if (anygroups)
-    {
-        // explicitly layout all the groups headers
         groups.forEach(g => {
             const new_style = {
                 'grid-row' : '1 / 2',
@@ -74,20 +93,23 @@ export function HGrid(props: GridProps) {
     }
 
     // TODO: some flatmap should be faster
+    let ncols = 0;  // this is needed for the widths only
+
     groups.forEach(g => {
-        g.fields.forEach(f => cells.push(...f.values))
+        g.fields.forEach(f => {cells.push(...f.values)})
+        ncols += g.fields.length;
     })
 
-    // XXX: custom widths are disabled now
-    // const gtc = widths.map(e => { return e ?? 'minmax(max-content, 1fr)' }).join(' ');
+    const gtcs = calc_sizes(props.colws, ncols, 'minmax(max-content, 1fr)');
+    const gtrs = calc_sizes(props.rowhs, nrows, 'max-content');
 
     const style = {
         'display': 'grid',
-        'grid-template-rows': `repeat(${(anygroups ? 1 : 0) + nrows}, max-content)`,
-        'grid-auto-columns': 'minmax(max-content, 1fr)',
+        'grid-template-columns': gtcs.join(' '),
+        'grid-template-rows': gtrs.join(' '),
         'grid-auto-flow': 'column',
-        'height': `${height ? height + 'px' : '100%'}`,
-        'width': `${width ? width + 'px' : '100%'}`,
+        'height': `${props.height ? props.height + 'px' : '100%'}`,
+        'width': `${props.width ? props.width + 'px' : '100%'}`,
         'overflow': 'auto',
     }
 

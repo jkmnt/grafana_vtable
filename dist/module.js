@@ -356,13 +356,29 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
 
 
+
+function calc_sizes(spec, n, defsize) {
+  var sizes = Array(n).fill(defsize);
+  if (!(spec && spec.length)) return sizes;
+  var sl = spec.length;
+
+  for (var i = 0; i < n; i++) {
+    var v = spec[i < sl ? i : sl - 1];
+    if (v && v > 0) sizes[i] = v + 'px';
+  }
+
+  return sizes;
+}
+
 function VGrid(props) {
-  var widths = props.widths,
-      height = props.height,
-      width = props.width,
-      groups = props.groups;
+  var _a, _b;
+
+  var groups = props.groups;
   var cells = [];
-  var ncols = groups.length ? groups[0].fields[0].values.length : 0;
+  var ncols = (_b = (_a = groups.find(function (g) {
+    return g.fields.length;
+  })) === null || _a === void 0 ? void 0 : _a.fields[0].values.length) !== null && _b !== void 0 ? _b : 0;
+  var nrows = 0;
   groups.forEach(function (g) {
     var _a; // NOTE: justify-self is for the [likely to be used] sticky to work
 
@@ -381,15 +397,16 @@ function VGrid(props) {
     g.fields.forEach(function (f) {
       return cells.push.apply(cells, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(f.values));
     });
-  }); // XXX: custom widths are disabled now
-  // const gtc = widths.map(e => { return e ?? 'minmax(max-content, 1fr)' }).join(' ');
-
+    nrows += g.fields.length;
+  });
+  var gtcs = calc_sizes(props.colws, ncols, 'minmax(max-content, 1fr)');
+  var gtrs = calc_sizes(props.rowhs, nrows, 'max-content');
   var style = {
     'display': 'grid',
-    'grid-template-columns': "repeat(" + ncols + ", minmax(max-content, 1fr))",
-    'grid-auto-rows': 'max-content',
-    'height': "" + (height ? height + 'px' : '100%'),
-    'width': "" + (width ? width + 'px' : '100%'),
+    'grid-template-columns': gtcs.join(' '),
+    'grid-template-rows': gtrs.join(' '),
+    'height': "" + (props.height ? props.height + 'px' : '100%'),
+    'width': "" + (props.width ? props.width + 'px' : '100%'),
     'overflow': 'auto'
   };
   return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement('div', {
@@ -397,25 +414,26 @@ function VGrid(props) {
   }, cells);
 }
 function HGrid(props) {
-  var widths = props.widths,
-      height = props.height,
-      width = props.width,
-      groups = props.groups;
+  var _a, _b;
+
+  var groups = props.groups;
   var cells = [];
-  var nrows = groups.length ? groups[0].fields[0].values.length : 0;
-  var anygroups = groups.find(function (g) {
+  var any_labels = groups.find(function (g) {
     return g.label;
   });
-  var col1 = 1;
+  var nrows = (_b = (_a = groups.find(function (g) {
+    return g.fields.length;
+  })) === null || _a === void 0 ? void 0 : _a.fields[0].values.length) !== null && _b !== void 0 ? _b : 0; // fixed layout all the groups label first, then let the cssgrid autolayout fields
 
-  if (anygroups) {
-    // explicitly layout all the groups headers
+  if (any_labels) {
+    nrows += 1;
+    var col1_1 = 1;
     groups.forEach(function (g) {
       var _a;
 
       var new_style = {
         'grid-row': '1 / 2',
-        'grid-column': col1 + " / span " + g.fields.length
+        'grid-column': col1_1 + " / span " + g.fields.length
       };
       var cell = g.label ? react__WEBPACK_IMPORTED_MODULE_1___default.a.cloneElement(g.label, {
         style: Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])(Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({}, (_a = g.label.props) === null || _a === void 0 ? void 0 : _a.style), new_style)
@@ -423,25 +441,28 @@ function HGrid(props) {
         style: new_style
       });
       cells.push(cell);
-      col1 += g.fields.length;
+      col1_1 += g.fields.length;
     });
   } // TODO: some flatmap should be faster
 
 
+  var ncols = 0; // this is needed for the widths only
+
   groups.forEach(function (g) {
     g.fields.forEach(function (f) {
-      return cells.push.apply(cells, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(f.values));
+      cells.push.apply(cells, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(f.values));
     });
-  }); // XXX: custom widths are disabled now
-  // const gtc = widths.map(e => { return e ?? 'minmax(max-content, 1fr)' }).join(' ');
-
+    ncols += g.fields.length;
+  });
+  var gtcs = calc_sizes(props.colws, ncols, 'minmax(max-content, 1fr)');
+  var gtrs = calc_sizes(props.rowhs, nrows, 'max-content');
   var style = {
     'display': 'grid',
-    'grid-template-rows': "repeat(" + ((anygroups ? 1 : 0) + nrows) + ", max-content)",
-    'grid-auto-columns': 'minmax(max-content, 1fr)',
+    'grid-template-columns': gtcs.join(' '),
+    'grid-template-rows': gtrs.join(' '),
     'grid-auto-flow': 'column',
-    'height': "" + (height ? height + 'px' : '100%'),
-    'width': "" + (width ? width + 'px' : '100%'),
+    'height': "" + (props.height ? props.height + 'px' : '100%'),
+    'width': "" + (props.width ? props.width + 'px' : '100%'),
     'overflow': 'auto'
   };
   return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement('div', {
@@ -663,8 +684,14 @@ function extract_groups(fields, df, options, label) {
   }], grouped);
 }
 
+function parse_sizes(str) {
+  return str.split(';').map(function (f) {
+    return Number.parseInt(f) || 0;
+  });
+}
+
 function VTable(_a) {
-  var _b, _c, _d;
+  var _b;
 
   var data = _a.data,
       opts = _a.options,
@@ -680,21 +707,7 @@ function VTable(_a) {
     style: is_hor ? get_hstyles() : get_vstyles()
   });
 
-  var widths;
-  widths = Array(df.fields[0].values.length + 1);
-  widths.fill(undefined);
-  var custom_widths = (_d = (_c = options.custom_widths) === null || _c === void 0 ? void 0 : _c.split(';').map(function (f) {
-    return f.trim();
-  })) !== null && _d !== void 0 ? _d : [];
-
-  if (custom_widths.length) {
-    var cwl_1 = custom_widths.length;
-    widths = widths.map(function (_, i) {
-      var cw = Number.parseInt(custom_widths[i < cwl_1 ? i : cwl_1 - 1]);
-      return Number.isFinite(cw) && cw ? cw + 'px' : undefined;
-    });
-  }
-
+  var colws = options.custom_widths ? parse_sizes(options.custom_widths) : undefined;
   console.log('here'); // ok, grouping here
 
   var label = options.group_by_label; // const attributes = options.first_value_is_category ? create_row({field:df.fields[0], df, options, plaintext:true}) : undefined;
@@ -722,8 +735,8 @@ function VTable(_a) {
   return rce(options.is_horizontal ? _grid__WEBPACK_IMPORTED_MODULE_6__["HGrid"] : _grid__WEBPACK_IMPORTED_MODULE_6__["VGrid"], {
     height: height,
     width: width,
-    widths: widths,
-    groups: groups
+    groups: groups,
+    colws: colws
   });
 }
 ;
