@@ -66,56 +66,69 @@ function hack_presentation(field, v, text) {
 interface GridProps {
   widths: string[];
 
+  fields: {
+    key: string;
+    text: string;
+    fields?: [];
+  }[];
+
+  attributes?: {
+    key: string;
+    text: string;
+  }[]
+
   height?: number;
   width?: number;
 
   horizontal?: boolean;
 
-  nrows?: number;
-
-  nfields: number;
-
   rowmaker: any;
-  groupmaker: any;
-
-  firstcat?: boolean;
 }
 
-function Grid({ widths, height, width, horizontal, nrows, nfields, rowmaker, firstcat}: GridProps) {
+function Grid({ widths, height, width, horizontal, rowmaker, fields, attributes}: GridProps) {
 
   var cells = [];
   var nvalues = 0;
+  let nrows = 0;
+
+  if (attributes) {
+    const field = fields[0];
+
+    cells.push(rce('div', {key: field.key, className: STYLES.corner}, field.text))
+    cells.push(attributes.map(a => rce('div', {key: a.key, className: STYLES.headercell}, a.text)))
+    fields = fields.slice(1);
+    nrows += 1;
+  }
 
   // ok, should we groupby here ?
+  fields.forEach(ff => {
+    let fieldarray;
 
-  const styles = get_vstyles()
+    // ok, it's a group
+    if (ff.fields) {
+      const groupcell = rce('div', {key: `__group_${ff.key}`, className: STYLES.groupcell}, ff.text);
+      cells.push(groupcell);
+      nrows += 1;
 
-  const catstyle = {
-    namecell: styles.corner,
-    valcell: styles.headercell,
-  };
+      fieldarray = ff.fields;
+    }
+    else {
+      fieldarray = [ff]
+    }
 
-  const plainstyle = {
-    namecell: styles.namecell,
-    valcell: styles.valcell,
-  }
+    fieldarray.forEach((f) => {
+      const row = rowmaker(f.field);
 
-  for (var i = 0; i < nfields; i++) {
-    const is_cat = firstcat && i == 0;
+      const namefield = rce('div', {key: f.key, className: STYLES.namecell}, f.text);
+      cells.push(namefield)
+      // cells.push(row.ncell);
+      cells.push(row);
 
-    const row = rowmaker(i, {
-      styles: is_cat ? catstyle : plainstyle,
-      header: is_cat
+      // if (i == 0)
+      nvalues = row.length;
+      nrows += 1;
     })
-
-    cells.push(rce('div', {key:row.key, className: styles.namecell}, row.ncell));
-    row.vcells.forEach((c, i) => {
-      cells.push(rce('div', {key:row.key + '.' + i, className: styles.valcell}, c));
-    });
-
-    // if (i == 0)
-    nvalues = row.vcells.length;
-  }
+  });
 
   // compose heights
 
@@ -128,7 +141,7 @@ function Grid({ widths, height, width, horizontal, nrows, nfields, rowmaker, fir
     {
       display: grid;
       grid-template-columns: minmax(max-content, 1fr) repeat(${nvalues}, minmax(max-content, 1fr));
-      grid-template-rows: repeat(${nfields}, minmax(max-content, 40px));
+      grid-template-rows: repeat(${nrows}, minmax(max-content, 40px));
       height: ${height ? height + 'px' : '100%'};
       width: ${width ? width + 'px' : '100%'};
       overflow: auto;
@@ -191,17 +204,17 @@ function Grid({ widths, height, width, horizontal, nrows, nfields, rowmaker, fir
 }
 
 
-function create_row({field, df, options, props}) {
-
-  const vcells = [];
-
+function create_field(field, df, options) {
   const field_name = getFieldDisplayName(field, df);
   let common_unit = options.show_common_unit && field.config?.unit;
   if (common_unit == 'none')
     common_unit = undefined;
+  return {key:field.name, text:common_unit ? `${field_name}, ${common_unit}` : field_name, field:field}
+}
 
-  const text = common_unit ? `${field_name}, ${common_unit}` : field_name;
-  const ncell = rce('div', {key: field.name, className: props.styles.namecell}, text);
+function create_row({field, df, options, plaintext}) {
+
+  const vcells = [];
 
   if (! field.display)
     field.display = getDisplayProcessor({ field });
@@ -219,46 +232,49 @@ function create_row({field, df, options, props}) {
     const color = colorize_cell(field.config.custom?.display_mode, dv.color);
 
     text = hack_presentation(field, v, text);
-    const cell = rce('div', {key:key, className: cx(color, props.styles.valcell)}, text);
+
+    var cell;
+
+    if (! plaintext)
+      cell = rce('div', {key: field.name + '.' + i, className: `${color} } ${STYLES.valcell}`}, text);
+    else
+      cell = {key: field.name + '.' + i, text}
 
     vcells.push(cell);
   }
 
-  return {key:field.name, group:undefined, ncell, vcells}
-}
-
-function create_group(name, fields, df, options) {
-  const groupcell = rce('div', {key:'__group.' + name, className:options.style.groupcell}, name);
-  const cells = fields.map(f => create_row(f, df, options, false));
-
-  return [groupcell, ...cells];
+  // values are just elements or react elements ?
+  return vcells
 }
 
 
 // ugly, but at least extracted here from the main flow
-function create_groups(fields, df, options, label) {
-    const cells = [];
-    const groups = [];
+function create_groups(df, options, label) {
+  const res = [];
 
-    const ungrouped = fields.filter(f => f?.labels?.[label] == undefined)
+  const fields = df.fields;
 
-    fields.forEach(f => {
-      const l = f?.labels?.[label];
-      if (l != undefined && ! groups.includes(l))
-        groups.push(l);
-    })
+  const groups = [];
+  const ungrouped = fields.filter(f => f?.labels?.[label] == undefined)
 
-    cells.push(
-      ungrouped.map(f => create_row(f, df, options, false))
-    )
+  fields.forEach(f => {
+    const l = f?.labels?.[label];
+    if (l != undefined && ! groups.includes(l))
+      groups.push(l);
+  })
 
-    groups.forEach(g => {
-      cells.push(
-        create_group(g, fields.filter(f => f?.labels?.[label] == g), df, options)
-      )
-    })
+  ungrouped.forEach(f => {
+    res.push(create_field(f, df, options))
+  })
 
-    return cells;
+  groups.forEach(g => {
+    res.push({
+      key: g,
+      text: g,
+      fields: fields.filter(f => f?.labels?.[label] == g).map(f => create_field(f, df, options))
+  })})
+
+  return res;
 }
 
 export function VTable({ data, options: opts, height, width }: Props) {
@@ -294,24 +310,17 @@ export function VTable({ data, options: opts, height, width }: Props) {
     // ok, grouping here
   const label = options.group_by_label;
 
-  /*
-  if (false && label) {
-    cells.push(
-      create_groups(fields, df, options, label)
-    );
-  }
-  */
+  const attributes = options.first_value_is_category ? create_row({field:df.fields[0], df, options, plaintext:true}) : undefined;
 
   return rce(Grid, {
     height,
     width,
     widths,
-    firstcat: options.first_value_is_category,
     horizontal:is_hor,
-    nrows:df.fields[0].values.length,
-    nfields: df.fields.length,
-    rowmaker: (i, props) => create_row({field:df.fields[i], df, options, props}),
-    groupmaker: (name, props) => {}
+    fields: label ? create_groups(df, options, label) :
+      df.fields.map(f => create_field(f, df, options)),
+    attributes: attributes,
+    rowmaker: (field) => create_row({field, df, options, plaintext:false}),
     }
   )
 };
@@ -327,25 +336,13 @@ function get_vstyles() {
         z-index: 2;
         background-color: ${HEADER_BG};
         border-bottom: 1px solid ${BORDER_BG};
-        /* border-right: 1px solid ${BORDER_BG}; */
-        color: #33a2e5;
-        padding: 8px;
-        /* align-self: end; */
     }`,
     namecell: css`
     {
       position: sticky;
       left: 0;
-      /* border-right: 1px solid ${BORDER_BG}; */
       border-bottom: 1px solid ${BORDER_BG};
       background-color: ${HEADER_BG};
-      /* color: #33a2e5; */
-      color: #9fa7b3;
-      padding: 8px;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
-      padding-left: 8px;
     }`,
     groupcell: css`
     {
@@ -369,20 +366,12 @@ function get_vstyles() {
       top: 0;
       border-bottom: 1px solid ${BORDER_BG};
       background-color: ${HEADER_BG};
-      color: #33a2e5;
-      text-align: right;
-      padding: 8px;
       z-index: 1;
     }
     `,
     valcell: css`
     {
-      text-align: right;
-      padding: 8px;
       border-bottom: 1px solid ${BORDER_BG};
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     `
   }
@@ -460,4 +449,63 @@ function get_hstyles() {
     }
     `
   }
+}
+
+const STYLES = {
+  valcell: css`
+    text-align: right;
+    padding: 8px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }`,
+  namecell: css`
+    position: sticky;
+    left: 0;
+    border-bottom: 1px solid ${BORDER_BG};
+    background-color: ${HEADER_BG};
+    text-align: left;
+    padding: 8px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #9fa7b3;
+  `,
+  corner: css`
+  {
+      position: sticky;
+      left: 0;
+      top: 0;
+      z-index: 2;
+      background-color: ${HEADER_BG};
+      color: #33a2e5;
+      border-bottom: 1px solid ${BORDER_BG};
+      padding: 8px;
+  }`,
+  groupcell: css`
+  {
+    position: sticky;
+    left: 0;
+    /* border-bottom: 1px solid ${BORDER_BG}; */
+    background-color: ${HEADER_BG};
+    color: #33a2e5;
+    padding: 8px;
+    padding-left: 4px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    grid-column: 1 / -1;
+    justify-self: start;  /* this is a must for full row to be sticky */
+    /* align-self: end; */
+  }`,
+  headercell: css`
+  {
+    position: sticky;
+    top: 0;
+    border-bottom: 1px solid ${BORDER_BG};
+    color: #33a2e5;
+    background-color: ${HEADER_BG};
+    z-index: 1;
+    text-align: right;
+    padding: 8px;
+  }
+  `,
 }
