@@ -26,118 +26,114 @@ export interface GridProps {
     stickynames?: boolean;
 
     height?: number;
-    width?: number;
-
-    horizontal?: boolean;
+    width?: number
 }
 
 function process_name(name: React.ReactElement, props: GridProps, is_header): React.ReactElement {
     if (!props.stickynames)
         return name;
 
-    let style;
-    if (is_header) {
-        style = { 'left': 0, 'top': 0, 'z-index': 3 }
-    }
-    else {
-        if (props.horizontal)
-            style = { 'top': 0, 'z-index': 2 }
-        else
-            style = { 'left': 0, 'z-index': 1 }
-    }
+    const style = is_header ?
+        { 'left': 0, 'top': 0, 'z-index': 3, 'position': 'sticky' }
+        :
+        { 'left': 0,  'z-index': 1, 'position': 'sticky' };
 
-    return React.cloneElement(name, { style: { ...style, 'position': 'sticky' } });
+    return React.cloneElement(name, { style });
 }
 
-export function Grid(props: GridProps) {
+export function VGrid(props: GridProps) {
+    const { widths, height, width, data, stickyheader, stickynames } = props;
 
-    const { widths, height, width, horizontal, data, stickyheader, stickynames } = props;
 
     var cells: React.ReactNode[] = [];
-    let nrows = 0;
-
-    let anyval;
 
     const h = data.header;
-    if (h) {
-        cells.push(process_name(h.name, props, true));
-
-        if (stickyheader) {
-            cells.push(h.values.map((v, i) =>
-                React.cloneElement(v, {
-                    style: props.horizontal ? {
-                        'position': 'sticky',
-                        'left': 0,
-                    } :
-                        {
-                            'position': 'sticky',
-                            'top': 0,
-                        }
-                })
-            ));
-        }
-        else {
-            cells.push(h.values);
-        }
-        nrows += 1;
-        anyval = h.values;
-    }
-
-    // TODO: check if there are any groups at all
-
     const gs = data.groups;
+
+    const nvalues = h?.values.length || (gs.length ? gs[0].fields[0].values.length : 0);
+
+    if (h)
+        cells.push(h.name, h.values);
+
     gs.forEach(g => {
-        if (g.name) {
-            const gname = React.cloneElement(g.name, {
-                style: {
-                    'position': 'sticky',
-                    'left': 0,
-                    'grid-column': '1 / -1',
-                    'justify-self': 'start',
-                }
-            })
-            cells.push(gname);
-            nrows += 1;
-        }
-        g.fields.forEach(f => {
-            cells.push(process_name(f.name, props, false));
-            cells.push(f.values);
-            nrows += 1;
-            anyval = f.values;
-        })
+        // NOTE: justify-self is for the sticky to work
+        if (g.name)
+            cells.push(React.cloneElement(g.name, {style: {'grid-column': '1 / -1', 'justify-self': 'start'}}));
+        g.fields.forEach(f => cells.push(f.name, f.values))
     })
 
-    const nvalues = anyval?.length ?? 0;
-    // compose heights
-
     // XXX: custom widths are disabled now
-
     // const gtc = widths.map(e => { return e ?? 'minmax(max-content, 1fr)' }).join(' ');
-
-    let style;
-
-    if (! horizontal){
-        style = {
-            'display': 'grid',
-            'grid-template-columns': `repeat(${nvalues + 1}, minmax(max-content, 1fr))`,
-            'grid-auto-rows': 'max-content',
-            'height': `${height ? height + 'px' : '100%'}`,
-            'width': `${width ? width + 'px' : '100%'}`,
-            'overflow': 'auto',
-        }
-    }
-    else {
-        style = {
-            'display': 'grid',
-            'grid-template-rows': `max-content repeat(${nvalues}, 1fr)`,
-            /* grid-auto-columns: minmax(max-content, 1fr); */
-            'grid-auto-flow': 'column',
-            'height': `${height ? height + 'px' : '100%'}`,
-            'width': `${width ? width + 'px' : '100%'}`,
-            'overflow': 'auto',
-        }
+    const style = {
+        'display': 'grid',
+        'grid-template-columns': `repeat(${1 + nvalues}, minmax(max-content, 1fr))`,
+        'grid-auto-rows': 'max-content',
+        'height': `${height ? height + 'px' : '100%'}`,
+        'width': `${width ? width + 'px' : '100%'}`,
+        'overflow': 'auto',
     }
 
     return rce('div', { style }, cells);
 }
 
+
+export function HGrid(props: GridProps) {
+    const { widths, height, width, data, stickyheader, stickynames } = props;
+
+    var cells: React.ReactNode[] = [];
+
+    const h = data.header;
+    const gs = data.groups;
+
+    const nvalues = h?.values.length || (gs.length ? gs[0].fields[0].values.length : 0);
+    const anygroups = gs.find(g => g.name);
+
+    let col1 = 1;
+
+    if (anygroups)
+    {
+        // explicitly layout all the groups
+        if (h) {
+            // empty div here
+            cells.push(rce('div', {style: {'grid-row': '1 / 2', 'grid-column': '1 / span 1'}}));
+            col1 += 1;
+        }
+        gs.forEach(g => {
+            let cell;
+            if (g.name)  {
+                cell = React.cloneElement(g.name, {style: {
+                    'grid-row' : '1 / 2',
+                    'grid-column' : `${col1} / span ${g.fields.length}`}})
+            } else{
+                cell = React.createElement('div', {style: {
+                    'grid-row' : '1 / 2',
+                    'grid-column' : `${col1} / span ${g.fields.length}`}})
+            }
+            cells.push(cell);
+            col1 += g.fields.length;
+        })
+    }
+
+    // now flush the data to be placed automatically
+    if (h)
+        cells.push(h.name, h.values);
+
+    gs.forEach((g, i) => {
+        g.fields.forEach(f => cells.push(f.name, f.values))
+    })
+
+    // XXX: custom widths are disabled now
+    // const gtc = widths.map(e => { return e ?? 'minmax(max-content, 1fr)' }).join(' ');
+
+    const style = {
+        'display': 'grid',
+        'grid-template-rows': `repeat(${(anygroups ? 0 : 1) + 1 + nvalues}, max-content)`,
+        'grid-auto-columns': 'minmax(max-content, 1fr)',
+        'grid-auto-flow': 'column',
+        'height': `${height ? height + 'px' : '100%'}`,
+        'width': `${width ? width + 'px' : '100%'}`,
+        'overflow': 'auto',
+    }
+
+    return rce('div', { style }, cells);
+}

@@ -344,135 +344,144 @@ function __classPrivateFieldSet(receiver, privateMap, value) {
 /*!*****************!*\
   !*** ./grid.ts ***!
   \*****************/
-/*! exports provided: Grid */
+/*! exports provided: VGrid, HGrid */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Grid", function() { return Grid; });
-/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "../node_modules/tslib/tslib.es6.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "VGrid", function() { return VGrid; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HGrid", function() { return HGrid; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 
-
-var rce = react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement;
+var rce = react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement;
 
 function process_name(name, props, is_header) {
   if (!props.stickynames) return name;
-  var style;
-
-  if (is_header) {
-    style = {
-      'left': 0,
-      'top': 0,
-      'z-index': 3
-    };
-  } else {
-    if (props.horizontal) style = {
-      'top': 0,
-      'z-index': 2
-    };else style = {
-      'left': 0,
-      'z-index': 1
-    };
-  }
-
-  return react__WEBPACK_IMPORTED_MODULE_1___default.a.cloneElement(name, {
-    style: Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])(Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({}, style), {
-      'position': 'sticky'
-    })
+  var style = is_header ? {
+    'left': 0,
+    'top': 0,
+    'z-index': 3,
+    'position': 'sticky'
+  } : {
+    'left': 0,
+    'z-index': 1,
+    'position': 'sticky'
+  };
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.cloneElement(name, {
+    style: style
   });
 }
 
-function Grid(props) {
-  var _a;
-
+function VGrid(props) {
   var widths = props.widths,
       height = props.height,
       width = props.width,
-      horizontal = props.horizontal,
       data = props.data,
       stickyheader = props.stickyheader,
       stickynames = props.stickynames;
   var cells = [];
-  var nrows = 0;
-  var anyval;
   var h = data.header;
-
-  if (h) {
-    cells.push(process_name(h.name, props, true));
-
-    if (stickyheader) {
-      cells.push(h.values.map(function (v, i) {
-        return react__WEBPACK_IMPORTED_MODULE_1___default.a.cloneElement(v, {
-          style: props.horizontal ? {
-            'position': 'sticky',
-            'left': 0
-          } : {
-            'position': 'sticky',
-            'top': 0
-          }
-        });
-      }));
-    } else {
-      cells.push(h.values);
-    }
-
-    nrows += 1;
-    anyval = h.values;
-  } // TODO: check if there are any groups at all
-
-
   var gs = data.groups;
+  var nvalues = (h === null || h === void 0 ? void 0 : h.values.length) || (gs.length ? gs[0].fields[0].values.length : 0);
+  if (h) cells.push(h.name, h.values);
   gs.forEach(function (g) {
-    if (g.name) {
-      var gname = react__WEBPACK_IMPORTED_MODULE_1___default.a.cloneElement(g.name, {
-        style: {
-          'position': 'sticky',
-          'left': 0,
-          'grid-column': '1 / -1',
-          'justify-self': 'start'
-        }
-      });
-      cells.push(gname);
-      nrows += 1;
-    }
-
+    // NOTE: justify-self is for the sticky to work
+    if (g.name) cells.push(react__WEBPACK_IMPORTED_MODULE_0___default.a.cloneElement(g.name, {
+      style: {
+        'grid-column': '1 / -1',
+        'justify-self': 'start'
+      }
+    }));
     g.fields.forEach(function (f) {
-      cells.push(process_name(f.name, props, false));
-      cells.push(f.values);
-      nrows += 1;
-      anyval = f.values;
+      return cells.push(f.name, f.values);
     });
-  });
-  var nvalues = (_a = anyval === null || anyval === void 0 ? void 0 : anyval.length) !== null && _a !== void 0 ? _a : 0; // compose heights
-  // XXX: custom widths are disabled now
+  }); // XXX: custom widths are disabled now
   // const gtc = widths.map(e => { return e ?? 'minmax(max-content, 1fr)' }).join(' ');
 
-  var style;
+  var style = {
+    'display': 'grid',
+    'grid-template-columns': "repeat(" + (1 + nvalues) + ", minmax(max-content, 1fr))",
+    'grid-auto-rows': 'max-content',
+    'height': "" + (height ? height + 'px' : '100%'),
+    'width': "" + (width ? width + 'px' : '100%'),
+    'overflow': 'auto'
+  };
+  return rce('div', {
+    style: style
+  }, cells);
+}
+function HGrid(props) {
+  var widths = props.widths,
+      height = props.height,
+      width = props.width,
+      data = props.data,
+      stickyheader = props.stickyheader,
+      stickynames = props.stickynames;
+  var cells = [];
+  var h = data.header;
+  var gs = data.groups;
+  var nvalues = (h === null || h === void 0 ? void 0 : h.values.length) || (gs.length ? gs[0].fields[0].values.length : 0);
+  var anygroups = gs.find(function (g) {
+    return g.name;
+  });
+  var col1 = 1;
 
-  if (!horizontal) {
-    style = {
-      'display': 'grid',
-      'grid-template-columns': "repeat(" + (nvalues + 1) + ", minmax(max-content, 1fr))",
-      'grid-auto-rows': 'max-content',
-      'height': "" + (height ? height + 'px' : '100%'),
-      'width': "" + (width ? width + 'px' : '100%'),
-      'overflow': 'auto'
-    };
-  } else {
-    style = {
-      'display': 'grid',
-      'grid-template-rows': "max-content repeat(" + nvalues + ", 1fr)",
+  if (anygroups) {
+    // explicitly layout all the groups
+    if (h) {
+      // empty div here
+      cells.push(rce('div', {
+        style: {
+          'grid-row': '1 / 2',
+          'grid-column': '1 / span 1'
+        }
+      }));
+      col1 += 1;
+    }
 
-      /* grid-auto-columns: minmax(max-content, 1fr); */
-      'grid-auto-flow': 'column',
-      'height': "" + (height ? height + 'px' : '100%'),
-      'width': "" + (width ? width + 'px' : '100%'),
-      'overflow': 'auto'
-    };
-  }
+    gs.forEach(function (g) {
+      var cell;
 
+      if (g.name) {
+        cell = react__WEBPACK_IMPORTED_MODULE_0___default.a.cloneElement(g.name, {
+          style: {
+            'grid-row': '1 / 2',
+            'grid-column': col1 + " / span " + g.fields.length
+          }
+        });
+      } else {
+        cell = react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement('div', {
+          style: {
+            'grid-row': '1 / 2',
+            'grid-column': col1 + " / span " + g.fields.length
+          }
+        });
+      }
+
+      cells.push(cell);
+      col1 += g.fields.length;
+    });
+  } // now flush the data to be placed automatically
+
+
+  if (h) cells.push(h.name, h.values);
+  gs.forEach(function (g, i) {
+    g.fields.forEach(function (f) {
+      return cells.push(f.name, f.values);
+    });
+  }); // XXX: custom widths are disabled now
+  // const gtc = widths.map(e => { return e ?? 'minmax(max-content, 1fr)' }).join(' ');
+
+  var style = {
+    'display': 'grid',
+    'grid-template-rows': "repeat(" + ((anygroups ? 0 : 1) + 1 + nvalues) + ", max-content)",
+    'grid-auto-columns': 'minmax(max-content, 1fr)',
+    'grid-auto-flow': 'column',
+    'height': "" + (height ? height + 'px' : '100%'),
+    'width': "" + (width ? width + 'px' : '100%'),
+    'overflow': 'auto'
+  };
   return rce('div', {
     style: style
   }, cells);
@@ -585,7 +594,8 @@ function colorize_cell(mode, color) {
 
 var STYLES = {
   valcell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_3 || (templateObject_3 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    text-align: right;\n    padding: 8px;\n    white-space: nowrap;\n    text-overflow: ellipsis;\n  }"], ["\n  {\n    text-align: right;\n    padding: 8px;\n    white-space: nowrap;\n    text-overflow: ellipsis;\n  }"]))),
-  groupcell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_4 || (templateObject_4 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    position: sticky;\n    left: 0;\n    /* border-bottom: 1px solid ", "; */\n    background-color: ", ";\n    color: #33a2e5;\n    padding: 8px;\n    padding-left: 4px;\n    text-overflow: ellipsis;\n    overflow: hidden;\n    white-space: nowrap;\n    grid-column: 1 / -1;\n    justify-self: start;  /* this is a must for full row to be sticky */\n    /* align-self: end; */\n  }"], ["\n  {\n    position: sticky;\n    left: 0;\n    /* border-bottom: 1px solid ", "; */\n    background-color: ", ";\n    color: #33a2e5;\n    padding: 8px;\n    padding-left: 4px;\n    text-overflow: ellipsis;\n    overflow: hidden;\n    white-space: nowrap;\n    grid-column: 1 / -1;\n    justify-self: start;  /* this is a must for full row to be sticky */\n    /* align-self: end; */\n  }"])), BORDER_BG, HEADER_BG)
+  namecell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_4 || (templateObject_4 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    position: sticky;\n    left: 0;\n    border-bottom: 1px solid ", ";\n    background-color: ", ";\n    color: #9fa7b3;\n    padding: 8px;\n    z-index: 1;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n  }"], ["\n  {\n    position: sticky;\n    left: 0;\n    border-bottom: 1px solid ", ";\n    background-color: ", ";\n    color: #9fa7b3;\n    padding: 8px;\n    z-index: 1;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n  }"])), BORDER_BG, HEADER_BG),
+  groupcell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_5 || (templateObject_5 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n  {\n    position: sticky;\n    left: 0;\n    /* border-bottom: 1px solid ", "; */\n    background-color: ", ";\n    color: #33a2e5;\n    padding: 8px;\n    padding-left: 4px;\n    text-overflow: ellipsis;\n    overflow: hidden;\n    white-space: nowrap;\n    /* align-self: end; */\n  }"], ["\n  {\n    position: sticky;\n    left: 0;\n    /* border-bottom: 1px solid ", "; */\n    background-color: ", ";\n    color: #33a2e5;\n    padding: 8px;\n    padding-left: 4px;\n    text-overflow: ellipsis;\n    overflow: hidden;\n    white-space: nowrap;\n    /* align-self: end; */\n  }"])), BORDER_BG, HEADER_BG)
 }; // temporary hacks here just for test
 
 function hack_presentation(field, v, text) {
@@ -626,7 +636,7 @@ function create_field(field, df, options) {
   if (common_unit == 'none') common_unit = undefined;
   var namecell = rce('div', {
     key: field.name,
-    className: {}
+    className: STYLES.namecell
   }, common_unit ? field_name + ", " + common_unit : field_name);
   var vcells = [];
   if (!field.display) field.display = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getDisplayProcessor"])({
@@ -643,7 +653,7 @@ function create_field(field, df, options) {
     text = hack_presentation(field, v, text);
     var cell = rce('div', {
       key: field.name + '.' + i,
-      className: color + " } " + STYLES.valcell
+      className: color + " " + STYLES.valcell
     }, text);
     vcells.push(cell);
   }
@@ -667,7 +677,7 @@ function extract_groups(fields, df, options, label) {
     var l = (_a = f === null || f === void 0 ? void 0 : f.labels) === null || _a === void 0 ? void 0 : _a[label];
     if (l != undefined && !groups.includes(l)) groups.push(l);
   });
-  var res2 = groups.map(function (g) {
+  var grouped = groups.map(function (g) {
     return {
       name: rce('div', {
         key: "__group" + g,
@@ -682,12 +692,13 @@ function extract_groups(fields, df, options, label) {
       })
     };
   });
+  if (!ungrouped.length) return grouped;
   return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])([{
     name: undefined,
     fields: ungrouped.map(function (f) {
       return create_field(f, df, options);
     })
-  }], res2);
+  }], grouped);
 }
 
 function VTable(_a) {
@@ -748,11 +759,10 @@ function VTable(_a) {
     header: header,
     groups: groups
   };
-  return rce(_grid__WEBPACK_IMPORTED_MODULE_6__["Grid"], {
+  return rce(options.is_horizontal ? _grid__WEBPACK_IMPORTED_MODULE_6__["HGrid"] : _grid__WEBPACK_IMPORTED_MODULE_6__["VGrid"], {
     height: height,
     width: width,
     widths: widths,
-    horizontal: is_hor,
     data: gd,
     stickyheader: options.first_value_is_category,
     stickynames: true
@@ -762,24 +772,24 @@ function VTable(_a) {
 
 function get_vstyles() {
   return {
-    corner: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_5 || (templateObject_5 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n        position: sticky;\n        left: 0;\n        top: 0;\n        z-index: 2;\n        background-color: ", ";\n        border-bottom: 1px solid ", ";\n    }"], ["\n    {\n        position: sticky;\n        left: 0;\n        top: 0;\n        z-index: 2;\n        background-color: ", ";\n        border-bottom: 1px solid ", ";\n    }"])), HEADER_BG, BORDER_BG),
-    namecell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_6 || (templateObject_6 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      position: sticky;\n      left: 0;\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n    }"], ["\n    {\n      position: sticky;\n      left: 0;\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n    }"])), BORDER_BG, HEADER_BG),
-    groupcell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_7 || (templateObject_7 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      position: sticky;\n      left: 0;\n      /* border-bottom: 1px solid ", "; */\n      background-color: ", ";\n      color: #33a2e5;\n      padding: 8px;\n      padding-left: 4px;\n      text-overflow: ellipsis;\n      overflow: hidden;\n      white-space: nowrap;\n      grid-column: 1 / -1;\n      justify-self: start;  /* this is a must for full row to be sticky */\n      /* align-self: end; */\n    }"], ["\n    {\n      position: sticky;\n      left: 0;\n      /* border-bottom: 1px solid ", "; */\n      background-color: ", ";\n      color: #33a2e5;\n      padding: 8px;\n      padding-left: 4px;\n      text-overflow: ellipsis;\n      overflow: hidden;\n      white-space: nowrap;\n      grid-column: 1 / -1;\n      justify-self: start;  /* this is a must for full row to be sticky */\n      /* align-self: end; */\n    }"])), BORDER_BG, HEADER_BG),
-    headercell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_8 || (templateObject_8 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      position: sticky;\n      top: 0;\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n      z-index: 1;\n    }\n    "], ["\n    {\n      position: sticky;\n      top: 0;\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n      z-index: 1;\n    }\n    "])), BORDER_BG, HEADER_BG),
-    valcell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_9 || (templateObject_9 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      border-bottom: 1px solid ", ";\n    }\n    "], ["\n    {\n      border-bottom: 1px solid ", ";\n    }\n    "])), BORDER_BG)
+    corner: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_6 || (templateObject_6 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n        position: sticky;\n        left: 0;\n        top: 0;\n        z-index: 2;\n        background-color: ", ";\n        border-bottom: 1px solid ", ";\n    }"], ["\n    {\n        position: sticky;\n        left: 0;\n        top: 0;\n        z-index: 2;\n        background-color: ", ";\n        border-bottom: 1px solid ", ";\n    }"])), HEADER_BG, BORDER_BG),
+    namecell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_7 || (templateObject_7 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      position: sticky;\n      left: 0;\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n    }"], ["\n    {\n      position: sticky;\n      left: 0;\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n    }"])), BORDER_BG, HEADER_BG),
+    groupcell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_8 || (templateObject_8 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      position: sticky;\n      left: 0;\n      /* border-bottom: 1px solid ", "; */\n      background-color: ", ";\n      color: #33a2e5;\n      padding: 8px;\n      padding-left: 4px;\n      text-overflow: ellipsis;\n      overflow: hidden;\n      white-space: nowrap;\n      grid-column: 1 / -1;\n      justify-self: start;  /* this is a must for full row to be sticky */\n      /* align-self: end; */\n    }"], ["\n    {\n      position: sticky;\n      left: 0;\n      /* border-bottom: 1px solid ", "; */\n      background-color: ", ";\n      color: #33a2e5;\n      padding: 8px;\n      padding-left: 4px;\n      text-overflow: ellipsis;\n      overflow: hidden;\n      white-space: nowrap;\n      grid-column: 1 / -1;\n      justify-self: start;  /* this is a must for full row to be sticky */\n      /* align-self: end; */\n    }"])), BORDER_BG, HEADER_BG),
+    headercell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_9 || (templateObject_9 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      position: sticky;\n      top: 0;\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n      z-index: 1;\n    }\n    "], ["\n    {\n      position: sticky;\n      top: 0;\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n      z-index: 1;\n    }\n    "])), BORDER_BG, HEADER_BG),
+    valcell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_10 || (templateObject_10 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      border-bottom: 1px solid ", ";\n    }\n    "], ["\n    {\n      border-bottom: 1px solid ", ";\n    }\n    "])), BORDER_BG)
   };
 }
 
 function get_hstyles() {
   return {
-    corner: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_10 || (templateObject_10 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n        position: sticky;\n        left: 0;\n        top: 32px;\n        z-index: 2;\n        background-color: ", ";\n        border-bottom: 1px solid ", ";\n        /* border-right: 1px solid ", "; */\n        color: #33a2e5;\n        padding: 8px;\n        /* align-self: end; */\n        text-overflow: ellipsis;\n        text-align: right;\n        white-space: nowrap;\n    }"], ["\n    {\n        position: sticky;\n        left: 0;\n        top: 32px;\n        z-index: 2;\n        background-color: ", ";\n        border-bottom: 1px solid ", ";\n        /* border-right: 1px solid ", "; */\n        color: #33a2e5;\n        padding: 8px;\n        /* align-self: end; */\n        text-overflow: ellipsis;\n        text-align: right;\n        white-space: nowrap;\n    }"])), HEADER_BG, BORDER_BG, BORDER_BG),
-    namecell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_11 || (templateObject_11 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      position: sticky;\n      top: 32px;\n      /* border-right: 1px solid ", "; */\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n      /* color: #33a2e5; */\n      color: #33a2e5;\n      padding: 8px;\n      padding-left: 8px;\n      text-align: right;\n    }"], ["\n    {\n      position: sticky;\n      top: 32px;\n      /* border-right: 1px solid ", "; */\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n      /* color: #33a2e5; */\n      color: #33a2e5;\n      padding: 8px;\n      padding-left: 8px;\n      text-align: right;\n    }"])), BORDER_BG, BORDER_BG, HEADER_BG),
-    headercell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_12 || (templateObject_12 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      position: sticky;\n      left: 0;\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n      color: #9fa7b3;\n      text-align: right;\n      padding: 8px;\n      z-index: 1;\n      text-overflow: ellipsis;\n      white-space: nowrap;\n    }\n    "], ["\n    {\n      position: sticky;\n      left: 0;\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n      color: #9fa7b3;\n      text-align: right;\n      padding: 8px;\n      z-index: 1;\n      text-overflow: ellipsis;\n      white-space: nowrap;\n    }\n    "])), BORDER_BG, HEADER_BG),
-    valcell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_13 || (templateObject_13 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      text-align: right;\n      padding: 8px;\n      border-bottom: 1px solid ", ";\n      white-space: nowrap;\n      text-overflow: ellipsis;\n    }\n    "], ["\n    {\n      text-align: right;\n      padding: 8px;\n      border-bottom: 1px solid ", ";\n      white-space: nowrap;\n      text-overflow: ellipsis;\n    }\n    "])), BORDER_BG)
+    corner: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_11 || (templateObject_11 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n        position: sticky;\n        left: 0;\n        top: 32px;\n        z-index: 2;\n        background-color: ", ";\n        border-bottom: 1px solid ", ";\n        /* border-right: 1px solid ", "; */\n        color: #33a2e5;\n        padding: 8px;\n        /* align-self: end; */\n        text-overflow: ellipsis;\n        text-align: right;\n        white-space: nowrap;\n    }"], ["\n    {\n        position: sticky;\n        left: 0;\n        top: 32px;\n        z-index: 2;\n        background-color: ", ";\n        border-bottom: 1px solid ", ";\n        /* border-right: 1px solid ", "; */\n        color: #33a2e5;\n        padding: 8px;\n        /* align-self: end; */\n        text-overflow: ellipsis;\n        text-align: right;\n        white-space: nowrap;\n    }"])), HEADER_BG, BORDER_BG, BORDER_BG),
+    namecell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_12 || (templateObject_12 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      position: sticky;\n      top: 32px;\n      /* border-right: 1px solid ", "; */\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n      /* color: #33a2e5; */\n      color: #33a2e5;\n      padding: 8px;\n      padding-left: 8px;\n      text-align: right;\n    }"], ["\n    {\n      position: sticky;\n      top: 32px;\n      /* border-right: 1px solid ", "; */\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n      /* color: #33a2e5; */\n      color: #33a2e5;\n      padding: 8px;\n      padding-left: 8px;\n      text-align: right;\n    }"])), BORDER_BG, BORDER_BG, HEADER_BG),
+    headercell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_13 || (templateObject_13 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      position: sticky;\n      left: 0;\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n      color: #9fa7b3;\n      text-align: right;\n      padding: 8px;\n      z-index: 1;\n      text-overflow: ellipsis;\n      white-space: nowrap;\n    }\n    "], ["\n    {\n      position: sticky;\n      left: 0;\n      border-bottom: 1px solid ", ";\n      background-color: ", ";\n      color: #9fa7b3;\n      text-align: right;\n      padding: 8px;\n      z-index: 1;\n      text-overflow: ellipsis;\n      white-space: nowrap;\n    }\n    "])), BORDER_BG, HEADER_BG),
+    valcell: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_14 || (templateObject_14 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n    {\n      text-align: right;\n      padding: 8px;\n      border-bottom: 1px solid ", ";\n      white-space: nowrap;\n      text-overflow: ellipsis;\n    }\n    "], ["\n    {\n      text-align: right;\n      padding: 8px;\n      border-bottom: 1px solid ", ";\n      white-space: nowrap;\n      text-overflow: ellipsis;\n    }\n    "])), BORDER_BG)
   };
 }
 
-var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5, templateObject_6, templateObject_7, templateObject_8, templateObject_9, templateObject_10, templateObject_11, templateObject_12, templateObject_13;
+var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5, templateObject_6, templateObject_7, templateObject_8, templateObject_9, templateObject_10, templateObject_11, templateObject_12, templateObject_13, templateObject_14;
 
 /***/ }),
 

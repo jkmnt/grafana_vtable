@@ -7,7 +7,7 @@ import { getTextColorForBackground, useTheme } from '@grafana/ui';
 import { getDisplayProcessor } from '@grafana/data';
 import moment from 'moment';
 
-import {Grid, GridProps, GridData, GridField, GridGroup} from './grid';
+import {VGrid, HGrid, GridProps, GridData, GridField, GridGroup} from './grid';
 
 var rce = React.createElement;
 
@@ -34,6 +34,18 @@ const STYLES = {
     white-space: nowrap;
     text-overflow: ellipsis;
   }`,
+  namecell: css`
+  {
+    position: sticky;
+    left: 0;
+    border-bottom: 1px solid ${BORDER_BG};
+    background-color: ${HEADER_BG};
+    color: #9fa7b3;
+    padding: 8px;
+    z-index: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }`,
   groupcell: css`
   {
     position: sticky;
@@ -46,8 +58,6 @@ const STYLES = {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    grid-column: 1 / -1;
-    justify-self: start;  /* this is a must for full row to be sticky */
     /* align-self: end; */
   }`,
 }
@@ -98,7 +108,7 @@ function create_field(field, df, options): GridField {
   if (common_unit == 'none')
     common_unit = undefined;
 
-  const namecell = rce('div', {key: field.name, className: {}}, common_unit ? `${field_name}, ${common_unit}` : field_name)
+  const namecell = rce('div', {key: field.name, className: STYLES.namecell}, common_unit ? `${field_name}, ${common_unit}` : field_name)
 
   const vcells = [];
 
@@ -119,7 +129,7 @@ function create_field(field, df, options): GridField {
 
     text = hack_presentation(field, v, text);
 
-    const cell = rce('div', {key: field.name + '.' + i, className: `${color} } ${STYLES.valcell}`}, text);
+    const cell = rce('div', {key: field.name + '.' + i, className: `${color} ${STYLES.valcell}`}, text);
     vcells.push(cell);
   }
 
@@ -137,16 +147,16 @@ function extract_groups(fields, df, options, label) : GridGroup[] {
       groups.push(l);
   })
 
-  const res2 = groups.map(g => {
+  const grouped = groups.map(g => {
     return {
       name: rce('div', {key: `__group${g}`, className: STYLES.groupcell}, g),
       fields: fields.filter(f => f?.labels?.[label] == g).map(f => create_field(f, df, options))
     }
   })
 
-  return [
-    {name: undefined, fields:ungrouped.map(f => create_field(f, df, options))},
-    ...res2]
+  if (! ungrouped.length)
+    return grouped;
+  return [{name: undefined, fields:ungrouped.map(f => create_field(f, df, options))}, ...grouped]
 }
 
 export function VTable({ data, options: opts, height, width }: Props) {
@@ -205,11 +215,10 @@ export function VTable({ data, options: opts, height, width }: Props) {
     groups: groups,
   }
 
-  return rce(Grid, {
+  return rce(options.is_horizontal ? HGrid : VGrid, {
     height,
     width,
     widths,
-    horizontal:is_hor,
     data: gd,
     stickyheader: options.first_value_is_category,
     stickynames: true,
