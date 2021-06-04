@@ -151,12 +151,15 @@ function extract_groups(fields: DfField[], formatters: Formatters, label: string
 
   const ungrouped = fields.filter(f => f?.labels?.[label] == undefined)
 
-  const groups = new Set()
+  const groups: string[] = [];
 
-  fields.forEach(f => groups.add(f?.labels?.[label]));
-  groups.delete(undefined);
+  fields.forEach(f => {
+    const lab = f?.labels?.[label];
+    if (lab != undefined && ! groups.includes(lab))
+      groups.push(lab);
+  });
 
-  const grouped = [...groups].map(g => {
+  const grouped = groups.map(g => {
     return {
       label: rce('div',
         {

@@ -718,15 +718,14 @@ function extract_groups(fields, formatters, label, options, style) {
 
     return ((_a = f === null || f === void 0 ? void 0 : f.labels) === null || _a === void 0 ? void 0 : _a[label]) == undefined;
   });
-  var groups = new Set();
+  var groups = [];
   fields.forEach(function (f) {
     var _a;
 
-    return groups.add((_a = f === null || f === void 0 ? void 0 : f.labels) === null || _a === void 0 ? void 0 : _a[label]);
+    var lab = (_a = f === null || f === void 0 ? void 0 : f.labels) === null || _a === void 0 ? void 0 : _a[label];
+    if (lab != undefined && !groups.includes(lab)) groups.push(lab);
   });
-  groups["delete"](undefined);
-
-  var grouped = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(groups).map(function (g) {
+  var grouped = groups.map(function (g) {
     return {
       label: rce('div', {
         key: "__group" + g,
@@ -741,7 +740,6 @@ function extract_groups(fields, formatters, label, options, style) {
       })
     };
   });
-
   if (!ungrouped.length) return grouped; // ugly
 
   return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])([{
