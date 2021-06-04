@@ -505,6 +505,12 @@ var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_0__["PanelPlugin"](_vtab
   }).addTextInput({
     path: 'group_by_label',
     name: 'Group by label'
+  }).addTextInput({
+    path: 'formatcode',
+    name: 'Custom formatting code (unsafe!)',
+    settings: {
+      useTextarea: true
+    }
   });
 }).useFieldConfig({
   useCustomConfig: function useCustomConfig(builder) {
@@ -620,41 +626,50 @@ function colorize_cell(mode, color) {
   return '';
 } // temporary hacks here just for test
 
-
+/*
 function hack_presentation(field, v, text) {
-  if (!field.config.pr || field.config.pr == 'number') return text;
-  if (v == null) return text; // this ugly line handles the case of text being mapped to some value
+  if (!field.config.pr || field.config.pr == 'number')
+    return text;
 
-  if (text != v.toString()) return text;
-  var pr = field.config.pr;
+  if (v == null)
+    return text;
+
+  // this ugly line handles the case of text being mapped to some value
+  if (text != v.toString())
+    return text;
+
+  const pr = field.config.pr;
+
 
   if (pr == 'ts_m') {
-    var m = moment__WEBPACK_IMPORTED_MODULE_5___default.a.unix(v * 60);
+    const m = moment.unix(v * 60);
     text = m.format('YY-MM-DD HH:mm');
   }
 
   if (pr == 'time_hm') {
-    var m = moment__WEBPACK_IMPORTED_MODULE_5___default.a.unix(v * 60);
+    const m = moment.unix(v * 60);
     text = m.utc().format('HH:mm');
   }
 
   if (pr == 'time_hms') {
-    var m = moment__WEBPACK_IMPORTED_MODULE_5___default.a.unix(v);
+    const m = moment.unix(v);
     text = m.format('HH:mm:ss');
   }
 
   if (pr == 'date_dmy') {
-    var m = moment__WEBPACK_IMPORTED_MODULE_5___default.a.unix(v * 1440 * 60);
+    const m = moment.unix(v * 1440 * 60);
     text = m.format('YY-MM-DD HH:mm');
   }
 
   return text;
 }
+*/
 
-function create_field(field, df, options, style) {
+
+function create_field(field, formatter, options, style) {
   var _a, _b;
 
-  var field_name = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getFieldDisplayName"])(field, df);
+  var field_name = formatter(field);
   var common_unit = options.show_common_unit && ((_a = field.config) === null || _a === void 0 ? void 0 : _a.unit);
   if (common_unit == 'none') common_unit = undefined;
   var namecell = rce('div', {
@@ -672,8 +687,8 @@ function create_field(field, df, options, style) {
     if (v == null) v = undefined;
     var dv = field.display(v);
     var text = options.show_common_unit ? dv.text : Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["formattedValueToString"])(dv);
-    var color = colorize_cell((_b = field.config.custom) === null || _b === void 0 ? void 0 : _b.display_mode, dv.color);
-    text = hack_presentation(field, v, text);
+    var color = colorize_cell((_b = field.config.custom) === null || _b === void 0 ? void 0 : _b.display_mode, dv.color); // text = hack_presentation(field, v, text);
+
     var cell = rce('div', {
       key: key,
       className: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(style.value, color)
@@ -686,7 +701,7 @@ function create_field(field, df, options, style) {
   };
 }
 
-function extract_groups(fields, df, label, options, style) {
+function extract_groups(fields, formatter, label, options, style) {
   var groups = [];
   var ungrouped = fields.filter(function (f) {
     var _a;
@@ -710,7 +725,7 @@ function extract_groups(fields, df, label, options, style) {
 
         return ((_a = f === null || f === void 0 ? void 0 : f.labels) === null || _a === void 0 ? void 0 : _a[label]) == g;
       }).map(function (f) {
-        return create_field(f, df, options, style.field);
+        return create_field(f, formatter, options, style.field);
       })
     };
   });
@@ -719,7 +734,7 @@ function extract_groups(fields, df, label, options, style) {
   return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])([{
     label: undefined,
     fields: ungrouped.map(function (f) {
-      return create_field(f, df, options, style.field);
+      return create_field(f, formatter, options, style.field);
     })
   }], grouped);
 }
@@ -752,8 +767,34 @@ function VTable(_a) {
   var fields = df.fields;
   var groups = [];
 
+  var default_formatter = function default_formatter(field) {
+    return Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getFieldDisplayName"])(field, df);
+  };
+
+  var formatter = default_formatter;
+
+  if (options.formatcode) {
+    var f_1 = Function('field', 'dataframe', 'lib', options.formatcode);
+
+    formatter = function formatter(field) {
+      var res;
+
+      try {
+        res = f_1(field, df, {
+          moment: moment__WEBPACK_IMPORTED_MODULE_5___default.a
+        });
+      } catch (e) {
+        {
+          console.log('fail');
+        }
+      } finally {
+        return res ? res : default_formatter(field);
+      }
+    };
+  }
+
   if (options.first_value_is_category) {
-    header = create_field(fields[0], df, options, style.catfield);
+    header = create_field(fields[0], formatter, options, style.catfield);
     groups.push({
       fields: [header]
     });
@@ -761,10 +802,10 @@ function VTable(_a) {
   }
 
   if (label) {
-    groups.push.apply(groups, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(extract_groups(fields, df, label, options, style)));
+    groups.push.apply(groups, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(extract_groups(fields, formatter, label, options, style)));
   } else groups.push({
     fields: fields.map(function (f, i) {
-      return create_field(f, df, options, style.field);
+      return create_field(f, formatter, options, style.field);
     })
   });
 

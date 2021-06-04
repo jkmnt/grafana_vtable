@@ -1,8 +1,7 @@
 import { PanelPlugin } from '@grafana/data';
-import { VTableOptions } from './types';
-import { VTable } from './vtable';
+import { VTable, VTableOptions } from './vtable';
 
-export interface CustomFieldConfig {
+interface CustomFieldConfig {
     display_mode: string;
 }
 
@@ -32,6 +31,13 @@ export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
             .addTextInput({
                 path: 'group_by_label',
                 name: 'Group by label',
+            })
+            .addTextInput({
+                path: 'formatcode',
+                name: 'Custom formatting code (unsafe!)',
+                settings: {
+                    useTextarea: true,
+                }
             })
     })
     .useFieldConfig({
