@@ -1,13 +1,13 @@
 import React from 'react';
 
-import { PanelProps, getFieldDisplayName, formattedValueToString, Field, FormattedValue, DataFrame, ThresholdsConfig, Vector } from '@grafana/data';
+import { PanelProps, getFieldDisplayName, formattedValueToString, Field as DfField, FormattedValue, DataFrame, ThresholdsConfig, Vector } from '@grafana/data';
 import { css } from 'emotion';
-import { getTextColorForBackground, useTheme } from '@grafana/ui';
-import { getDisplayProcessor } from '@grafana/data';
+import { getTextColorForBackground } from '@grafana/ui';
+import { getDisplayProcessor, textUtil } from '@grafana/data';
 import moment from 'moment';
 
-import {VGrid, HGrid, GridField, GridGroup} from './grid';
-import { hstyle, vstyle, GridStyle } from './styles'
+import { VGrid, HGrid, GridField, GridGroup } from './grid';
+import { useGridStyle, GridStyle } from './styles'
 
 var rce = React.createElement;
 
@@ -25,10 +25,10 @@ interface Props extends PanelProps<VTableOptions> {
 
 function colorize_cell(mode: string, color: string) {
 
-  if (!color) return '';
-  if (mode == 'fg') return css`color: ${color};`;
-  if (mode == 'bg') return css`background: ${color}; color: ${getTextColorForBackground(color)};`;
-  return '';
+  if (!color) return {};
+  if (mode == 'fg') return {'color': color};
+  if (mode == 'bg') return {'background': color, 'color': getTextColorForBackground(color)};
+  return {};
 }
 
 // temporary hacks here just for test
@@ -72,9 +72,13 @@ function hack_presentation(field, v, text) {
 }
 */
 
+interface Formatters {
+  name (field: DfField) : string;
+  val (value: {}, field:DfField, context: any) : void;
+}
 
-function create_field(field, formatter, options: VTableOptions, style: {name, value}): GridField {
-  const field_name = formatter(field);
+function create_field(field: DfField, formatters: Formatters, options: VTableOptions, style: { name, value }): GridField {
+  const field_name = formatters.name(field);
   let common_unit = options.show_common_unit && field.config?.unit;
   if (common_unit == 'none')
     common_unit = undefined;
@@ -90,69 +94,90 @@ function create_field(field, formatter, options: VTableOptions, style: {name, va
 
   const cells = [namecell];
 
-  if (! field.display)
+  if (!field.display)
     field.display = getDisplayProcessor({ field });
 
-  for (var i=0; i < field.values.length; i++) {
+  for (var i = 0; i < field.values.length; i++) {
 
     const key = field.name + '.' + i;
 
     let v = field.values.get(i);
     if (v == null)
       v = undefined;
-    let dv = field.display(v);
 
-    let text = options.show_common_unit ? dv.text : formattedValueToString(dv);
-    const color = colorize_cell(field.config.custom?.display_mode, dv.color);
+    const dv = field.display(v);
+    const spec = {
+      raw: v,
+      text: options.show_common_unit ? dv.text : formattedValueToString(dv),
+      css: colorize_cell(field.config.custom?.display_mode, dv.color),
+      html: undefined,
+    }
 
-    // text = hack_presentation(field, v, text);
+    if (formatters.val) {
+      try { formatters.val(spec, field, {})}
+      catch(e) { }
+    }
 
-    const cell = rce(
-      'div',
-      {
-        key,
-        className: css(style.value, color)
-      },
-      text);
+    let cell;
+
+    if (spec?.html) {
+      cell = rce(
+        'div',
+        {
+          key,
+          style: spec.css,
+          className: style.value,
+          dangerouslySetInnerHTML: {__html: textUtil.sanitize(spec.html)},
+        });
+    }
+    else {
+      cell = rce(
+        'div',
+        {
+          key,
+          style: spec.css,
+          className: style.value,
+        },
+        spec.text);
+    }
+
     cells.push(cell);
   }
 
-  return {values: cells}
+  return { values: cells }
 }
 
-function extract_groups(fields, formatter, label:string, options:VTableOptions, style: GridStyle) : GridGroup[] {
+function extract_groups(fields: DfField[], formatters: Formatters, label: string, options: VTableOptions, style: GridStyle): GridGroup[] {
 
-  const groups = [];
   const ungrouped = fields.filter(f => f?.labels?.[label] == undefined)
 
-  fields.forEach(f => {
-    const l = f?.labels?.[label];
-    if (l != undefined && ! groups.includes(l))
-      groups.push(l);
-  })
+  const groups = new Set()
 
-  const grouped = groups.map(g => {
+  fields.forEach(f => groups.add(f?.labels?.[label]));
+  groups.delete(undefined);
+
+  const grouped = [...groups].map(g => {
     return {
       label: rce('div',
-                {
-                  key: `__group${g}`,
-                  className: style.grouplabel
-                },
-                g),
+        {
+          key: `__group${g}`,
+          className: style.grouplabel
+        },
+        g),
       fields: fields
-              .filter(f => f?.labels?.[label] == g)
-              .map(f => create_field(f, formatter, options, style.field))
+        .filter(f => f?.labels?.[label] == g)
+        .map(f => create_field(f, formatters, options, style.field))
     }
   })
 
-  if (! ungrouped.length)
+  if (!ungrouped.length)
     return grouped;
 
   // ugly
   return [
     {
       label: undefined,
-      fields:ungrouped.map(f => create_field(f, formatter, options, style.field))
+      fields: ungrouped.map(f => create_field(f, formatters, options, style.field))
     },
     ...grouped
   ]
@@ -163,64 +188,57 @@ function parse_sizes(str: string) {
 }
 
 export function VTable({ data, options, height, width }: Props) {
-  const count = data.series?.length;
-  const df = data.series[0];
+  const is_empty = ! (data.series && data.series.length && data.series[0].length);
 
-  const has_fields = df?.fields.length;
-
-  if (!count || !has_fields)
+  if (is_empty)
     return rce('div', null, 'No data');
 
-  const is_hor = options.is_horizontal;
-
-  const style = is_hor ? hstyle : vstyle;
+  const df = data.series[0];
+  const style = useGridStyle(options.is_horizontal);
 
   const colws = options.custom_widths ? parse_sizes(options.custom_widths) : undefined
 
   console.log('here');
 
-    // ok, grouping here
-  const label = options.group_by_label;
+  const name_formatter = (field: DfField) => getFieldDisplayName(field, df);
 
-  // const attributes = options.first_value_is_category ? create_row({field:df.fields[0], df, options, plaintext:true}) : undefined;
-
-  let header;
-  let fields = df.fields;
-
-  const groups: GridGroup[] = []
-
-  const default_formatter = (field) => getFieldDisplayName(field, df);
-  let formatter = default_formatter;
+  let val_formatter;
 
   if (options.formatcode) {
-      const f = Function('field', 'dataframe', 'lib', options.formatcode);
-
-      formatter = (field) => {
-        let res;
-        try {
-          res = f(field, df, {moment})
-        }
-        catch(e) {
-          {console.log('fail')}
-        }
-        finally {
-          return res ? res : default_formatter(field);
-        }
-      }
+    try {
+      const f = Function('value', 'field', 'context', 'lib', options.formatcode);
+      val_formatter = (value, field, context) => f(value, field, {df, ...context}, { moment })
+    }
+    catch(e) {
+      console.log('failed to compile formatter', e)
+    }
   }
 
+  const formatters = {
+    name: name_formatter,
+    val: val_formatter,
+  }
+
+  let fields = df.fields;
+  const groups: GridGroup[] = []
+
   if (options.first_value_is_category) {
-    header = create_field(fields[0], formatter, options, style.catfield);
-    groups.push({fields: [header]})
+    groups.push(
+      {
+        fields: [create_field(fields[0], formatters, options, style.catfield)]
+      })
     fields = fields.slice(1);
   }
 
+  const label = options.group_by_label;
   if (label) {
-    groups.push(...extract_groups(fields, formatter, label, options, style))
+    groups.push(...extract_groups(fields, formatters, label, options, style))
   }
   else
-    groups.push({fields: fields.map((f, i) =>
-      create_field(f, formatter, options, style.field))});
+    groups.push({
+      fields: fields.map(f =>
+        create_field(f, formatters, options, style.field))
+    });
 
 
   return rce(options.is_horizontal ? HGrid : VGrid, {

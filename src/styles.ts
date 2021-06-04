@@ -1,3 +1,5 @@
+import { GrafanaTheme } from '@grafana/data';
+import { useTheme } from '@grafana/ui';
 import { css } from 'emotion';
 
 //const HEADER_BG = 'rgb(32, 34, 38)';
@@ -19,9 +21,16 @@ export interface GridStyle {
     grouplabel: string;
 }
 
-export const vstyle: GridStyle = {
-    field: {
-        name: css`
+export function useGridStyle(is_horizontal: boolean): GridStyle {
+    const theme = useTheme();
+    return is_horizontal ? get_hstyle(theme) : get_vstyle(theme);
+}
+
+function get_vstyle(theme: GrafanaTheme): GridStyle {
+    return {
+
+        field: {
+            name: css`
         {
             position: sticky;
             left: 0;
@@ -35,7 +44,7 @@ export const vstyle: GridStyle = {
 
             white-space: nowrap;
         }`,
-        value: css`
+            value: css`
         {
             padding: 8px;
 
@@ -45,9 +54,9 @@ export const vstyle: GridStyle = {
 
             white-space: nowrap;
         }`,
-    },
-    catfield: {
-        name: css`
+        },
+        catfield: {
+            name: css`
         {
             position: sticky;
             top: 0;
@@ -58,7 +67,7 @@ export const vstyle: GridStyle = {
             background-color: ${STICKY_BG};
             color: ${DIM};
         }`,
-        value: css`
+            value: css`
         {
             position: sticky;
             top: 0;
@@ -70,8 +79,8 @@ export const vstyle: GridStyle = {
 
             text-align: right;
         }`,
-    },
-    grouplabel: css`
+        },
+        grouplabel: css`
     {
         position: sticky;
         left: 0;
@@ -83,11 +92,14 @@ export const vstyle: GridStyle = {
 
         white-space: nowrap;
     }`,
+    }
 }
 
-export const hstyle: GridStyle = {
-    field: {
-        name: css`
+function get_hstyle(theme: GrafanaTheme): GridStyle {
+    return {
+
+        field: {
+            name: css`
         {
             position: sticky;
             top: 0;
@@ -102,7 +114,7 @@ export const hstyle: GridStyle = {
 
             text-align: right;
         }`,
-        value: css`
+            value: css`
         {
             padding: 8px;
 
@@ -111,9 +123,9 @@ export const hstyle: GridStyle = {
             border-bottom: 1px solid ${BORDER_BG};
             white-space: nowrap;
         }`,
-    },
-    catfield: {
-        name: css`
+        },
+        catfield: {
+            name: css`
         {
             position: sticky;
             top: 0;
@@ -127,7 +139,7 @@ export const hstyle: GridStyle = {
 
             text-align: right;
         }`,
-        value: css`
+            value: css`
         {
             position: sticky;
             left: 0;
@@ -142,8 +154,8 @@ export const hstyle: GridStyle = {
 
             text-align: right;
         }`,
-    },
-    grouplabel: css`
+        },
+        grouplabel: css`
     {
         position: sticky;
         top: 0;
@@ -155,4 +167,5 @@ export const hstyle: GridStyle = {
 
         text-align: center;
     }`
+    }
 }
