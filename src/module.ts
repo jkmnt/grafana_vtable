@@ -1,8 +1,43 @@
+import React from 'react';
+
 import { PanelPlugin } from '@grafana/data';
+import { CodeEditor, CodeEditorSuggestionItem, CodeEditorSuggestionItemKind } from '@grafana/ui';
 import { VTable, VTableOptions } from './vtable';
 
 interface CustomFieldConfig {
     display_mode: string;
+}
+
+const suggestions: CodeEditorSuggestionItem[] = [
+    { kind:CodeEditorSuggestionItemKind.Field, label: 'value' },
+    { kind:CodeEditorSuggestionItemKind.Property, label: 'value.raw' },
+    { kind:CodeEditorSuggestionItemKind.Property, label: 'value.text' },
+    { kind:CodeEditorSuggestionItemKind.Property, label: 'value.css' },
+    { kind:CodeEditorSuggestionItemKind.Property, label: 'value.html' },
+    { kind:CodeEditorSuggestionItemKind.Field, label: 'field' },
+    { kind:CodeEditorSuggestionItemKind.Property, label: 'field.name' },
+    { kind:CodeEditorSuggestionItemKind.Field, label: 'lib' },
+    { kind:CodeEditorSuggestionItemKind.Property, label: 'lib.moment' },
+    { kind:CodeEditorSuggestionItemKind.Field, label: 'context' },
+    { kind:CodeEditorSuggestionItemKind.Property, label: 'context.df' },
+]
+
+function JsEditor({value, onChange}) {
+    const on_change = (s: string ) => onChange(s.trim().length ? s : undefined)
+
+    return React.createElement(CodeEditor,
+        {
+            value,
+            onBlur:on_change,
+            onSave:on_change,
+            language:'javascript',
+            showMiniMap:false,
+            showLineNumbers:true,
+            getSuggestions: ()=> suggestions,
+            height:400,
+            // width:'100%',
+
+        });
 }
 
 export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
@@ -32,12 +67,11 @@ export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
                 path: 'group_by_label',
                 name: 'Group by label',
             })
-            .addTextInput({
+            .addCustomEditor({
+                id: 'formatcode',
                 path: 'formatcode',
                 name: 'Custom formatting code (unsafe!)',
-                settings: {
-                    useTextarea: true,
-                }
+                editor: JsEditor,
             })
     })
     .useFieldConfig({

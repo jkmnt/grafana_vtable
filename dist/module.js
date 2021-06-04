@@ -480,12 +480,75 @@ function HGrid(props) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "plugin", function() { return plugin; });
-/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @grafana/data */ "@grafana/data");
-/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_grafana_data__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _vtable__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./vtable */ "./vtable.ts");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @grafana/data */ "@grafana/data");
+/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_grafana_data__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @grafana/ui */ "@grafana/ui");
+/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_grafana_ui__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _vtable__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./vtable */ "./vtable.ts");
 
 
-var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_0__["PanelPlugin"](_vtable__WEBPACK_IMPORTED_MODULE_1__["VTable"]).setPanelOptions(function (builder) {
+
+
+var suggestions = [{
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Field,
+  label: 'value'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
+  label: 'value.raw'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
+  label: 'value.text'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
+  label: 'value.css'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
+  label: 'value.html'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Field,
+  label: 'field'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
+  label: 'field.name'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Field,
+  label: 'lib'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
+  label: 'lib.moment'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Field,
+  label: 'context'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
+  label: 'context.df'
+}];
+
+function JsEditor(_a) {
+  var value = _a.value,
+      onChange = _a.onChange;
+
+  var on_change = function on_change(s) {
+    return onChange(s.trim().length ? s : undefined);
+  };
+
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditor"], {
+    value: value,
+    onBlur: on_change,
+    onSave: on_change,
+    language: 'javascript',
+    showMiniMap: false,
+    showLineNumbers: true,
+    getSuggestions: function getSuggestions() {
+      return suggestions;
+    },
+    height: 400
+  });
+}
+
+var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_1__["PanelPlugin"](_vtable__WEBPACK_IMPORTED_MODULE_3__["VTable"]).setPanelOptions(function (builder) {
   builder.addTextInput({
     path: 'custom_widths',
     name: 'Column widths',
@@ -505,12 +568,11 @@ var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_0__["PanelPlugin"](_vtab
   }).addTextInput({
     path: 'group_by_label',
     name: 'Group by label'
-  }).addTextInput({
+  }).addCustomEditor({
+    id: 'formatcode',
     path: 'formatcode',
     name: 'Custom formatting code (unsafe!)',
-    settings: {
-      useTextarea: true
-    }
+    editor: JsEditor
   });
 }).useFieldConfig({
   useCustomConfig: function useCustomConfig(builder) {
