@@ -77,7 +77,7 @@ interface Formatters {
   val (value: {}, field:DfField, context: any) : void;
 }
 
-function create_field(field: DfField, formatters: Formatters, options: VTableOptions, style: { name, value }): GridField {
+function create_field(field: DfField, formatters: Formatters, options: VTableOptions, style: { name: string, value: string }): GridField {
   const field_name = formatters.name(field);
   let common_unit = options.show_common_unit && field.config?.unit;
   if (common_unit == 'none')
