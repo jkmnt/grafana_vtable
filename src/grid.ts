@@ -10,11 +10,11 @@ export interface GridGroup {
 }
 
 export interface GridProps {
+
+    className?: string;
+
     colws?: number[];
     rowhs?: number[];
-
-    height?: number;
-    width?: number;
 
     groups: GridGroup[];
 }
@@ -28,7 +28,7 @@ function calc_sizes(spec: number[], n: number, defsize: string) {
     for (var i = 0; i < n; i++) {
         const v = spec[i < sl ? i : (sl - 1)];
         if (v && v > 0)
-            sizes[i] = v + 'px';
+            sizes[i] = `${v}px`;
     }
 
     return sizes;
@@ -51,6 +51,7 @@ export function VGrid(props: GridProps) {
         nrows += g.fields.length;
     })
 
+    // TODO: investigate the minmax etc
     const gtcs = calc_sizes(props.colws, ncols, 'minmax(max-content, 1fr)')
     const gtrs = calc_sizes(props.rowhs, nrows, 'max-content')
 
@@ -58,12 +59,9 @@ export function VGrid(props: GridProps) {
         'display': 'grid',
         'grid-template-columns': gtcs.join(' '),
         'grid-template-rows': gtrs.join(' '),
-        'height': `${props.height ? props.height + 'px' : '100%'}`,
-        'width': `${props.width ? props.width + 'px' : '100%'}`,
-        'overflow': 'auto',
     }
 
-    return React.createElement('div', { style }, cells);
+    return React.createElement('div', { style, className: props.className }, cells);
 }
 
 
@@ -75,7 +73,7 @@ export function HGrid(props: GridProps) {
     const any_labels = groups.find(g => g.label);
     let nrows = groups.find(g => g.fields.length)?.fields[0].values.length ?? 0;
 
-    // fixed layout all the groups label first, then let the cssgrid autolayout fields
+    // fixed layout all the groups label first, then let the    grid autolayout fields
     if (any_labels) {
         nrows += 1;
         let col1 = 1;
@@ -100,7 +98,8 @@ export function HGrid(props: GridProps) {
         ncols += g.fields.length;
     })
 
-    const gtcs = calc_sizes(props.colws, ncols, 'minmax(max-content, 1fr)');
+    // minmax(max-content, 1fr)
+    const gtcs = calc_sizes(props.colws, ncols, 'auto');
     const gtrs = calc_sizes(props.rowhs, nrows, 'max-content');
 
     const style = {
@@ -108,10 +107,7 @@ export function HGrid(props: GridProps) {
         'grid-template-columns': gtcs.join(' '),
         'grid-template-rows': gtrs.join(' '),
         'grid-auto-flow': 'column',
-        'height': `${props.height ? props.height + 'px' : '100%'}`,
-        'width': `${props.width ? props.width + 'px' : '100%'}`,
-        'overflow': 'auto',
     }
 
-    return React.createElement('div', { style }, cells);
+    return React.createElement('div', { style, className: props.className }, cells);
 }
