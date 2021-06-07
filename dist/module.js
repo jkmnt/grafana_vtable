@@ -819,11 +819,13 @@ function parse_sizes(str) {
 }
 
 function VTable(_a) {
+  var _b, _c;
+
   var data = _a.data,
       options = _a.options,
       height = _a.height,
       width = _a.width;
-  var is_empty = !(data.series && data.series.length && data.series[0].length);
+  var is_empty = !(data.series && data.series.length && ((_c = (_b = data.series[0]) === null || _b === void 0 ? void 0 : _b.fields) === null || _c === void 0 ? void 0 : _c.length));
   if (is_empty) return rce('div', null, 'No data');
   var df = data.series[0];
   var style = Object(_styles__WEBPACK_IMPORTED_MODULE_7__["useGridStyle"])(options.is_horizontal);

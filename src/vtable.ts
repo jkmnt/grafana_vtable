@@ -31,47 +31,6 @@ function colorize_cell(mode: string, color: string) {
   return {};
 }
 
-// temporary hacks here just for test
-
-/*
-function hack_presentation(field, v, text) {
-  if (!field.config.pr || field.config.pr == 'number')
-    return text;
-
-  if (v == null)
-    return text;
-
-  // this ugly line handles the case of text being mapped to some value
-  if (text != v.toString())
-    return text;
-
-  const pr = field.config.pr;
-
-
-  if (pr == 'ts_m') {
-    const m = moment.unix(v * 60);
-    text = m.format('YY-MM-DD HH:mm');
-  }
-
-  if (pr == 'time_hm') {
-    const m = moment.unix(v * 60);
-    text = m.utc().format('HH:mm');
-  }
-
-  if (pr == 'time_hms') {
-    const m = moment.unix(v);
-    text = m.format('HH:mm:ss');
-  }
-
-  if (pr == 'date_dmy') {
-    const m = moment.unix(v * 1440 * 60);
-    text = m.format('YY-MM-DD HH:mm');
-  }
-
-  return text;
-}
-*/
-
 interface Formatters {
   name (field: DfField) : string;
   val (value: {}, field:DfField, context: any) : void;
@@ -191,7 +150,7 @@ function parse_sizes(str: string) {
 }
 
 export function VTable({ data, options, height, width }: Props) {
-  const is_empty = ! (data.series && data.series.length && data.series[0].length);
+  const is_empty = ! (data.series && data.series.length && data.series[0]?.fields?.length);
 
   if (is_empty)
     return rce('div', null, 'No data');
