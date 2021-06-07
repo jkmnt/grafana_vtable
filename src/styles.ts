@@ -95,8 +95,6 @@ function get_vstyle(theme: GrafanaTheme): GridStyle {
         padding: 16px 8px 0 4px;
         background-color: ${sticky_bg};
         color: ${hl};
-
-        white-space: nowrap;
     }`,
     }
 }
