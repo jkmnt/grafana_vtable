@@ -109,7 +109,7 @@ function create_field(field: DfField, formatters: Formatters, options: VTableOpt
     const spec = {
       raw: v,
       text: options.show_common_unit ? dv.text : formattedValueToString(dv),
-      css: colorize_cell(field.config.custom?.display_mode, dv.color),
+      style: colorize_cell(field.config.custom?.display_mode, dv.color),
       html: undefined,
     }
 
@@ -125,7 +125,7 @@ function create_field(field: DfField, formatters: Formatters, options: VTableOpt
         'div',
         {
           key,
-          style: spec.css,
+          style: spec.style,
           className: style.value,
           dangerouslySetInnerHTML: {__html: textUtil.sanitize(spec.html)},
         });
@@ -135,7 +135,7 @@ function create_field(field: DfField, formatters: Formatters, options: VTableOpt
         'div',
         {
           key,
-          style: spec.css,
+          style: spec.style,
           className: style.value,
         },
         spec.text);

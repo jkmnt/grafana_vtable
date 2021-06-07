@@ -12,7 +12,7 @@ const suggestions: CodeEditorSuggestionItem[] = [
     { kind:CodeEditorSuggestionItemKind.Field, label: 'value' },
     { kind:CodeEditorSuggestionItemKind.Property, label: 'value.raw' },
     { kind:CodeEditorSuggestionItemKind.Property, label: 'value.text' },
-    { kind:CodeEditorSuggestionItemKind.Property, label: 'value.css' },
+    { kind:CodeEditorSuggestionItemKind.Property, label: 'value.style' },
     { kind:CodeEditorSuggestionItemKind.Property, label: 'value.html' },
     { kind:CodeEditorSuggestionItemKind.Field, label: 'field' },
     { kind:CodeEditorSuggestionItemKind.Property, label: 'field.name' },

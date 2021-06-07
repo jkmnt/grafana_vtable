@@ -502,7 +502,7 @@ var suggestions = [{
   label: 'value.text'
 }, {
   kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
-  label: 'value.css'
+  label: 'value.style'
 }, {
   kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
   label: 'value.html'
@@ -737,7 +737,7 @@ function create_field(field, formatters, options, style) {
     var spec = {
       raw: v,
       text: options.show_common_unit ? dv.text : Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["formattedValueToString"])(dv),
-      css: colorize_cell((_b = field.config.custom) === null || _b === void 0 ? void 0 : _b.display_mode, dv.color),
+      style: colorize_cell((_b = field.config.custom) === null || _b === void 0 ? void 0 : _b.display_mode, dv.color),
       html: undefined
     };
 
@@ -752,7 +752,7 @@ function create_field(field, formatters, options, style) {
     if (spec === null || spec === void 0 ? void 0 : spec.html) {
       cell = rce('div', {
         key: key,
-        style: spec.css,
+        style: spec.style,
         className: style.value,
         dangerouslySetInnerHTML: {
           __html: _grafana_data__WEBPACK_IMPORTED_MODULE_2__["textUtil"].sanitize(spec.html)
@@ -761,7 +761,7 @@ function create_field(field, formatters, options, style) {
     } else {
       cell = rce('div', {
         key: key,
-        style: spec.css,
+        style: spec.style,
         className: style.value
       }, spec.text);
     }
