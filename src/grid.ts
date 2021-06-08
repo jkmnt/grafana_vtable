@@ -20,13 +20,13 @@ export interface GridProps {
 }
 
 function calc_sizes(spec: number[] | undefined, n: number, defsize: string) {
-    const sizes = Array(n).fill(defsize)
-    if (! (spec && spec.length))
+    const sizes = Array(n).fill(defsize);
+
+    if (! spec)
         return sizes;
 
-    const sl = spec.length;
     for (var i = 0; i < n; i++) {
-        const v = spec[i < sl ? i : (sl - 1)];
+        const v = spec[i];
         if (v && v > 0)
             sizes[i] = `${v}px`;
     }

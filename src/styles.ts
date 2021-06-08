@@ -14,7 +14,7 @@ export interface GridStyle {
         name: string;
         value: string;
     },
-    catfield: {
+    dimfield: {
         name: string;
         value: string;
     },
@@ -61,7 +61,7 @@ function get_vstyle(theme: GrafanaTheme): GridStyle {
             white-space: nowrap;
         }`,
         },
-        catfield: {
+        dimfield: {
             name: css`
         {
             position: sticky;
@@ -134,7 +134,7 @@ function get_hstyle(theme: GrafanaTheme): GridStyle {
             white-space: nowrap;
         }`,
         },
-        catfield: {
+        dimfield: {
             name: css`
         {
             position: sticky;
@@ -178,4 +178,10 @@ function get_hstyle(theme: GrafanaTheme): GridStyle {
         text-align: center;
     }`
     }
+}
+
+export const aligns = {
+    l: css`text-align: left`,
+    c: css`text-align: center`,
+    r: css`text-align: right`,
 }

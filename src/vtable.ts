@@ -157,8 +157,26 @@ function extract_groups(fields: DfField[], formatters: Formatters, label: string
   ]
 }
 
-function parse_sizes(str: string) {
-  return str.split(';').map(f => Number.parseInt(f) || 0)
+function parse_colspec(str: string, size: number) : {as:string[], ws:number[]} {
+  const re = /\s*([r|c|l]?)\s*([0-9]*)\s*/;
+
+  const specs = str.split(';').map(f =>
+    {
+      const m = f.match(re);
+      const a = m && m[1].length ? m[1] : undefined;
+      const w = m && m[2].length ? m[2] : 0;
+
+      return [a, w]
+    }
+  );
+  const len = specs.length;
+
+  if (len && len < size) {
+    specs.length = size;
+    specs.fill(specs[len - 1], len);
+  }
+
+  return {as: specs.map(s => s[0] as string), ws: specs.map(s => s[1] as number)}
 }
 
 export function VTable({ data, options, height, width }: Props) {
@@ -170,9 +188,27 @@ export function VTable({ data, options, height, width }: Props) {
   const df = data.series[0];
   const style = useGridStyle(options.is_horizontal);
 
-  const colws = options.custom_widths ? parse_sizes(options.custom_widths) : undefined
+  let colws : number[];
+  let aligns;
 
-  console.log('here');
+  if (options.custom_widths) {
+    let ncols = 0;
+    if (options.is_horizontal)
+      ncols = df.fields.length;
+    else
+      ncols = (df.fields?.[0].values.length ?? 0) + 1;
+    const res = parse_colspec(options.custom_widths, ncols);
+    aligns = res.as
+    colws = res.ws;
+  }
+
+  const next_field_style = (is_dimension:boolean) => {
+    const base = is_dimension ? style.dimfield : style.field;
+    return {
+      name: css(base.name, aligns[0]),
+      value: (i) => css(base.name, aligns[i + 1]),
+    }
+  }
 
   const name_formatter = (field: DfField) => getFieldDisplayName(field, df);
 
@@ -200,7 +236,7 @@ export function VTable({ data, options, height, width }: Props) {
   if (dimfield) {
     groups.push(
       {
-        fields: [create_field(dimfield, formatters, options, style.catfield)]
+        fields: [create_field(dimfield, formatters, options, style.dimfield)]
       })
     fields = fields.filter(f => f.name != options.dimension_field)
   }
@@ -209,12 +245,12 @@ export function VTable({ data, options, height, width }: Props) {
   if (label && label.length) {
     groups.push(...extract_groups(fields, formatters, label, options, style))
   }
-  else
+  else {
     groups.push({
       fields: fields.map(f =>
         create_field(f, formatters, options, style.field))
     });
-
+  }
 
   return rce(options.is_horizontal ? HGrid : VGrid, {
     className: css`{width: ${width}px; height: ${height}px; overflow: auto;}`,

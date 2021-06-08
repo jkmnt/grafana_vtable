@@ -359,11 +359,10 @@ __webpack_require__.r(__webpack_exports__);
 
 function calc_sizes(spec, n, defsize) {
   var sizes = Array(n).fill(defsize);
-  if (!(spec && spec.length)) return sizes;
-  var sl = spec.length;
+  if (!spec) return sizes;
 
   for (var i = 0; i < n; i++) {
-    var v = spec[i < sl ? i : sl - 1];
+    var v = spec[i];
     if (v && v > 0) sizes[i] = v + "px";
   }
 
@@ -682,12 +681,13 @@ var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_2__["PanelPlugin"](_vtab
 /*!*******************!*\
   !*** ./styles.ts ***!
   \*******************/
-/*! exports provided: useGridStyle */
+/*! exports provided: useGridStyle, aligns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "useGridStyle", function() { return useGridStyle; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "aligns", function() { return aligns; });
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "../node_modules/tslib/tslib.es6.js");
 /* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @grafana/ui */ "@grafana/ui");
 /* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_grafana_ui__WEBPACK_IMPORTED_MODULE_1__);
@@ -717,7 +717,7 @@ function get_vstyle(theme) {
       name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_1 || (templateObject_1 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        {\n            position: sticky;\n            left: 0;\n            z-index: 2;\n\n            padding: 8px;\n            background-color: ", ";\n            color: ", ";\n\n            border-bottom: 1px solid ", ";\n\n            white-space: nowrap;\n        }"], ["\n        {\n            position: sticky;\n            left: 0;\n            z-index: 2;\n\n            padding: 8px;\n            background-color: ", ";\n            color: ", ";\n\n            border-bottom: 1px solid ", ";\n\n            white-space: nowrap;\n        }"])), sticky_bg, dim, border_bg),
       value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_2 || (templateObject_2 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        {\n            padding: 8px;\n\n            text-align: right;\n\n            border-bottom: 1px solid ", ";\n\n            white-space: nowrap;\n        }"], ["\n        {\n            padding: 8px;\n\n            text-align: right;\n\n            border-bottom: 1px solid ", ";\n\n            white-space: nowrap;\n        }"])), border_bg)
     },
-    catfield: {
+    dimfield: {
       name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_3 || (templateObject_3 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        {\n            position: sticky;\n            top: 0;\n            z-index: 3;\n\n            left: 0;\n            padding: 8px;\n            background-color: ", ";\n            color: ", ";\n        }"], ["\n        {\n            position: sticky;\n            top: 0;\n            z-index: 3;\n\n            left: 0;\n            padding: 8px;\n            background-color: ", ";\n            color: ", ";\n        }"])), sticky_bg, dim),
       value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_4 || (templateObject_4 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        {\n            position: sticky;\n            top: 0;\n            z-index: 1;\n\n            padding: 8px;\n            background-color: ", ";\n            color: ", ";\n\n            text-align: right;\n        }"], ["\n        {\n            position: sticky;\n            top: 0;\n            z-index: 1;\n\n            padding: 8px;\n            background-color: ", ";\n            color: ", ";\n\n            text-align: right;\n        }"])), sticky_bg, hl)
     },
@@ -735,7 +735,7 @@ function get_hstyle(theme) {
       name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_6 || (templateObject_6 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        {\n            position: sticky;\n            top: 0;\n            z-index: 1;\n\n            padding: 8px;\n\n            color: ", ";\n\n            border-right: 1px solid ", ";\n            background-color: ", ";\n\n            text-align: right;\n        }"], ["\n        {\n            position: sticky;\n            top: 0;\n            z-index: 1;\n\n            padding: 8px;\n\n            color: ", ";\n\n            border-right: 1px solid ", ";\n            background-color: ", ";\n\n            text-align: right;\n        }"])), hl, border_bg, sticky_bg),
       value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_7 || (templateObject_7 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        {\n            padding: 8px;\n\n            text-align: right;\n\n            border-bottom: 1px solid ", ";\n            white-space: nowrap;\n        }"], ["\n        {\n            padding: 8px;\n\n            text-align: right;\n\n            border-bottom: 1px solid ", ";\n            white-space: nowrap;\n        }"])), border_bg)
     },
-    catfield: {
+    dimfield: {
       name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_8 || (templateObject_8 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        {\n            position: sticky;\n            top: 0;\n            left: 0;\n            z-index: 3;\n\n            padding: 8px;\n\n            color: ", ";\n            background-color: ", ";\n\n            text-align: right;\n        }"], ["\n        {\n            position: sticky;\n            top: 0;\n            left: 0;\n            z-index: 3;\n\n            padding: 8px;\n\n            color: ", ";\n            background-color: ", ";\n\n            text-align: right;\n        }"])), hl, sticky_bg),
       value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_9 || (templateObject_9 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        {\n            position: sticky;\n            left: 0;\n            z-index: 2;\n\n            padding: 8px;\n\n            color: ", ";\n            background-color: ", ";\n\n            border-bottom: 1px solid ", ";\n\n            text-align: right;\n        }"], ["\n        {\n            position: sticky;\n            left: 0;\n            z-index: 2;\n\n            padding: 8px;\n\n            color: ", ";\n            background-color: ", ";\n\n            border-bottom: 1px solid ", ";\n\n            text-align: right;\n        }"])), dim, sticky_bg, border_bg)
     },
@@ -743,7 +743,12 @@ function get_hstyle(theme) {
   };
 }
 
-var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5, templateObject_6, templateObject_7, templateObject_8, templateObject_9, templateObject_10;
+var aligns = {
+  l: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_11 || (templateObject_11 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["text-align: left"], ["text-align: left"]))),
+  c: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_12 || (templateObject_12 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["text-align: center"], ["text-align: center"]))),
+  r: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_13 || (templateObject_13 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["text-align: right"], ["text-align: right"])))
+};
+var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5, templateObject_6, templateObject_7, templateObject_8, templateObject_9, templateObject_10, templateObject_11, templateObject_12, templateObject_13;
 
 /***/ }),
 
@@ -904,14 +909,33 @@ function extract_groups(fields, formatters, label, options, style) {
   }], grouped);
 }
 
-function parse_sizes(str) {
-  return str.split(';').map(function (f) {
-    return Number.parseInt(f) || 0;
+function parse_colspec(str, size) {
+  var re = /\s*([r|c|l]?)\s*([0-9]*)\s*/;
+  var specs = str.split(';').map(function (f) {
+    var m = f.match(re);
+    var a = m && m[1].length ? m[1] : undefined;
+    var w = m && m[2].length ? m[2] : 0;
+    return [a, w];
   });
+  var len = specs.length;
+
+  if (len && len < size) {
+    specs.length = size;
+    specs.fill(specs[len - 1], len);
+  }
+
+  return {
+    as: specs.map(function (s) {
+      return s[0];
+    }),
+    ws: specs.map(function (s) {
+      return s[1];
+    })
+  };
 }
 
 function VTable(_a) {
-  var _b, _c;
+  var _b, _c, _d, _e;
 
   var data = _a.data,
       options = _a.options,
@@ -921,8 +945,26 @@ function VTable(_a) {
   if (is_empty) return rce('div', null, 'No data');
   var df = data.series[0];
   var style = Object(_styles__WEBPACK_IMPORTED_MODULE_7__["useGridStyle"])(options.is_horizontal);
-  var colws = options.custom_widths ? parse_sizes(options.custom_widths) : undefined;
-  console.log('here');
+  var colws;
+  var aligns;
+
+  if (options.custom_widths) {
+    var ncols = 0;
+    if (options.is_horizontal) ncols = df.fields.length;else ncols = ((_e = (_d = df.fields) === null || _d === void 0 ? void 0 : _d[0].values.length) !== null && _e !== void 0 ? _e : 0) + 1;
+    var res = parse_colspec(options.custom_widths, ncols);
+    aligns = res.as;
+    colws = res.ws;
+  }
+
+  var next_field_style = function next_field_style(is_dimension) {
+    var base = is_dimension ? style.dimfield : style.field;
+    return {
+      name: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(base.name, aligns[0]),
+      value: function value(i) {
+        return Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(base.name, aligns[i + 1]);
+      }
+    };
+  };
 
   var name_formatter = function name_formatter(field) {
     return Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getFieldDisplayName"])(field, df);
@@ -958,7 +1000,7 @@ function VTable(_a) {
 
   if (dimfield) {
     groups.push({
-      fields: [create_field(dimfield, formatters, options, style.catfield)]
+      fields: [create_field(dimfield, formatters, options, style.dimfield)]
     });
     fields = fields.filter(function (f) {
       return f.name != options.dimension_field;
@@ -969,11 +1011,13 @@ function VTable(_a) {
 
   if (label && label.length) {
     groups.push.apply(groups, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(extract_groups(fields, formatters, label, options, style)));
-  } else groups.push({
-    fields: fields.map(function (f) {
-      return create_field(f, formatters, options, style.field);
-    })
-  });
+  } else {
+    groups.push({
+      fields: fields.map(function (f) {
+        return create_field(f, formatters, options, style.field);
+      })
+    });
+  }
 
   return rce(options.is_horizontal ? _grid__WEBPACK_IMPORTED_MODULE_6__["HGrid"] : _grid__WEBPACK_IMPORTED_MODULE_6__["VGrid"], {
     className: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_1 || (templateObject_1 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["{width: ", "px; height: ", "px; overflow: auto;}"], ["{width: ", "px; height: ", "px; overflow: auto;}"])), width, height),
