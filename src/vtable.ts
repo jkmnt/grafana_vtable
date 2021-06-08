@@ -7,7 +7,7 @@ import { getDisplayProcessor, textUtil } from '@grafana/data';
 import moment from 'moment';
 
 import { VGrid, HGrid, GridField, GridGroup } from './grid';
-import { useGridStyle, GridStyle } from './styles'
+import { useGridStyle, GridStyle, alignstyles } from './styles'
 
 var rce = React.createElement;
 
@@ -36,7 +36,7 @@ interface Formatters {
   val (value: {}, field:DfField, context: any) : void;
 }
 
-function create_field(field: DfField, formatters: Formatters, options: VTableOptions, style: { name: string, value: string }): GridField {
+function create_field(field: DfField, formatters: Formatters, options: VTableOptions, style: { name: string, value: (i) => string }): GridField {
   const field_name = formatters.name(field);
 
   if (!field.display)
@@ -97,7 +97,7 @@ function create_field(field: DfField, formatters: Formatters, options: VTableOpt
         {
           key,
           style: spec.style,
-          className: style.value,
+          className: style.value(i),
           dangerouslySetInnerHTML: {__html: textUtil.sanitize(spec.html)},
         });
     }
@@ -107,7 +107,7 @@ function create_field(field: DfField, formatters: Formatters, options: VTableOpt
         {
           key,
           style: spec.style,
-          className: style.value,
+          className: style.value(i),
         },
         spec.text);
     }
@@ -118,7 +118,7 @@ function create_field(field: DfField, formatters: Formatters, options: VTableOpt
   return { values: cells }
 }
 
-function extract_groups(fields: DfField[], formatters: Formatters, label: string, options: VTableOptions, style: GridStyle): GridGroup[] {
+function extract_groups(fields: DfField[], formatters: Formatters, label: string, options: VTableOptions, style: GridStyle, next_field_style): GridGroup[] {
 
   const ungrouped = fields.filter(f => f?.labels?.[label] == undefined)
 
@@ -140,7 +140,7 @@ function extract_groups(fields: DfField[], formatters: Formatters, label: string
         g),
       fields: fields
         .filter(f => f?.labels?.[label] == g)
-        .map(f => create_field(f, formatters, options, style.field))
+        .map(f => create_field(f, formatters, options, next_field_style(false)))
     }
   })
 
@@ -151,7 +151,7 @@ function extract_groups(fields: DfField[], formatters: Formatters, label: string
   return [
     {
       label: undefined,
-      fields: ungrouped.map(f => create_field(f, formatters, options, style.field))
+      fields: ungrouped.map(f => create_field(f, formatters, options, next_field_style(false)))
     },
     ...grouped
   ]
@@ -163,7 +163,7 @@ function parse_colspec(str: string, size: number) : {as:string[], ws:number[]} {
   const specs = str.split(';').map(f =>
     {
       const m = f.match(re);
-      const a = m && m[1].length ? m[1] : undefined;
+      const a = m ? alignstyles[m[1]] : undefined;
       const w = m && m[2].length ? m[2] : 0;
 
       return [a, w]
@@ -189,7 +189,7 @@ export function VTable({ data, options, height, width }: Props) {
   const style = useGridStyle(options.is_horizontal);
 
   let colws : number[];
-  let aligns;
+  let aligns = [];
 
   if (options.custom_widths) {
     let ncols = 0;
@@ -202,11 +202,25 @@ export function VTable({ data, options, height, width }: Props) {
     colws = res.ws;
   }
 
-  const next_field_style = (is_dimension:boolean) => {
-    const base = is_dimension ? style.dimfield : style.field;
-    return {
-      name: css(base.name, aligns[0]),
-      value: (i) => css(base.name, aligns[i + 1]),
+  let next_field_style;
+
+  if (! options.is_horizontal) {
+    next_field_style = (is_dimension:boolean) => {
+      const base = is_dimension ? style.dimfield : style.field;
+      return {
+        name: css(base.name, aligns[0]),
+        value: (i) => css(base.value, aligns[i + 1]),
+      }
+    }
+  }
+  else {
+    next_field_style = (is_dimension:boolean) => {
+      const base = is_dimension ? style.dimfield : style.field;
+      const align = aligns.shift()
+      return {
+        name: css(base.name, align),
+        value: (i) => css(base.value, align),
+      }
     }
   }
 
@@ -236,24 +250,28 @@ export function VTable({ data, options, height, width }: Props) {
   if (dimfield) {
     groups.push(
       {
-        fields: [create_field(dimfield, formatters, options, style.dimfield)]
+        fields: [create_field(dimfield, formatters, options, next_field_style(true))]
       })
     fields = fields.filter(f => f.name != options.dimension_field)
   }
 
   const label = options.group_by_label;
   if (label && label.length) {
-    groups.push(...extract_groups(fields, formatters, label, options, style))
+    groups.push(...extract_groups(fields, formatters, label, options, style, next_field_style))
   }
   else {
     groups.push({
       fields: fields.map(f =>
-        create_field(f, formatters, options, style.field))
+        create_field(f, formatters, options, next_field_style(false)))
     });
   }
 
   return rce(options.is_horizontal ? HGrid : VGrid, {
-    className: css`{width: ${width}px; height: ${height}px; overflow: auto;}`,
+    className: css`
+                width: ${width}px;
+                height: ${height}px;
+                overflow: auto;
+              `,
     groups,
     colws,
   })
