@@ -616,11 +616,7 @@ var fetch_fields = function fetch_fields(context) {
 };
 
 var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_2__["PanelPlugin"](_vtable__WEBPACK_IMPORTED_MODULE_4__["VTable"]).setPanelOptions(function (builder) {
-  builder.addTextInput({
-    path: 'custom_widths',
-    name: 'Column widths',
-    description: 'Comma-separated columns widths in px'
-  }).addSelect({
+  builder.addSelect({
     path: 'dimension_field',
     name: 'Dimension field name',
     settings: {
@@ -631,7 +627,7 @@ var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_2__["PanelPlugin"](_vtab
     defaultValue: ''
   }).addBooleanSwitch({
     path: 'is_horizontal',
-    name: 'Layout horizontally',
+    name: 'Horizontal layout ',
     defaultValue: false
   }).addBooleanSwitch({
     path: 'show_common_unit',
@@ -646,18 +642,44 @@ var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_2__["PanelPlugin"](_vtab
       getOptions: fetch_groups
     },
     defaultValue: ''
+  }).addTextInput({
+    path: 'custom_columns',
+    name: 'Custom column widths and text alignments',
+    description: 'Comma-separated format string: r100;c200;l300; etc'
+  }).addSelect({
+    path: 'sort.field',
+    name: 'By field',
+    settings: {
+      allowCustomValue: true,
+      options: [],
+      getOptions: fetch_fields
+    },
+    defaultValue: '',
+    category: ['Sort']
+  }).addBooleanSwitch({
+    path: 'sort.desc',
+    name: 'Descending',
+    category: ['Sort']
+  }).addBooleanSwitch({
+    path: 'sort.zeronull',
+    name: 'Treat zeros as nulls',
+    category: ['Sort']
+  }).addBooleanSwitch({
+    path: 'sort.nullfirst',
+    name: 'Nulls go first',
+    category: ['Sort']
   }).addCustomEditor({
     id: 'formatcode',
     path: 'formatcode',
     name: 'Custom formatting code (unsafe!)',
+    category: ['Custom formatting'],
     editor: JsEditor
   });
 }).useFieldConfig({
   useCustomConfig: function useCustomConfig(builder) {
-    builder.addSelect({
+    builder.addRadio({
       path: 'display_mode',
       name: 'Cell display mode',
-      description: 'Color text, background, gauge',
       settings: {
         options: [{
           value: 'auto',
@@ -701,7 +723,8 @@ var STICKY_BG = '#141619'; //const BORDER_BG = 'rgb(44, 50, 53)'
 
 var BORDER_BG = '#202020';
 var HL = 'rgb(51, 162, 229)';
-var DIM = 'rgb(123, 128, 135)'; // TODO: make all styles static ? init on both themes once
+var DIM = 'rgb(123, 128, 135)'; // TODO: make all styles static ? init on both themes once.
+// and compose 'em from small styles w/o redundancy
 
 function useGridStyle(is_horizontal) {
   var theme = Object(_grafana_ui__WEBPACK_IMPORTED_MODULE_1__["useTheme"])();
@@ -799,7 +822,7 @@ function colorize_cell(mode, color) {
   return {};
 }
 
-function create_field(field, formatters, options, style) {
+function create_field(field, formatters, options, style, order) {
   var _a;
 
   var field_name = formatters.name(field);
@@ -829,7 +852,7 @@ function create_field(field, formatters, options, style) {
 
   for (var i = 0; i < field.values.length; i++) {
     var key = field.name + '.' + i;
-    var v = field.values.get(i);
+    var v = field.values.get(order ? order[i] : i);
     if (v == null) v = undefined;
     var dv = field.display(v);
     var spec = {
@@ -872,7 +895,7 @@ function create_field(field, formatters, options, style) {
   };
 }
 
-function extract_groups(fields, formatters, label, options, style, next_field_style) {
+function extract_groups(fields, formatters, label, options, style, next_field_style, order) {
   var ungrouped = fields.filter(function (f) {
     var _a;
 
@@ -896,7 +919,7 @@ function extract_groups(fields, formatters, label, options, style, next_field_st
 
         return ((_a = f === null || f === void 0 ? void 0 : f.labels) === null || _a === void 0 ? void 0 : _a[label]) == g;
       }).map(function (f) {
-        return create_field(f, formatters, options, next_field_style(false));
+        return create_field(f, formatters, options, next_field_style(false), order);
       })
     };
   });
@@ -905,7 +928,7 @@ function extract_groups(fields, formatters, label, options, style, next_field_st
   return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])([{
     label: undefined,
     fields: ungrouped.map(function (f) {
-      return create_field(f, formatters, options, next_field_style(false));
+      return create_field(f, formatters, options, next_field_style(false), order);
     })
   }], grouped);
 }
@@ -957,7 +980,7 @@ function VTable(_a) {
     colws = res.ws;
   }
 
-  var next_field_style;
+  var next_field_style; // TODO: refactor this ugliness outside the base function
 
   if (!options.is_horizontal) {
     next_field_style = function next_field_style(is_dimension) {
@@ -1009,6 +1032,34 @@ function VTable(_a) {
     val: val_formatter
   };
   var fields = df.fields;
+  var order;
+
+  if (options.sort.field) {
+    var sort_src = fields.find(function (f) {
+      return f.name == options.sort.field;
+    });
+
+    if (sort_src) {
+      var ordermap = sort_src.values.toArray().map(function (v, i) {
+        return {
+          v: v == 0 && options.sort.zeronull ? null : v,
+          i: i
+        };
+      });
+      ordermap.sort(function (s0, s1) {
+        var a = s0.v;
+        var b = s1.v;
+        if (a == null && b == null) return 0;
+        if (a == null) return options.sort.nullfirst ? -1 : 1;
+        if (b == null) return options.sort.nullfirst ? 1 : -1;
+        return options.sort.desc ? b - a : a - b;
+      });
+      order = ordermap.map(function (v) {
+        return v.i;
+      });
+    }
+  }
+
   var groups = [];
   var dimfield = options.dimension_field && fields.find(function (f) {
     return f.name == options.dimension_field;
@@ -1016,7 +1067,7 @@ function VTable(_a) {
 
   if (dimfield) {
     groups.push({
-      fields: [create_field(dimfield, formatters, options, next_field_style(true))]
+      fields: [create_field(dimfield, formatters, options, next_field_style(true), order)]
     });
     fields = fields.filter(function (f) {
       return f.name != options.dimension_field;
@@ -1026,11 +1077,11 @@ function VTable(_a) {
   var label = options.group_by_label;
 
   if (label && label.length) {
-    groups.push.apply(groups, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(extract_groups(fields, formatters, label, options, style, next_field_style)));
+    groups.push.apply(groups, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(extract_groups(fields, formatters, label, options, style, next_field_style, order)));
   } else {
     groups.push({
       fields: fields.map(function (f) {
-        return create_field(f, formatters, options, next_field_style(false));
+        return create_field(f, formatters, options, next_field_style(false), order);
       })
     });
   }

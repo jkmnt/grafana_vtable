@@ -17,6 +17,12 @@ export interface VTableOptions {
   is_horizontal?: boolean;
   show_common_unit?: boolean;
   group_by_label?: string;
+  sort: {
+    field?: string;
+    zeronull?: boolean;
+    nullfirst?: boolean;
+    desc?: boolean;
+  }
   formatcode?: string;
 }
 
@@ -36,7 +42,7 @@ interface Formatters {
   val (value: {}, field:DfField, context: any) : void;
 }
 
-function create_field(field: DfField, formatters: Formatters, options: VTableOptions, style: { name: string, value: (i) => string }): GridField {
+function create_field(field: DfField, formatters: Formatters, options: VTableOptions, style: { name: string, value: (i) => string }, order): GridField {
   const field_name = formatters.name(field);
 
   if (!field.display)
@@ -72,7 +78,7 @@ function create_field(field: DfField, formatters: Formatters, options: VTableOpt
 
     const key = field.name + '.' + i;
 
-    let v = field.values.get(i);
+    let v = field.values.get(order ? order[i] : i);
     if (v == null)
       v = undefined;
 
@@ -118,7 +124,7 @@ function create_field(field: DfField, formatters: Formatters, options: VTableOpt
   return { values: cells }
 }
 
-function extract_groups(fields: DfField[], formatters: Formatters, label: string, options: VTableOptions, style: GridStyle, next_field_style): GridGroup[] {
+function extract_groups(fields: DfField[], formatters: Formatters, label: string, options: VTableOptions, style: GridStyle, next_field_style, order): GridGroup[] {
 
   const ungrouped = fields.filter(f => f?.labels?.[label] == undefined)
 
@@ -140,7 +146,7 @@ function extract_groups(fields: DfField[], formatters: Formatters, label: string
         g),
       fields: fields
         .filter(f => f?.labels?.[label] == g)
-        .map(f => create_field(f, formatters, options, next_field_style(false)))
+        .map(f => create_field(f, formatters, options, next_field_style(false), order))
     }
   })
 
@@ -151,7 +157,7 @@ function extract_groups(fields: DfField[], formatters: Formatters, label: string
   return [
     {
       label: undefined,
-      fields: ungrouped.map(f => create_field(f, formatters, options, next_field_style(false)))
+      fields: ungrouped.map(f => create_field(f, formatters, options, next_field_style(false), order))
     },
     ...grouped
   ]
@@ -204,6 +210,7 @@ export function VTable({ data, options, height, width }: Props) {
 
   let next_field_style;
 
+  // TODO: refactor this ugliness outside the base function
   if (! options.is_horizontal) {
     next_field_style = (is_dimension:boolean) => {
       const base = is_dimension ? style.dimfield : style.field;
@@ -244,25 +251,46 @@ export function VTable({ data, options, height, width }: Props) {
   }
 
   let fields = df.fields;
+
+  let order;
+  if (options.sort.field) {
+    const sort_src = fields.find(f => f.name == options.sort.field);
+    if (sort_src) {
+      const ordermap = sort_src.values.toArray().map((v, i)=> {
+        return {v: (v == 0 && options.sort.zeronull) ? null : v, i}}
+      );
+      ordermap.sort((s0, s1) => {
+        const a = s0.v;
+        const b = s1.v;
+
+        if (a == null && b == null) return 0;
+        if (a == null) return options.sort.nullfirst ? -1 : 1;
+        if (b == null) return options.sort.nullfirst ? 1 : -1;
+        return options.sort.desc ? (b - a) : (a - b);
+      })
+      order = ordermap.map(v => v.i);
+    }
+  }
+
   const groups: GridGroup[] = []
 
   const dimfield = options.dimension_field && fields.find(f => f.name == options.dimension_field);
   if (dimfield) {
     groups.push(
       {
-        fields: [create_field(dimfield, formatters, options, next_field_style(true))]
+        fields: [create_field(dimfield, formatters, options, next_field_style(true), order)]
       })
     fields = fields.filter(f => f.name != options.dimension_field)
   }
 
   const label = options.group_by_label;
   if (label && label.length) {
-    groups.push(...extract_groups(fields, formatters, label, options, style, next_field_style))
+    groups.push(...extract_groups(fields, formatters, label, options, style, next_field_style, order))
   }
   else {
     groups.push({
       fields: fields.map(f =>
-        create_field(f, formatters, options, next_field_style(false)))
+        create_field(f, formatters, options, next_field_style(false), order))
     });
   }
 

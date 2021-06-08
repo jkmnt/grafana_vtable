@@ -21,7 +21,8 @@ export interface GridStyle {
     grouplabel: string;
 }
 
-// TODO: make all styles static ? init on both themes once
+// TODO: make all styles static ? init on both themes once.
+// and compose 'em from small styles w/o redundancy
 
 export function useGridStyle(is_horizontal: boolean): GridStyle {
     const theme = useTheme();

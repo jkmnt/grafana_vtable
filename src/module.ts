@@ -73,11 +73,6 @@ const fetch_fields = async (context: FieldOverrideContext) => {
 export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
     .setPanelOptions((builder) => {
         builder
-            .addTextInput({
-                path: 'custom_widths',
-                name: 'Column widths',
-                description: 'Comma-separated columns widths in px'
-            })
             .addSelect({
                 path: 'dimension_field',
                 name: 'Dimension field name',
@@ -90,7 +85,7 @@ export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
             })
             .addBooleanSwitch({
                 path: 'is_horizontal',
-                name: 'Layout horizontally',
+                name: 'Horizontal layout ',
                 defaultValue: false,
             })
             .addBooleanSwitch({
@@ -108,20 +103,51 @@ export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
                 },
                 defaultValue: '',
             })
+            .addTextInput({
+                path: 'custom_columns',
+                name: 'Custom column widths and text alignments',
+                description: 'Comma-separated format string: r100;c200;l300; etc'
+            })
+            .addSelect({
+                path: 'sort.field',
+                name: 'By field',
+                settings: {
+                  allowCustomValue: true,
+                  options: [],
+                  getOptions: fetch_fields,
+                },
+                defaultValue: '',
+                category: ['Sort'],
+            })
+            .addBooleanSwitch({
+                path: 'sort.desc',
+                name: 'Descending',
+                category: ['Sort'],
+            })
+            .addBooleanSwitch({
+                path: 'sort.zeronull',
+                name: 'Treat zeros as nulls',
+                category: ['Sort'],
+            })
+            .addBooleanSwitch({
+                path: 'sort.nullfirst',
+                name: 'Nulls go first',
+                category: ['Sort'],
+            })
             .addCustomEditor({
                 id: 'formatcode',
                 path: 'formatcode',
                 name: 'Custom formatting code (unsafe!)',
+                category: ['Custom formatting'],
                 editor: JsEditor,
             })
     })
     .useFieldConfig({
         useCustomConfig: (builder) => {
             builder
-                .addSelect({
+                .addRadio({
                     path: 'display_mode',
                     name: 'Cell display mode',
-                    description: 'Color text, background, gauge',
                     settings: {
                         options: [
                             { value: 'auto', label: 'Auto' },
