@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PanelProps, getFieldDisplayName, formattedValueToString, Field as DfField, FormattedValue, DataFrame, ThresholdsConfig, Vector } from '@grafana/data';
+import { PanelProps, getFieldDisplayName, formattedValueToString, Field as DfField, FormattedValue, DataFrame, ThresholdsConfig, Vector, FieldType } from '@grafana/data';
 import { css } from 'emotion';
 import { getTextColorForBackground } from '@grafana/ui';
 import { getDisplayProcessor, textUtil } from '@grafana/data';
@@ -13,7 +13,7 @@ var rce = React.createElement;
 
 export interface VTableOptions {
   custom_widths?: string;
-  first_value_is_category?: boolean;
+  dimension_field?: string;
   is_horizontal?: boolean;
   show_common_unit?: boolean;
   group_by_label?: string;
@@ -38,9 +38,22 @@ interface Formatters {
 
 function create_field(field: DfField, formatters: Formatters, options: VTableOptions, style: { name: string, value: string }): GridField {
   const field_name = formatters.name(field);
-  let common_unit = options.show_common_unit && field.config?.unit;
-  if (common_unit == 'none')
-    common_unit = undefined;
+
+  if (!field.display)
+    field.display = getDisplayProcessor({ field });
+
+  let common_unit = undefined;
+
+  // try to render the field with the sample input == 1
+  // to obtain the unit. probing with 0 may be wrong since it may be special.
+  // mappings are detached while probing and reattached later.
+  // this is done only if field is numeric
+  if (options.show_common_unit && field.type == FieldType.number) {
+    const saved_mappings = field.config.mappings;
+    field.config.mappings = undefined;
+    common_unit = getDisplayProcessor({ field })(1).suffix;
+    field.config.mappings = saved_mappings;
+  }
 
   const namecell = rce(
     'div',
@@ -53,9 +66,8 @@ function create_field(field: DfField, formatters: Formatters, options: VTableOpt
 
   const cells = [namecell];
 
-  if (!field.display)
-    field.display = getDisplayProcessor({ field });
-
+  // the index loop here instead of map is for easily attaching the sorting feature
+  // should it be needed someday
   for (var i = 0; i < field.values.length; i++) {
 
     const key = field.name + '.' + i;
@@ -184,16 +196,17 @@ export function VTable({ data, options, height, width }: Props) {
   let fields = df.fields;
   const groups: GridGroup[] = []
 
-  if (options.first_value_is_category) {
+  const dimfield = options.dimension_field && fields.find(f => f.name == options.dimension_field);
+  if (dimfield) {
     groups.push(
       {
-        fields: [create_field(fields[0], formatters, options, style.catfield)]
+        fields: [create_field(dimfield, formatters, options, style.catfield)]
       })
-    fields = fields.slice(1);
+    fields = fields.filter(f => f.name != options.dimension_field)
   }
 
   const label = options.group_by_label;
-  if (label) {
+  if (label && label.length) {
     groups.push(...extract_groups(fields, formatters, label, options, style))
   }
   else

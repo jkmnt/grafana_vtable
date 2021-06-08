@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PanelPlugin } from '@grafana/data';
+import { FieldOverrideContext, getFieldDisplayName, PanelPlugin } from '@grafana/data';
 import { CodeEditor, CodeEditorSuggestionItem, CodeEditorSuggestionItemKind } from '@grafana/ui';
 import { VTable, VTableOptions } from './vtable';
 
@@ -40,6 +40,36 @@ function JsEditor({value, onChange}) {
         });
 }
 
+const fetch_groups = async (context: FieldOverrideContext) => {
+    const options = [{ value: '', label: '─' }]
+    if (context && context.data && context.data.length) {
+        const df = context.data[0];
+        const labels = []
+        df.fields.filter(f => f.labels).forEach((f) =>
+                Object.entries(f.labels).forEach(([k,v]) => {
+                    if (k != undefined && v != undefined && ! labels.includes(k))
+                        labels.push(k)
+                })
+        )
+        console.log(labels);
+        labels.forEach(l => options.push({label: l, value: l}))
+    }
+    return Promise.resolve(options);
+}
+
+const fetch_fields = async (context: FieldOverrideContext) => {
+    const options = [{ value: '', label: '─' }]
+    if (context && context.data && context.data.length) {
+        const df = context.data[0];
+        df.fields.forEach(
+            f => {
+                const label = getFieldDisplayName(f, df)
+                options.push({label: label != f.name ? `${label} (${f.name})` : f.name, value: f.name})
+        })
+    }
+    return Promise.resolve(options);
+}
+
 export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
     .setPanelOptions((builder) => {
         builder
@@ -48,10 +78,15 @@ export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
                 name: 'Column widths',
                 description: 'Comma-separated columns widths in px'
             })
-            .addBooleanSwitch({
-                path: 'first_value_is_category',
-                name: 'First value is category',
-                defaultValue: true,
+            .addSelect({
+                path: 'dimension_field',
+                name: 'Dimension field name',
+                settings: {
+                  allowCustomValue: true,
+                  options: [],
+                  getOptions: fetch_fields,
+                },
+                defaultValue: '',
             })
             .addBooleanSwitch({
                 path: 'is_horizontal',
@@ -63,9 +98,15 @@ export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
                 name: 'Show common unit',
                 defaultValue: true,
             })
-            .addTextInput({
+            .addSelect({
                 path: 'group_by_label',
                 name: 'Group by label',
+                settings: {
+                  allowCustomValue: true,
+                  options: [],
+                  getOptions: fetch_groups,
+                },
+                defaultValue: '',
             })
             .addCustomEditor({
                 id: 'formatcode',

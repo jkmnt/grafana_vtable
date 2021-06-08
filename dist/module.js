@@ -480,49 +480,51 @@ function HGrid(props) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "plugin", function() { return plugin; });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @grafana/data */ "@grafana/data");
-/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_grafana_data__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @grafana/ui */ "@grafana/ui");
-/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_grafana_ui__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _vtable__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./vtable */ "./vtable.ts");
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "../node_modules/tslib/tslib.es6.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @grafana/data */ "@grafana/data");
+/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_grafana_data__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @grafana/ui */ "@grafana/ui");
+/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_grafana_ui__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _vtable__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./vtable */ "./vtable.ts");
+
 
 
 
 
 var suggestions = [{
-  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Field,
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Field,
   label: 'value'
 }, {
-  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
   label: 'value.raw'
 }, {
-  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
   label: 'value.text'
 }, {
-  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
   label: 'value.style'
 }, {
-  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
   label: 'value.html'
 }, {
-  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Field,
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Field,
   label: 'field'
 }, {
-  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
   label: 'field.name'
 }, {
-  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Field,
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Field,
   label: 'lib'
 }, {
-  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
   label: 'lib.moment'
 }, {
-  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Field,
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Field,
   label: 'context'
 }, {
-  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditorSuggestionItemKind"].Property,
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
   label: 'context.df'
 }];
 
@@ -534,7 +536,7 @@ function JsEditor(_a) {
     return onChange(s.trim().length ? s : undefined);
   };
 
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_grafana_ui__WEBPACK_IMPORTED_MODULE_2__["CodeEditor"], {
+  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditor"], {
     value: value,
     onBlur: on_change,
     onSave: on_change,
@@ -548,15 +550,86 @@ function JsEditor(_a) {
   });
 }
 
-var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_1__["PanelPlugin"](_vtable__WEBPACK_IMPORTED_MODULE_3__["VTable"]).setPanelOptions(function (builder) {
+var fetch_groups = function fetch_groups(context) {
+  return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(void 0, void 0, void 0, function () {
+    var options, df, labels_1;
+    return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__generator"])(this, function (_a) {
+      options = [{
+        value: '',
+        label: '─'
+      }];
+
+      if (context && context.data && context.data.length) {
+        df = context.data[0];
+        labels_1 = [];
+        df.fields.filter(function (f) {
+          return f.labels;
+        }).forEach(function (f) {
+          return Object.entries(f.labels).forEach(function (_a) {
+            var _b = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__read"])(_a, 2),
+                k = _b[0],
+                v = _b[1];
+
+            if (k != undefined && v != undefined && !labels_1.includes(k)) labels_1.push(k);
+          });
+        });
+        console.log(labels_1);
+        labels_1.forEach(function (l) {
+          return options.push({
+            label: l,
+            value: l
+          });
+        });
+      }
+
+      return [2
+      /*return*/
+      , Promise.resolve(options)];
+    });
+  });
+};
+
+var fetch_fields = function fetch_fields(context) {
+  return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(void 0, void 0, void 0, function () {
+    var options, df_1;
+    return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__generator"])(this, function (_a) {
+      options = [{
+        value: '',
+        label: '─'
+      }];
+
+      if (context && context.data && context.data.length) {
+        df_1 = context.data[0];
+        df_1.fields.forEach(function (f) {
+          var label = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getFieldDisplayName"])(f, df_1);
+          options.push({
+            label: label != f.name ? label + " (" + f.name + ")" : f.name,
+            value: f.name
+          });
+        });
+      }
+
+      return [2
+      /*return*/
+      , Promise.resolve(options)];
+    });
+  });
+};
+
+var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_2__["PanelPlugin"](_vtable__WEBPACK_IMPORTED_MODULE_4__["VTable"]).setPanelOptions(function (builder) {
   builder.addTextInput({
     path: 'custom_widths',
     name: 'Column widths',
     description: 'Comma-separated columns widths in px'
-  }).addBooleanSwitch({
-    path: 'first_value_is_category',
-    name: 'First value is category',
-    defaultValue: true
+  }).addSelect({
+    path: 'dimension_field',
+    name: 'Dimension field name',
+    settings: {
+      allowCustomValue: true,
+      options: [],
+      getOptions: fetch_fields
+    },
+    defaultValue: ''
   }).addBooleanSwitch({
     path: 'is_horizontal',
     name: 'Layout horizontally',
@@ -565,9 +638,15 @@ var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_1__["PanelPlugin"](_vtab
     path: 'show_common_unit',
     name: 'Show common unit',
     defaultValue: true
-  }).addTextInput({
+  }).addSelect({
     path: 'group_by_label',
-    name: 'Group by label'
+    name: 'Group by label',
+    settings: {
+      allowCustomValue: true,
+      options: [],
+      getOptions: fetch_groups
+    },
+    defaultValue: ''
   }).addCustomEditor({
     id: 'formatcode',
     path: 'formatcode',
@@ -715,19 +794,32 @@ function colorize_cell(mode, color) {
 }
 
 function create_field(field, formatters, options, style) {
-  var _a, _b;
+  var _a;
 
   var field_name = formatters.name(field);
-  var common_unit = options.show_common_unit && ((_a = field.config) === null || _a === void 0 ? void 0 : _a.unit);
-  if (common_unit == 'none') common_unit = undefined;
+  if (!field.display) field.display = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getDisplayProcessor"])({
+    field: field
+  });
+  var common_unit = undefined; // try to render the field with the sample input == 1
+  // to obtain the unit. probing with 0 may be wrong since it may be special.
+  // mappings are detached while probing and reattached later.
+  // this is done only if field is numeric
+
+  if (options.show_common_unit && field.type == _grafana_data__WEBPACK_IMPORTED_MODULE_2__["FieldType"].number) {
+    var saved_mappings = field.config.mappings;
+    field.config.mappings = undefined;
+    common_unit = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getDisplayProcessor"])({
+      field: field
+    })(1).suffix;
+    field.config.mappings = saved_mappings;
+  }
+
   var namecell = rce('div', {
     key: field.name,
     className: style.name
   }, common_unit ? field_name + ", " + common_unit : field_name);
-  var cells = [namecell];
-  if (!field.display) field.display = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getDisplayProcessor"])({
-    field: field
-  });
+  var cells = [namecell]; // the index loop here instead of map is for easily attaching the sorting feature
+  // should it be needed someday
 
   for (var i = 0; i < field.values.length; i++) {
     var key = field.name + '.' + i;
@@ -737,7 +829,7 @@ function create_field(field, formatters, options, style) {
     var spec = {
       raw: v,
       text: options.show_common_unit ? dv.text : Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["formattedValueToString"])(dv),
-      style: colorize_cell((_b = field.config.custom) === null || _b === void 0 ? void 0 : _b.display_mode, dv.color),
+      style: colorize_cell((_a = field.config.custom) === null || _a === void 0 ? void 0 : _a.display_mode, dv.color),
       html: undefined
     };
 
@@ -860,17 +952,22 @@ function VTable(_a) {
   };
   var fields = df.fields;
   var groups = [];
+  var dimfield = options.dimension_field && fields.find(function (f) {
+    return f.name == options.dimension_field;
+  });
 
-  if (options.first_value_is_category) {
+  if (dimfield) {
     groups.push({
-      fields: [create_field(fields[0], formatters, options, style.catfield)]
+      fields: [create_field(dimfield, formatters, options, style.catfield)]
     });
-    fields = fields.slice(1);
+    fields = fields.filter(function (f) {
+      return f.name != options.dimension_field;
+    });
   }
 
   var label = options.group_by_label;
 
-  if (label) {
+  if (label && label.length) {
     groups.push.apply(groups, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(extract_groups(fields, formatters, label, options, style)));
   } else groups.push({
     fields: fields.map(function (f) {
