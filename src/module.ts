@@ -107,7 +107,7 @@ plugin.setPanelOptions((builder) => {
         .addTextInput({
             path: 'custom_columns',
             name: 'Custom column widths and text alignments',
-            description: 'Comma-separated format string: r100;c200;l300; etc'
+            description: 'Comma-separated format string: r100, c200, l300, etc'
         })
         .addSelect({
             path: 'sort.field',

@@ -646,7 +646,7 @@ plugin.setPanelOptions(function (builder) {
   }).addTextInput({
     path: 'custom_columns',
     name: 'Custom column widths and text alignments',
-    description: 'Comma-separated format string: r100;c200;l300; etc'
+    description: 'Comma-separated format string: r100, c200, l300, etc'
   }).addSelect({
     path: 'sort.field',
     name: 'By field',
@@ -745,8 +745,8 @@ function get_vstyle(theme) {
       value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_2 || (templateObject_2 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                padding: 8px;\n\n                text-align: right;\n\n                border-bottom: 1px solid ", ";\n\n                white-space: nowrap;\n            "], ["\n                padding: 8px;\n\n                text-align: right;\n\n                border-bottom: 1px solid ", ";\n\n                white-space: nowrap;\n            "])), border_bg)
     },
     dimfield: {
-      name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_3 || (templateObject_3 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                position: sticky;\n                top: 0;\n                z-index: 3;\n\n                left: 0;\n                padding: 8px;\n                background-color: ", ";\n                color: ", ";\n            "], ["\n                position: sticky;\n                top: 0;\n                z-index: 3;\n\n                left: 0;\n                padding: 8px;\n                background-color: ", ";\n                color: ", ";\n            "])), sticky_bg, dim),
-      value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_4 || (templateObject_4 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                position: sticky;\n                top: 0;\n                z-index: 1;\n\n                padding: 8px;\n                background-color: ", ";\n                color: ", ";\n\n                text-align: right;\n            "], ["\n                position: sticky;\n                top: 0;\n                z-index: 1;\n\n                padding: 8px;\n                background-color: ", ";\n                color: ", ";\n\n                text-align: right;\n            "])), sticky_bg, hl)
+      name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_3 || (templateObject_3 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                position: sticky;\n                top: 0;\n                z-index: 3;\n\n                left: 0;\n                padding: 8px;\n                background-color: ", ";\n                color: ", ";\n\n                white-space: nowrap;\n            "], ["\n                position: sticky;\n                top: 0;\n                z-index: 3;\n\n                left: 0;\n                padding: 8px;\n                background-color: ", ";\n                color: ", ";\n\n                white-space: nowrap;\n            "])), sticky_bg, dim),
+      value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_4 || (templateObject_4 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                position: sticky;\n                top: 0;\n                z-index: 1;\n\n                padding: 8px;\n                background-color: ", ";\n                color: ", ";\n\n                text-align: right;\n\n                white-space: nowrap;\n            "], ["\n                position: sticky;\n                top: 0;\n                z-index: 1;\n\n                padding: 8px;\n                background-color: ", ";\n                color: ", ";\n\n                text-align: right;\n\n                white-space: nowrap;\n            "])), sticky_bg, hl)
     },
     grouplabel: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_5 || (templateObject_5 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            position: sticky;\n            left: 0;\n            z-index: 2;\n\n            padding: 16px 8px 0 4px;\n            background-color: ", ";\n            color: ", ";\n        "], ["\n            position: sticky;\n            left: 0;\n            z-index: 2;\n\n            padding: 16px 8px 0 4px;\n            background-color: ", ";\n            color: ", ";\n        "])), sticky_bg, hl)
   };
@@ -764,7 +764,7 @@ function get_hstyle(theme) {
     },
     dimfield: {
       name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_8 || (templateObject_8 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                position: sticky;\n                top: 0;\n                left: 0;\n                z-index: 3;\n\n                padding: 8px;\n\n                color: ", ";\n                background-color: ", ";\n\n                text-align: right;\n            "], ["\n                position: sticky;\n                top: 0;\n                left: 0;\n                z-index: 3;\n\n                padding: 8px;\n\n                color: ", ";\n                background-color: ", ";\n\n                text-align: right;\n            "])), hl, sticky_bg),
-      value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_9 || (templateObject_9 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                position: sticky;\n                left: 0;\n                z-index: 2;\n\n                padding: 8px;\n\n                color: ", ";\n                background-color: ", ";\n\n                border-bottom: 1px solid ", ";\n\n                text-align: right;\n            "], ["\n                position: sticky;\n                left: 0;\n                z-index: 2;\n\n                padding: 8px;\n\n                color: ", ";\n                background-color: ", ";\n\n                border-bottom: 1px solid ", ";\n\n                text-align: right;\n            "])), dim, sticky_bg, border_bg)
+      value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_9 || (templateObject_9 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                position: sticky;\n                left: 0;\n                z-index: 2;\n\n                padding: 8px;\n\n                color: ", ";\n                background-color: ", ";\n\n                border-bottom: 1px solid ", ";\n\n                text-align: right;\n\n                white-space: nowrap;\n            "], ["\n                position: sticky;\n                left: 0;\n                z-index: 2;\n\n                padding: 8px;\n\n                color: ", ";\n                background-color: ", ";\n\n                border-bottom: 1px solid ", ";\n\n                text-align: right;\n\n                white-space: nowrap;\n            "])), dim, sticky_bg, border_bg)
     },
     grouplabel: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_10 || (templateObject_10 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            position: sticky;\n            top: 0;\n            padding: 8px;\n\n            color: ", ";\n            border-right: 1px solid ", ";\n            background-color: ", ";\n\n            text-align: center;\n        "], ["\n            position: sticky;\n            top: 0;\n            padding: 8px;\n\n            color: ", ";\n            border-right: 1px solid ", ";\n            background-color: ", ";\n\n            text-align: center;\n        "])), hl, border_bg, sticky_bg)
   };
@@ -938,7 +938,7 @@ function extract_groups(fields, formatters, label, options, style, next_field_st
 
 function parse_colspec(str, size) {
   var re = /\s*([r|c|l]?)\s*([0-9]*)\s*/;
-  var specs = str.split(';').map(function (f) {
+  var specs = str.split(',').map(function (f) {
     var m = f.match(re);
     var a = m ? _styles__WEBPACK_IMPORTED_MODULE_7__["alignstyles"][m[1]] : undefined;
     var w = m && m[2].length ? m[2] : 0;
@@ -975,10 +975,10 @@ function VTable(_a) {
   var colws;
   var aligns = [];
 
-  if (options.custom_widths) {
+  if (options.custom_columns) {
     var ncols = 0;
     if (options.is_horizontal) ncols = df.fields.length;else ncols = ((_e = (_d = df.fields) === null || _d === void 0 ? void 0 : _d[0].values.length) !== null && _e !== void 0 ? _e : 0) + 1;
-    var res = parse_colspec(options.custom_widths, ncols);
+    var res = parse_colspec(options.custom_columns, ncols);
     aligns = res.as;
     colws = res.ws;
   }

@@ -12,7 +12,7 @@ import { useGridStyle, GridStyle, alignstyles } from './styles'
 var rce = React.createElement;
 
 export interface VTableOptions {
-  custom_widths?: string;
+  custom_columns?: string;
   dimension_field?: string;
   is_horizontal?: boolean;
   show_common_unit?: boolean;
@@ -166,7 +166,7 @@ function extract_groups(fields: DfField[], formatters: Formatters, label: string
 function parse_colspec(str: string, size: number) : {as:string[], ws:number[]} {
   const re = /\s*([r|c|l]?)\s*([0-9]*)\s*/;
 
-  const specs = str.split(';').map(f =>
+  const specs = str.split(',').map(f =>
     {
       const m = f.match(re);
       const a = m ? alignstyles[m[1]] : undefined;
@@ -197,13 +197,13 @@ export function VTable({ data, options, height, width }: Props) {
   let colws : number[];
   let aligns = [];
 
-  if (options.custom_widths) {
+  if (options.custom_columns) {
     let ncols = 0;
     if (options.is_horizontal)
       ncols = df.fields.length;
     else
       ncols = (df.fields?.[0].values.length ?? 0) + 1;
-    const res = parse_colspec(options.custom_widths, ncols);
+    const res = parse_colspec(options.custom_columns, ncols);
     aligns = res.as
     colws = res.ws;
   }

@@ -72,6 +72,8 @@ function get_vstyle(theme: GrafanaTheme): GridStyle {
                 padding: 8px;
                 background-color: ${sticky_bg};
                 color: ${dim};
+
+                white-space: nowrap;
             `,
             value: css`
                 position: sticky;
@@ -83,6 +85,8 @@ function get_vstyle(theme: GrafanaTheme): GridStyle {
                 color: ${hl};
 
                 text-align: right;
+
+                white-space: nowrap;
             `,
         },
         grouplabel: css`
@@ -157,6 +161,8 @@ function get_hstyle(theme: GrafanaTheme): GridStyle {
                 border-bottom: 1px solid ${border_bg};
 
                 text-align: right;
+
+                white-space: nowrap;
             `,
         },
         grouplabel: css`
