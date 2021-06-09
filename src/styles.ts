@@ -179,7 +179,7 @@ function get_hstyle(theme: GrafanaTheme): GridStyle {
     }
 }
 
-export const alignstyles = {
+export const alignstyles : {[key: string]: string}= {
     l: css`text-align: left;`,
     c: css`text-align: center;`,
     r: css`text-align: right;`,

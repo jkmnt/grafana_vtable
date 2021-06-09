@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { FieldOverrideContext, getFieldDisplayName, PanelPlugin} from '@grafana/data';
-import { CodeEditor, CodeEditorSuggestionItem, CodeEditorSuggestionItemKind } from '@grafana/ui';
+import { FieldOverrideContext, getFieldDisplayName, Labels, PanelPlugin} from '@grafana/data';
+import { CodeEditor, CodeEditorSuggestionItem, CodeEditorSuggestionItemKind} from '@grafana/ui';
 import { VTable, VTableOptions } from './vtable';
 
 interface CustomFieldConfig {
@@ -45,7 +45,7 @@ const DEF_CODE = `
 value.text = field.name + ':' + value.raw
 value.style = {'color': 'red'}`;
 
-function JsEditor({ value, onChange }) {
+function JsEditor({ value, onChange } : {value: string, onChange: (s: string) => void}) {
     return React.createElement(CodeEditor,
         {
             value,
@@ -65,9 +65,9 @@ const fetch_groups = async (context: FieldOverrideContext) => {
     const options = [{ value: '', label: '─' }]
     if (context && context.data && context.data.length) {
         const df = context.data[0];
-        const labels = []
+        const labels: string[] = []
         df.fields.filter(f => f.labels).forEach((f) =>
-            Object.entries(f.labels).forEach(([k, v]) => {
+            Object.entries(f.labels as Labels).forEach(([k, v]) => {
                 if (k != undefined && v != undefined && !labels.includes(k))
                     labels.push(k)
             })

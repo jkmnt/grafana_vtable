@@ -10,7 +10,6 @@ export interface GridGroup {
 }
 
 export interface GridProps {
-
     className?: string;
 
     colws?: number[];
@@ -22,8 +21,7 @@ export interface GridProps {
 function calc_sizes(spec: number[] | undefined, n: number, defsize: string) {
     const sizes = Array(n).fill(defsize);
 
-    if (! spec)
-        return sizes;
+    if (! (spec && spec.length)) return sizes;
 
     for (var i = 0; i < n; i++) {
         const v = spec[i];

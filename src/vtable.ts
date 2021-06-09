@@ -11,13 +11,6 @@ import { useGridStyle, GridStyle, alignstyles } from './styles'
 
 var rce = React.createElement;
 
-export interface VtableSortOptions {
-  field?: string;
-  zeronull?: boolean;
-  nullfirst?: boolean;
-  desc?: boolean;
-}
-
 export interface VTableOptions {
   custom_columns?: string;
   dimension_field?: string;
@@ -26,34 +19,45 @@ export interface VTableOptions {
   group_by_label?: string;
   use_formatcode?: boolean;
   formatcode?: string;
-  sort: VtableSortOptions;
+  sort: {
+    field?: string;
+    zeronull?: boolean;
+    nullfirst?: boolean;
+    desc?: boolean;
+  }
 }
+
+interface FieldStyle {
+  name: string;
+  value: (i: number) => string;
+}
+
+type Formatter = (value: ValueSpec, field: DfField, context: any) => void;
 
 interface FieldCtx {
   df: DataFrame,
-  formatter?: (value: {}, field:DfField, context: any) => void,
-  style: { name: string, value: (i: number) => string },
+  formatter?: Formatter,
+  style: GridStyle;
   order?: number[],
 }
 
-interface Props extends PanelProps<VTableOptions> {
+interface ValueSpec {
+    raw: any,
+    i: number,
+    text: string;
+    style: {},
+    html: string | undefined,
 }
 
-function colorize_cell(mode: string, color: string) {
-
+function colorize_cell(mode: string | undefined, color: string | undefined) {
   if (!color) return {};
-  if (mode == 'fg') return {'color': color};
-  if (mode == 'bg') return {'background': color, 'color': getTextColorForBackground(color)};
+  if (mode == 'fg') return { 'color': color };
+  if (mode == 'bg') return { 'background': color, 'color': getTextColorForBackground(color) };
   return {};
 }
 
-interface Formatters {
-  name (field: DfField) : string;
-  val (value: {}, field:DfField, context: any) : void;
-}
-
-function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx): GridField {
-  const {df, formatter, style, order} = ctx;
+function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, style: FieldStyle): GridField {
+  const { df, formatter, order } = ctx;
   const field_name = getFieldDisplayName(field, df);
 
   if (!field.display)
@@ -94,16 +98,17 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx): Gr
       v = undefined;
 
     const dv = field.display(v);
-    const spec = {
+    const spec: ValueSpec = {
       raw: v,
+      i,
       text: options.show_common_unit ? dv.text : `${dv.prefix ?? ''}${dv.text}${dv.suffix ?? ''}`,
       style: colorize_cell(field.config.custom?.display_mode, dv.color),
       html: undefined,
     }
 
     if (formatter) {
-      try { formatter(spec, field, {})}
-      catch(e) { }
+      try { formatter(spec, field, {}) }
+      catch (e) { }
     }
 
     let cell;
@@ -115,7 +120,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx): Gr
           key,
           style: spec.style,
           className: style.value(i),
-          dangerouslySetInnerHTML: {__html: spec.html},
+          dangerouslySetInnerHTML: { __html: spec.html },
         });
     }
     else {
@@ -141,57 +146,73 @@ interface GroupSpec {
   is_dim?: boolean;
 }
 
-function create_groups(fields: DfField[], options: VTableOptions) : GroupSpec[] {
+
+function fields_to_groups(fields: DfField[], options: VTableOptions): GroupSpec[] {
+  const { dimension_field: dim, group_by_label: label } = options;
 
   const groups: GroupSpec[] = [];
 
-  const {dimension_field: dim, group_by_label: label} = options;
   if (dim && dim.length) {
     const dimfield = fields.find(f => f.name == dim);
     if (dimfield) {
-      groups.push({fields: [dimfield], is_dim:true})
+      groups.push({ fields: [dimfield], is_dim: true })
       fields = fields.filter(f => f != dimfield);
     }
   }
 
   if (label && label.length) {
-    const gm = new Map([[undefined, []]]);
+    const gm = new Map<string | undefined, DfField[]>();
+    gm.set(undefined, []);
 
     fields.forEach(f => {
         const lab = f?.labels?.[label];
-        if (! gm.has(lab))
+        if (!gm.has(lab))
           gm.set(lab, [])
-        gm.get(lab).push(f)
+        gm.get(lab)?.push(f)  // '?' just to calm down the linter
       }
     );
 
-    if (! gm.get(undefined).length)
+    if (! gm.get(undefined)?.length)
       gm.delete(undefined);
 
-    groups.push(...[...gm].map(([name, fields]) => {return {name, fields}}))
+    groups.push(...[...gm].map(([name, fields]) => { return { name, fields } }))
   }
   else {
-    groups.push({fields}) // shortcut if no grouping
+    groups.push({ fields }) // shortcut if no grouping
   }
 
   return groups;
 }
 
-function create_gridgroups(gss: GroupSpec[], options: VTableOptions, ctx:FieldCtx, style: GridStyle, next_field_style): GridGroup[] {
+
+function create_gridgroups(gss: GroupSpec[], options: VTableOptions, ctx: FieldCtx, aligns: (string | undefined)[]): GridGroup[] {
+
+  const field_style = (field_idx: number, is_dimension: boolean) => {
+    const base = is_dimension ? ctx.style.dimfield : ctx.style.field;
+    return options.is_horizontal ? {
+      name: css(base.name, aligns[field_idx]),
+      value: (i: number) => css(base.value, aligns[field_idx]),
+    } : {
+      name: css(base.name, aligns[0]),
+      value: (i: number) => css(base.value, aligns[i + 1]),
+    }
+  }
+
+  var field_idx = 0;
 
   const gridgroups = gss.map(g => {
-      return {
-        label: g.name ? rce('div', {key: `__group${g.name}`, className: style.grouplabel}, g.name) : undefined,
-        fields: g.fields.map(f => create_field(f, options, {...ctx, style: next_field_style(g.is_dim)}))
-      }
+    return {
+      label: g.name ? rce('div', { key: `__group.${g.name}`, className: ctx.style.grouplabel }, g.name) : undefined,
+      fields: g.fields.map(f => create_field(f, options, ctx, field_style(field_idx++, !! g.is_dim)))
     }
+  }
   )
 
   return gridgroups;
 }
 
 
-function num_comparer(a: number, b: number, nullfirst?:boolean, desc?:boolean): number {
+function num_comparer(a: number, b: number, nullfirst?: boolean, desc?: boolean): number {
   if (a == null && b == null) return 0;
   if (a == null) return nullfirst ? -1 : 1;
   if (b == null) return nullfirst ? 1 : -1;
@@ -199,7 +220,7 @@ function num_comparer(a: number, b: number, nullfirst?:boolean, desc?:boolean): 
   return desc ? (b - a) : (a - b);
 }
 
-function str_comparer(a: string, b: string, nullfirst?:boolean, desc?:boolean): number {
+function str_comparer(a: string, b: string, nullfirst?: boolean, desc?: boolean): number {
   if (a == null && b == null) return 0;
   if (a == null) return nullfirst ? -1 : 1;
   if (b == null) return nullfirst ? 1 : -1;
@@ -214,17 +235,17 @@ function str_comparer(a: string, b: string, nullfirst?:boolean, desc?:boolean): 
   return 0;
 }
 
-function get_order(fields: DfField[], options: VTableOptions) : number[] | undefined {
+function get_order(fields: DfField[], options: VTableOptions): number[] | undefined {
 
-  const {sort} = options;
+  const { sort } = options;
 
-  if (! (sort.field && sort.field.length)) return undefined;
+  if (!(sort.field && sort.field.length)) return undefined;
 
   const field = fields.find(f => f.name == sort.field);
-  if (! field) return undefined;
+  if (!field) return undefined;
 
-  const ordermap = field.values.toArray().map((v, i)=> {
-    return {v: (v == 0 && sort.zeronull) ? null : v, i}
+  const ordermap = field.values.toArray().map((v, i) => {
+    return { v: (v == 0 && sort.zeronull) ? null : v, i }
   });
 
   if (field.type == FieldType.number)
@@ -235,18 +256,17 @@ function get_order(fields: DfField[], options: VTableOptions) : number[] | undef
   return ordermap.map(v => v.i);
 }
 
-function parse_colspec(str: string, size: number) : {aligns:string[], widths:number[]} {
+function parse_colspec(str: string, size: number): { a: string | undefined, w: number }[] {
   const re = /\s*([r|c|l]?)\s*([0-9]*)\s*/;
 
-  const specs = str.split(',').map(f =>
-    {
-      const m = f.match(re);
-      const a = m ? alignstyles[m[1]] : undefined;
-      const w = m && m[2].length ? m[2] : 0;
+  const specs = str.split(',').map(f => {
+    const m = f.match(re);
+    const a = m ? alignstyles[m[1]] : undefined;
+    const w = m && m[2].length ? Number.parseInt(m[2]) : 0;
 
-      return [a, w]
-    }
-  );
+    return {a, w}
+  });
+
   const len = specs.length;
 
   if (len && len < size) {
@@ -254,71 +274,43 @@ function parse_colspec(str: string, size: number) : {aligns:string[], widths:num
     specs.fill(specs[len - 1], len);
   }
 
-  return {aligns: specs.map(s => s[0] as string), widths: specs.map(s => s[1] as number)}
+  return specs;
+}
+
+// this returns the maximum of rows or columns regardless of the orientation
+function estimate_maxcols(fields: DfField[]) {
+  return Math.max(fields.length, fields?.[0].values.length + 1 ?? 1);
 }
 
 
-function get_ncols(fields: DfField[], options: VTableOptions) {
-  if (options.is_horizontal)
-    return fields.length;
-
-  return (fields?.[0].values.length ?? 0) + 1;
-}
-
-
-function get_colspecs(spec: string, maxcols: number) {
-  if (! (spec && spec.length))
-    return {aligns: [], widths: []};
-
+function get_colspecs(spec: string | undefined, maxcols: number) {
+  if (!(spec && spec.length))
+    return [];
 
   return parse_colspec(spec, maxcols);
 }
 
-
-export function VTable({ data, options, height, width }: Props) {
-  const is_empty = ! (data.series && data.series.length && data.series[0]?.fields?.length);
+export function VTable({ data, options, height, width }: PanelProps<VTableOptions>) {
+  const is_empty = !(data.series && data.series.length && data.series[0]?.fields?.length);
 
   if (is_empty)
     return rce('div', null, 'No data');
 
   const df = data.series[0];
   const fields = df.fields;
-  const style = useGridStyle(options.is_horizontal);
+  const style = useGridStyle(!! options.is_horizontal);
 
-  const maxcols = get_ncols(fields, options);
-  const {widths, aligns} = get_colspecs(options.custom_columns, maxcols);
+  const maxcols = estimate_maxcols(fields);
+  const colspecs = get_colspecs(options.custom_columns, maxcols);
 
-  let next_field_style;
+  let formatter: Formatter | undefined;
 
-  // TODO: refactor this ugliness outside the base function
-  if (! options.is_horizontal) {
-    next_field_style = (is_dimension:boolean) => {
-      const base = is_dimension ? style.dimfield : style.field;
-      return {
-        name: css(base.name, aligns[0]),
-        value: (i) => css(base.value, aligns[i + 1]),
-      }
-    }
-  }
-  else {
-    next_field_style = (is_dimension:boolean) => {
-      const base = is_dimension ? style.dimfield : style.field;
-      const align = aligns.shift()
-      return {
-        name: css(base.name, align),
-        value: (i) => css(base.value, align),
-      }
-    }
-  }
-
-  let formatter;
-
-  if (options.use_formatcode) {
+  if (options.use_formatcode && options.formatcode) {
     try {
       const f = Function('value', 'field', 'context', 'lib', options.formatcode);
-      formatter = (value, field, context) => f(value, field, {df, ...context}, { moment })
+      formatter = (value, field, context) => f(value, field, { df, ...context }, { moment })
     }
-    catch(e) {
+    catch (e) {
       console.log('failed to compile formatter', e)
     }
   }
@@ -326,12 +318,12 @@ export function VTable({ data, options, height, width }: Props) {
   const ctx: FieldCtx = {
     formatter,
     df,
-    style: undefined,
+    style,
     order: get_order(fields, options),
   }
 
-  const groups = create_groups(fields, options);
-  const gridgroups = create_gridgroups(groups, options, ctx, style, next_field_style);
+  const groups = fields_to_groups(fields, options);
+  const gridgroups = create_gridgroups(groups, options, ctx, colspecs.map(c => c.a));
 
   return rce(options.is_horizontal ? HGrid : VGrid, {
     className: css`
@@ -340,6 +332,6 @@ export function VTable({ data, options, height, width }: Props) {
                 overflow: auto;
               `,
     groups: gridgroups,
-    colws: widths.length ? widths : undefined,
+    colws: colspecs.length ? colspecs.map(c => c.w) : undefined,
   })
 };
