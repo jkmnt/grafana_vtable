@@ -26,6 +26,13 @@ export interface VTableOptions {
   formatcode?: string;
 }
 
+interface FieldCtx {
+  df: DataFrame,
+  val_formatter?: (value: {}, field:DfField, context: any) => void,
+  style: { name: string, value: (i: number) => string },
+  order?: number[],
+}
+
 interface Props extends PanelProps<VTableOptions> {
 }
 
@@ -42,8 +49,9 @@ interface Formatters {
   val (value: {}, field:DfField, context: any) : void;
 }
 
-function create_field(field: DfField, formatters: Formatters, options: VTableOptions, style: { name: string, value: (i) => string }, order): GridField {
-  const field_name = formatters.name(field);
+function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx): GridField {
+  const {df, val_formatter, style, order} = ctx;
+  const field_name = getFieldDisplayName(field, df);
 
   if (!field.display)
     field.display = getDisplayProcessor({ field });
@@ -90,8 +98,8 @@ function create_field(field: DfField, formatters: Formatters, options: VTableOpt
       html: undefined,
     }
 
-    if (formatters.val) {
-      try { formatters.val(spec, field, {})}
+    if (val_formatter) {
+      try { val_formatter(spec, field, {})}
       catch(e) { }
     }
 
@@ -124,44 +132,117 @@ function create_field(field: DfField, formatters: Formatters, options: VTableOpt
   return { values: cells }
 }
 
-function extract_groups(fields: DfField[], formatters: Formatters, label: string, options: VTableOptions, style: GridStyle, next_field_style, order): GridGroup[] {
+interface GroupMap {
+  name?: string;
+  fields: DfField[];
+  is_dim?: boolean;
+}
 
-  const ungrouped = fields.filter(f => f?.labels?.[label] == undefined)
+function group_fields(fields: DfField[], options: VTableOptions) : GroupMap[] {
 
-  const groups: string[] = [];
+  const groups: GroupMap[] = [];
 
-  fields.forEach(f => {
-    const lab = f?.labels?.[label];
-    if (lab != undefined && ! groups.includes(lab))
-      groups.push(lab);
+  const {dimension_field: dim, group_by_label: label} = options;
+  if (dim && dim.length) {
+    const dimfield = fields.find(f => f.name == dim);
+    if (dimfield) {
+      groups.push({fields: [dimfield], is_dim:true})
+      fields = fields.filter(f => f != dimfield);
+    }
+  }
+
+  if (label && label.length) {
+    const gm = new Map([[undefined, []]]);
+
+    fields.forEach(f => {
+        const lab = f?.labels?.[label];
+        if (! gm.has(lab))
+          gm.set(lab, [])
+        gm.get(lab).push(f)
+      }
+    );
+
+    if (! gm.get(undefined).length)
+      gm.delete(undefined);
+
+    groups.push(...[...gm].map(([name, fields]) => {return {name, fields}}))
+  }
+  else {
+    groups.push({fields}) // shortcut if no grouping
+  }
+
+  return groups;
+}
+
+function groups_to_cells(gm: GroupMap[], val_formatter, options: VTableOptions, style: GridStyle, next_field_style, order, df): GridGroup[] {
+
+  const ctx: FieldCtx = {
+    df: df,
+    val_formatter: val_formatter,
+    style: undefined,
+    order,
+  }
+
+  const groups = gm.map(g => {
+      return {
+        label: g.name ? rce('div',
+          {
+            key: `__group${g.name}`,
+            className: style.grouplabel
+          },
+          g.name) : undefined,
+        fields: g.fields.map(f => create_field(f, options, {...ctx, style: next_field_style(g.is_dim)}))
+      }
+    }
+  )
+
+  return groups;
+}
+
+
+function num_comparer(a: number, b: number, nullfirst?:boolean, desc?:boolean): number {
+  if (a == null && b == null) return 0;
+  if (a == null) return nullfirst ? -1 : 1;
+  if (b == null) return nullfirst ? 1 : -1;
+
+  return desc ? (b - a) : (a - b);
+}
+
+function str_comparer(a: string, b: string, nullfirst?:boolean, desc?:boolean): number {
+  if (a == null && b == null) return 0;
+  if (a == null) return nullfirst ? -1 : 1;
+  if (b == null) return nullfirst ? 1 : -1;
+
+  if (desc) {
+    if (a > b) return -1;
+    if (a < b) return 1;
+  } else {
+    if (a < b) return -1;
+    if (a > b) return 1;
+  }
+  return 0;
+}
+
+function get_order(fields: DfField[], options: VTableOptions) : number[] | undefined {
+  const {sort} = options;
+
+  if (! (sort.field && sort.field.length)) return undefined;
+
+  const field = fields.find(f => f.name == options.sort.field);
+  if (! field) return undefined;
+
+  const ordermap = field.values.toArray().map((v, i)=> {
+    return {v: (v == 0 && sort.zeronull) ? null : v, i}
   });
 
-  const grouped = groups.map(g => {
-    return {
-      label: rce('div',
-        {
-          key: `__group${g}`,
-          className: style.grouplabel
-        },
-        g),
-      fields: fields
-        .filter(f => f?.labels?.[label] == g)
-        .map(f => create_field(f, formatters, options, next_field_style(false), order))
-    }
-  })
+  if (field.type == FieldType.number)
+    ordermap.sort((a, b) => num_comparer(a.v, b.v, sort.nullfirst, sort.desc));
+  else
+    ordermap.sort((a, b) => str_comparer(a.v, b.v, sort.nullfirst, sort.desc));
 
-  if (!ungrouped.length)
-    return grouped;
-
-  // ugly
-  return [
-    {
-      label: undefined,
-      fields: ungrouped.map(f => create_field(f, formatters, options, next_field_style(false), order))
-    },
-    ...grouped
-  ]
+  return ordermap.map(v => v.i);
 }
+
 
 function parse_colspec(str: string, size: number) : {as:string[], ws:number[]} {
   const re = /\s*([r|c|l]?)\s*([0-9]*)\s*/;
@@ -184,6 +265,7 @@ function parse_colspec(str: string, size: number) : {as:string[], ws:number[]} {
 
   return {as: specs.map(s => s[0] as string), ws: specs.map(s => s[1] as number)}
 }
+
 
 export function VTable({ data, options, height, width }: Props) {
   const is_empty = ! (data.series && data.series.length && data.series[0]?.fields?.length);
@@ -231,8 +313,6 @@ export function VTable({ data, options, height, width }: Props) {
     }
   }
 
-  const name_formatter = (field: DfField) => getFieldDisplayName(field, df);
-
   let val_formatter;
 
   if (options.formatcode) {
@@ -245,54 +325,17 @@ export function VTable({ data, options, height, width }: Props) {
     }
   }
 
-  const formatters = {
-    name: name_formatter,
-    val: val_formatter,
+  const fields = df.fields;
+
+  const ctx: FieldCtx = {
+    val_formatter,
+    df,
+    style: undefined,
+    order: get_order(fields, options);
   }
 
-  let fields = df.fields;
-
-  let order;
-  if (options.sort.field) {
-    const sort_src = fields.find(f => f.name == options.sort.field);
-    if (sort_src) {
-      const ordermap = sort_src.values.toArray().map((v, i)=> {
-        return {v: (v == 0 && options.sort.zeronull) ? null : v, i}}
-      );
-      ordermap.sort((s0, s1) => {
-        const a = s0.v;
-        const b = s1.v;
-
-        if (a == null && b == null) return 0;
-        if (a == null) return options.sort.nullfirst ? -1 : 1;
-        if (b == null) return options.sort.nullfirst ? 1 : -1;
-        return options.sort.desc ? (b - a) : (a - b);
-      })
-      order = ordermap.map(v => v.i);
-    }
-  }
-
-  const groups: GridGroup[] = []
-
-  const dimfield = options.dimension_field && fields.find(f => f.name == options.dimension_field);
-  if (dimfield) {
-    groups.push(
-      {
-        fields: [create_field(dimfield, formatters, options, next_field_style(true), order)]
-      })
-    fields = fields.filter(f => f.name != options.dimension_field)
-  }
-
-  const label = options.group_by_label;
-  if (label && label.length) {
-    groups.push(...extract_groups(fields, formatters, label, options, style, next_field_style, order))
-  }
-  else {
-    groups.push({
-      fields: fields.map(f =>
-        create_field(f, formatters, options, next_field_style(false), order))
-    });
-  }
+  const gm = group_fields(fields, options);
+  const groups = groups_to_cells(gm, val_formatter, options, style, next_field_style, ctx.order, df);
 
   return rce(options.is_horizontal ? HGrid : VGrid, {
     className: css`

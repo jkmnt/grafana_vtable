@@ -825,10 +825,14 @@ function colorize_cell(mode, color) {
   return {};
 }
 
-function create_field(field, formatters, options, style, order) {
+function create_field(field, options, ctx) {
   var _a;
 
-  var field_name = formatters.name(field);
+  var df = ctx.df,
+      val_formatter = ctx.val_formatter,
+      style = ctx.style,
+      order = ctx.order;
+  var field_name = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getFieldDisplayName"])(field, df);
   if (!field.display) field.display = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getDisplayProcessor"])({
     field: field
   });
@@ -865,9 +869,9 @@ function create_field(field, formatters, options, style, order) {
       html: undefined
     };
 
-    if (formatters.val) {
+    if (val_formatter) {
       try {
-        formatters.val(spec, field, {});
+        val_formatter(spec, field, {});
       } catch (e) {}
     }
 
@@ -898,42 +902,123 @@ function create_field(field, formatters, options, style, order) {
   };
 }
 
-function extract_groups(fields, formatters, label, options, style, next_field_style, order) {
-  var ungrouped = fields.filter(function (f) {
-    var _a;
-
-    return ((_a = f === null || f === void 0 ? void 0 : f.labels) === null || _a === void 0 ? void 0 : _a[label]) == undefined;
-  });
+function group_fields(fields, options) {
   var groups = [];
-  fields.forEach(function (f) {
-    var _a;
+  var dim = options.dimension_field,
+      label = options.group_by_label;
 
-    var lab = (_a = f === null || f === void 0 ? void 0 : f.labels) === null || _a === void 0 ? void 0 : _a[label];
-    if (lab != undefined && !groups.includes(lab)) groups.push(lab);
-  });
-  var grouped = groups.map(function (g) {
+  if (dim && dim.length) {
+    var dimfield_1 = fields.find(function (f) {
+      return f.name == dim;
+    });
+
+    if (dimfield_1) {
+      groups.push({
+        fields: [dimfield_1],
+        is_dim: true
+      });
+      fields = fields.filter(function (f) {
+        return f != dimfield_1;
+      });
+    }
+  }
+
+  if (label && label.length) {
+    var gm_1 = new Map([[undefined, []]]);
+    fields.forEach(function (f) {
+      var _a;
+
+      var lab = (_a = f === null || f === void 0 ? void 0 : f.labels) === null || _a === void 0 ? void 0 : _a[label];
+      if (!gm_1.has(lab)) gm_1.set(lab, []);
+      gm_1.get(lab).push(f);
+    });
+    if (!gm_1.get(undefined).length) gm_1["delete"](undefined);
+    groups.push.apply(groups, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(gm_1).map(function (_a) {
+      var _b = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__read"])(_a, 2),
+          name = _b[0],
+          fields = _b[1];
+
+      return {
+        name: name,
+        fields: fields
+      };
+    })));
+  } else {
+    groups.push({
+      fields: fields
+    }); // shortcut if no grouping
+  }
+
+  return groups;
+}
+
+function groups_to_cells(gm, val_formatter, options, style, next_field_style, order, df) {
+  var ctx = {
+    df: df,
+    val_formatter: val_formatter,
+    style: undefined,
+    order: order
+  };
+  var groups = gm.map(function (g) {
     return {
-      label: rce('div', {
-        key: "__group" + g,
+      label: g.name ? rce('div', {
+        key: "__group" + g.name,
         className: style.grouplabel
-      }, g),
-      fields: fields.filter(function (f) {
-        var _a;
-
-        return ((_a = f === null || f === void 0 ? void 0 : f.labels) === null || _a === void 0 ? void 0 : _a[label]) == g;
-      }).map(function (f) {
-        return create_field(f, formatters, options, next_field_style(false), order);
+      }, g.name) : undefined,
+      fields: g.fields.map(function (f) {
+        return create_field(f, options, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])(Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({}, ctx), {
+          style: next_field_style(g.is_dim)
+        }));
       })
     };
   });
-  if (!ungrouped.length) return grouped; // ugly
+  return groups;
+}
 
-  return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])([{
-    label: undefined,
-    fields: ungrouped.map(function (f) {
-      return create_field(f, formatters, options, next_field_style(false), order);
-    })
-  }], grouped);
+function num_comparer(a, b, nullfirst, desc) {
+  if (a == null && b == null) return 0;
+  if (a == null) return nullfirst ? -1 : 1;
+  if (b == null) return nullfirst ? 1 : -1;
+  return desc ? b - a : a - b;
+}
+
+function str_comparer(a, b, nullfirst, desc) {
+  if (a == null && b == null) return 0;
+  if (a == null) return nullfirst ? -1 : 1;
+  if (b == null) return nullfirst ? 1 : -1;
+
+  if (desc) {
+    if (a > b) return -1;
+    if (a < b) return 1;
+  } else {
+    if (a < b) return -1;
+    if (a > b) return 1;
+  }
+
+  return 0;
+}
+
+function get_order(fields, options) {
+  var sort = options.sort;
+  if (!(sort.field && sort.field.length)) return undefined;
+  var field = fields.find(function (f) {
+    return f.name == options.sort.field;
+  });
+  if (!field) return undefined;
+  var ordermap = field.values.toArray().map(function (v, i) {
+    return {
+      v: v == 0 && sort.zeronull ? null : v,
+      i: i
+    };
+  });
+  if (field.type == _grafana_data__WEBPACK_IMPORTED_MODULE_2__["FieldType"].number) ordermap.sort(function (a, b) {
+    return num_comparer(a.v, b.v, sort.nullfirst, sort.desc);
+  });else ordermap.sort(function (a, b) {
+    return str_comparer(a.v, b.v, sort.nullfirst, sort.desc);
+  });
+  return ordermap.map(function (v) {
+    return v.i;
+  });
 }
 
 function parse_colspec(str, size) {
@@ -1008,10 +1093,6 @@ function VTable(_a) {
     };
   }
 
-  var name_formatter = function name_formatter(field) {
-    return Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getFieldDisplayName"])(field, df);
-  };
-
   var val_formatter;
 
   if (options.formatcode) {
@@ -1030,65 +1111,15 @@ function VTable(_a) {
     }
   }
 
-  var formatters = {
-    name: name_formatter,
-    val: val_formatter
-  };
   var fields = df.fields;
-  var order;
-
-  if (options.sort.field) {
-    var sort_src = fields.find(function (f) {
-      return f.name == options.sort.field;
-    });
-
-    if (sort_src) {
-      var ordermap = sort_src.values.toArray().map(function (v, i) {
-        return {
-          v: v == 0 && options.sort.zeronull ? null : v,
-          i: i
-        };
-      });
-      ordermap.sort(function (s0, s1) {
-        var a = s0.v;
-        var b = s1.v;
-        if (a == null && b == null) return 0;
-        if (a == null) return options.sort.nullfirst ? -1 : 1;
-        if (b == null) return options.sort.nullfirst ? 1 : -1;
-        return options.sort.desc ? b - a : a - b;
-      });
-      order = ordermap.map(function (v) {
-        return v.i;
-      });
-    }
-  }
-
-  var groups = [];
-  var dimfield = options.dimension_field && fields.find(function (f) {
-    return f.name == options.dimension_field;
-  });
-
-  if (dimfield) {
-    groups.push({
-      fields: [create_field(dimfield, formatters, options, next_field_style(true), order)]
-    });
-    fields = fields.filter(function (f) {
-      return f.name != options.dimension_field;
-    });
-  }
-
-  var label = options.group_by_label;
-
-  if (label && label.length) {
-    groups.push.apply(groups, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(extract_groups(fields, formatters, label, options, style, next_field_style, order)));
-  } else {
-    groups.push({
-      fields: fields.map(function (f) {
-        return create_field(f, formatters, options, next_field_style(false), order);
-      })
-    });
-  }
-
+  var ctx = {
+    val_formatter: val_formatter,
+    df: df,
+    style: undefined,
+    order: get_order(fields, options)
+  };
+  var gm = group_fields(fields, options);
+  var groups = groups_to_cells(gm, val_formatter, options, style, next_field_style, ctx.order, df);
   return rce(options.is_horizontal ? _grid__WEBPACK_IMPORTED_MODULE_6__["HGrid"] : _grid__WEBPACK_IMPORTED_MODULE_6__["VGrid"], {
     className: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_1 || (templateObject_1 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                width: ", "px;\n                height: ", "px;\n                overflow: auto;\n              "], ["\n                width: ", "px;\n                height: ", "px;\n                overflow: auto;\n              "])), width, height),
     groups: groups,
