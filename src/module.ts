@@ -31,7 +31,7 @@ const DEF_CODE = `
       value.text = 'foo'
     Set the style:
       value.style = {'color': 'red', 'border': '1px solid'}
-    Render as (sanitized) html:
+    Render as html instead of text:
       value.html = '<a href="http://www.grafana.com">Go to base</a>'
     Get raw (numeric) value:
       let a = value.raw

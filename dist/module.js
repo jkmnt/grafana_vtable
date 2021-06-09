@@ -526,7 +526,7 @@ var suggestions = [{
   kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
   label: 'context.df'
 }];
-var DEF_CODE = "\n/*\n    This code would be called for formatting each value.\n    The object 'value' is in scope for modification.\n\n    Set the text:\n      value.text = 'foo'\n    Set the style:\n      value.style = {'color': 'red', 'border': '1px solid'}\n    Render as (sanitized) html:\n      value.html = '<a href=\"http://www.grafana.com\">Go to base</a>'\n    Get raw (numeric) value:\n      let a = value.raw\n\n    Extra objects are in scope to help the formatting:\n      field: dataframe field of this value. The field.name is most useful here.\n      context.df: whole dataframe\n      lib.moment: moment.js library, handy for the datetimes.\n*/\n\nvalue.text = field.name + ':' + value.raw\nvalue.style = {'color': 'red'}";
+var DEF_CODE = "\n/*\n    This code would be called for formatting each value.\n    The object 'value' is in scope for modification.\n\n    Set the text:\n      value.text = 'foo'\n    Set the style:\n      value.style = {'color': 'red', 'border': '1px solid'}\n    Render as html instead of text:\n      value.html = '<a href=\"http://www.grafana.com\">Go to base</a>'\n    Get raw (numeric) value:\n      let a = value.raw\n\n    Extra objects are in scope to help the formatting:\n      field: dataframe field of this value. The field.name is most useful here.\n      context.df: whole dataframe\n      lib.moment: moment.js library, handy for the datetimes.\n*/\n\nvalue.text = field.name + ':' + value.raw\nvalue.style = {'color': 'red'}";
 
 function JsEditor(_a) {
   var value = _a.value,
@@ -797,17 +797,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "../node_modules/tslib/tslib.es6.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "react");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @grafana/data */ "@grafana/data");
-/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_grafana_data__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! moment */ "moment");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var emotion__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! emotion */ "emotion");
 /* harmony import */ var emotion__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(emotion__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @grafana/ui */ "@grafana/ui");
-/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_grafana_ui__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! moment */ "moment");
-/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @grafana/data */ "@grafana/data");
+/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_grafana_data__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @grafana/ui */ "@grafana/ui");
+/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_grafana_ui__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var _grid__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./grid */ "./grid.ts");
 /* harmony import */ var _styles__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./styles */ "./styles.ts");
-
 
 
 
@@ -825,31 +824,31 @@ function colorize_cell(mode, color) {
   };
   if (mode == 'bg') return {
     'background': color,
-    'color': Object(_grafana_ui__WEBPACK_IMPORTED_MODULE_4__["getTextColorForBackground"])(color)
+    'color': Object(_grafana_ui__WEBPACK_IMPORTED_MODULE_5__["getTextColorForBackground"])(color)
   };
   return {};
 }
 
 function create_field(field, options, ctx) {
-  var _a;
+  var _a, _b, _c;
 
   var df = ctx.df,
       formatter = ctx.formatter,
       style = ctx.style,
       order = ctx.order;
-  var field_name = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getFieldDisplayName"])(field, df);
-  if (!field.display) field.display = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getDisplayProcessor"])({
+  var field_name = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_4__["getFieldDisplayName"])(field, df);
+  if (!field.display) field.display = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_4__["getDisplayProcessor"])({
     field: field
   });
-  var common_unit = undefined; // try to render the field with the sample input == 1
-  // to obtain the unit. probing with 0 may be wrong since it may be special.
+  var common_unit = undefined; // try to render the field with the sample input == 1 to obtain the unit.
+  // probing with 0 may be wrong since it may be special.
   // mappings are detached while probing and reattached later.
   // this is done only if field is numeric
 
-  if (options.show_common_unit && field.type == _grafana_data__WEBPACK_IMPORTED_MODULE_2__["FieldType"].number) {
+  if (options.show_common_unit && field.type == _grafana_data__WEBPACK_IMPORTED_MODULE_4__["FieldType"].number) {
     var saved_mappings = field.config.mappings;
     field.config.mappings = undefined;
-    common_unit = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getDisplayProcessor"])({
+    common_unit = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_4__["getDisplayProcessor"])({
       field: field
     })(1).suffix;
     field.config.mappings = saved_mappings;
@@ -863,14 +862,14 @@ function create_field(field, options, ctx) {
   // should it be needed someday
 
   for (var i = 0; i < field.values.length; i++) {
-    var key = field.name + '.' + i;
+    var key = field.name + "." + i;
     var v = field.values.get(order ? order[i] : i);
     if (v == null) v = undefined;
     var dv = field.display(v);
     var spec = {
       raw: v,
-      text: options.show_common_unit ? dv.text : Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["formattedValueToString"])(dv),
-      style: colorize_cell((_a = field.config.custom) === null || _a === void 0 ? void 0 : _a.display_mode, dv.color),
+      text: options.show_common_unit ? dv.text : "" + ((_a = dv.prefix) !== null && _a !== void 0 ? _a : '') + dv.text + ((_b = dv.suffix) !== null && _b !== void 0 ? _b : ''),
+      style: colorize_cell((_c = field.config.custom) === null || _c === void 0 ? void 0 : _c.display_mode, dv.color),
       html: undefined
     };
 
@@ -888,7 +887,7 @@ function create_field(field, options, ctx) {
         style: spec.style,
         className: style.value(i),
         dangerouslySetInnerHTML: {
-          __html: _grafana_data__WEBPACK_IMPORTED_MODULE_2__["textUtil"].sanitize(spec.html)
+          __html: spec.html
         }
       });
     } else {
@@ -1010,7 +1009,7 @@ function get_order(fields, options) {
       i: i
     };
   });
-  if (field.type == _grafana_data__WEBPACK_IMPORTED_MODULE_2__["FieldType"].number) ordermap.sort(function (a, b) {
+  if (field.type == _grafana_data__WEBPACK_IMPORTED_MODULE_4__["FieldType"].number) ordermap.sort(function (a, b) {
     return num_comparer(a.v, b.v, sort.nullfirst, sort.desc);
   });else ordermap.sort(function (a, b) {
     return str_comparer(a.v, b.v, sort.nullfirst, sort.desc);
@@ -1113,7 +1112,7 @@ function VTable(_a) {
         return f_1(value, field, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({
           df: df
         }, context), {
-          moment: moment__WEBPACK_IMPORTED_MODULE_5___default.a
+          moment: moment__WEBPACK_IMPORTED_MODULE_2___default.a
         });
       };
     } catch (e) {

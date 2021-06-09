@@ -1,10 +1,10 @@
 import React from 'react';
-
-import { PanelProps, getFieldDisplayName, formattedValueToString, Field as DfField, FormattedValue, DataFrame, ThresholdsConfig, Vector, FieldType } from '@grafana/data';
-import { css } from 'emotion';
-import { getTextColorForBackground } from '@grafana/ui';
-import { getDisplayProcessor, textUtil } from '@grafana/data';
 import moment from 'moment';
+
+import { css } from 'emotion';
+import { PanelProps, getFieldDisplayName, getDisplayProcessor, Field as DfField, DataFrame, FieldType } from '@grafana/data';
+import { getTextColorForBackground } from '@grafana/ui';
+
 
 import { VGrid, HGrid, GridField, GridGroup } from './grid';
 import { useGridStyle, GridStyle, alignstyles } from './styles'
@@ -61,8 +61,8 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx): Gr
 
   let common_unit = undefined;
 
-  // try to render the field with the sample input == 1
-  // to obtain the unit. probing with 0 may be wrong since it may be special.
+  // try to render the field with the sample input == 1 to obtain the unit.
+  // probing with 0 may be wrong since it may be special.
   // mappings are detached while probing and reattached later.
   // this is done only if field is numeric
   if (options.show_common_unit && field.type == FieldType.number) {
@@ -87,7 +87,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx): Gr
   // should it be needed someday
   for (var i = 0; i < field.values.length; i++) {
 
-    const key = field.name + '.' + i;
+    const key = `${field.name}.${i}`
 
     let v = field.values.get(order ? order[i] : i);
     if (v == null)
@@ -96,7 +96,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx): Gr
     const dv = field.display(v);
     const spec = {
       raw: v,
-      text: options.show_common_unit ? dv.text : formattedValueToString(dv),
+      text: options.show_common_unit ? dv.text : `${dv.prefix ?? ''}${dv.text}${dv.suffix ?? ''}`,
       style: colorize_cell(field.config.custom?.display_mode, dv.color),
       html: undefined,
     }
@@ -115,7 +115,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx): Gr
           key,
           style: spec.style,
           className: style.value(i),
-          dangerouslySetInnerHTML: {__html: textUtil.sanitize(spec.html)},
+          dangerouslySetInnerHTML: {__html: spec.html},
         });
     }
     else {
