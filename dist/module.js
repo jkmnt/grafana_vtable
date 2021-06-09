@@ -526,19 +526,15 @@ var suggestions = [{
   kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
   label: 'context.df'
 }];
+var DEF_CODE = "\n/*\n    This code would be called for formatting each value.\n    The object 'value' is in scope for modification.\n\n    Set the text:\n      value.text = 'foo'\n    Set the style:\n      value.style = {'color': 'red', 'border': '1px solid'}\n    Render as (sanitized) html:\n      value.html = '<a href=\"http://www.grafana.com\">Go to base</a>'\n    Get raw (numeric) value:\n      let a = value.raw\n\n    Extra objects are in scope to help the formatting:\n      field: dataframe field of this value. The field.name is most useful here.\n      context.df: whole dataframe\n      lib.moment: moment.js library, handy for the datetimes.\n*/\n\nvalue.text = field.name + ':' + value.raw\nvalue.style = {'color': 'red'}";
 
 function JsEditor(_a) {
   var value = _a.value,
       onChange = _a.onChange;
-
-  var on_change = function on_change(s) {
-    return onChange(s.trim().length ? s : undefined);
-  };
-
   return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditor"], {
     value: value,
-    onBlur: on_change,
-    onSave: on_change,
+    onBlur: onChange,
+    onSave: onChange,
     language: 'javascript',
     showMiniMap: false,
     showLineNumbers: true,
@@ -669,12 +665,21 @@ plugin.setPanelOptions(function (builder) {
     path: 'sort.nullfirst',
     name: 'Nulls go first',
     category: ['Sort']
+  }).addBooleanSwitch({
+    path: 'use_formatcode',
+    name: 'Use formatting code (DANGER!)',
+    category: ['Custom formatting'],
+    defaultValue: false
   }).addCustomEditor({
     id: 'formatcode',
     path: 'formatcode',
-    name: 'Custom formatting code (unsafe!)',
+    name: 'Code',
+    showIf: function showIf(options) {
+      return options.use_formatcode;
+    },
     category: ['Custom formatting'],
-    editor: JsEditor
+    editor: JsEditor,
+    defaultValue: DEF_CODE
   });
 });
 plugin.useFieldConfig({
@@ -829,7 +834,7 @@ function create_field(field, options, ctx) {
   var _a;
 
   var df = ctx.df,
-      val_formatter = ctx.val_formatter,
+      formatter = ctx.formatter,
       style = ctx.style,
       order = ctx.order;
   var field_name = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getFieldDisplayName"])(field, df);
@@ -869,9 +874,9 @@ function create_field(field, options, ctx) {
       html: undefined
     };
 
-    if (val_formatter) {
+    if (formatter) {
       try {
-        val_formatter(spec, field, {});
+        formatter(spec, field, {});
       } catch (e) {}
     }
 
@@ -902,7 +907,7 @@ function create_field(field, options, ctx) {
   };
 }
 
-function group_fields(fields, options) {
+function create_groups(fields, options) {
   var groups = [];
   var dim = options.dimension_field,
       label = options.group_by_label;
@@ -952,14 +957,8 @@ function group_fields(fields, options) {
   return groups;
 }
 
-function groups_to_cells(gm, val_formatter, options, style, next_field_style, order, df) {
-  var ctx = {
-    df: df,
-    val_formatter: val_formatter,
-    style: undefined,
-    order: order
-  };
-  var groups = gm.map(function (g) {
+function create_gridgroups(gss, options, ctx, style, next_field_style) {
+  var gridgroups = gss.map(function (g) {
     return {
       label: g.name ? rce('div', {
         key: "__group" + g.name,
@@ -972,7 +971,7 @@ function groups_to_cells(gm, val_formatter, options, style, next_field_style, or
       })
     };
   });
-  return groups;
+  return gridgroups;
 }
 
 function num_comparer(a, b, nullfirst, desc) {
@@ -1002,7 +1001,7 @@ function get_order(fields, options) {
   var sort = options.sort;
   if (!(sort.field && sort.field.length)) return undefined;
   var field = fields.find(function (f) {
-    return f.name == options.sort.field;
+    return f.name == sort.field;
   });
   if (!field) return undefined;
   var ordermap = field.values.toArray().map(function (v, i) {
@@ -1037,17 +1036,32 @@ function parse_colspec(str, size) {
   }
 
   return {
-    as: specs.map(function (s) {
+    aligns: specs.map(function (s) {
       return s[0];
     }),
-    ws: specs.map(function (s) {
+    widths: specs.map(function (s) {
       return s[1];
     })
   };
 }
 
+function get_ncols(fields, options) {
+  var _a;
+
+  if (options.is_horizontal) return fields.length;
+  return ((_a = fields === null || fields === void 0 ? void 0 : fields[0].values.length) !== null && _a !== void 0 ? _a : 0) + 1;
+}
+
+function get_colspecs(spec, maxcols) {
+  if (!(spec && spec.length)) return {
+    aligns: [],
+    widths: []
+  };
+  return parse_colspec(spec, maxcols);
+}
+
 function VTable(_a) {
-  var _b, _c, _d, _e;
+  var _b, _c;
 
   var data = _a.data,
       options = _a.options,
@@ -1056,17 +1070,13 @@ function VTable(_a) {
   var is_empty = !(data.series && data.series.length && ((_c = (_b = data.series[0]) === null || _b === void 0 ? void 0 : _b.fields) === null || _c === void 0 ? void 0 : _c.length));
   if (is_empty) return rce('div', null, 'No data');
   var df = data.series[0];
+  var fields = df.fields;
   var style = Object(_styles__WEBPACK_IMPORTED_MODULE_7__["useGridStyle"])(options.is_horizontal);
-  var colws;
-  var aligns = [];
+  var maxcols = get_ncols(fields, options);
 
-  if (options.custom_columns) {
-    var ncols = 0;
-    if (options.is_horizontal) ncols = df.fields.length;else ncols = ((_e = (_d = df.fields) === null || _d === void 0 ? void 0 : _d[0].values.length) !== null && _e !== void 0 ? _e : 0) + 1;
-    var res = parse_colspec(options.custom_columns, ncols);
-    aligns = res.as;
-    colws = res.ws;
-  }
+  var _d = get_colspecs(options.custom_columns, maxcols),
+      widths = _d.widths,
+      aligns = _d.aligns;
 
   var next_field_style; // TODO: refactor this ugliness outside the base function
 
@@ -1093,13 +1103,13 @@ function VTable(_a) {
     };
   }
 
-  var val_formatter;
+  var formatter;
 
-  if (options.formatcode) {
+  if (options.use_formatcode) {
     try {
       var f_1 = Function('value', 'field', 'context', 'lib', options.formatcode);
 
-      val_formatter = function val_formatter(value, field, context) {
+      formatter = function formatter(value, field, context) {
         return f_1(value, field, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({
           df: df
         }, context), {
@@ -1111,19 +1121,18 @@ function VTable(_a) {
     }
   }
 
-  var fields = df.fields;
   var ctx = {
-    val_formatter: val_formatter,
+    formatter: formatter,
     df: df,
     style: undefined,
     order: get_order(fields, options)
   };
-  var gm = group_fields(fields, options);
-  var groups = groups_to_cells(gm, val_formatter, options, style, next_field_style, ctx.order, df);
+  var groups = create_groups(fields, options);
+  var gridgroups = create_gridgroups(groups, options, ctx, style, next_field_style);
   return rce(options.is_horizontal ? _grid__WEBPACK_IMPORTED_MODULE_6__["HGrid"] : _grid__WEBPACK_IMPORTED_MODULE_6__["VGrid"], {
     className: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_1 || (templateObject_1 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                width: ", "px;\n                height: ", "px;\n                overflow: auto;\n              "], ["\n                width: ", "px;\n                height: ", "px;\n                overflow: auto;\n              "])), width, height),
-    groups: groups,
-    colws: colws
+    groups: gridgroups,
+    colws: widths.length ? widths : undefined
   });
 }
 ;

@@ -11,24 +11,27 @@ import { useGridStyle, GridStyle, alignstyles } from './styles'
 
 var rce = React.createElement;
 
+export interface VtableSortOptions {
+  field?: string;
+  zeronull?: boolean;
+  nullfirst?: boolean;
+  desc?: boolean;
+}
+
 export interface VTableOptions {
   custom_columns?: string;
   dimension_field?: string;
   is_horizontal?: boolean;
   show_common_unit?: boolean;
   group_by_label?: string;
-  sort: {
-    field?: string;
-    zeronull?: boolean;
-    nullfirst?: boolean;
-    desc?: boolean;
-  }
+  use_formatcode?: boolean;
   formatcode?: string;
+  sort: VtableSortOptions;
 }
 
 interface FieldCtx {
   df: DataFrame,
-  val_formatter?: (value: {}, field:DfField, context: any) => void,
+  formatter?: (value: {}, field:DfField, context: any) => void,
   style: { name: string, value: (i: number) => string },
   order?: number[],
 }
@@ -50,7 +53,7 @@ interface Formatters {
 }
 
 function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx): GridField {
-  const {df, val_formatter, style, order} = ctx;
+  const {df, formatter, style, order} = ctx;
   const field_name = getFieldDisplayName(field, df);
 
   if (!field.display)
@@ -98,8 +101,8 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx): Gr
       html: undefined,
     }
 
-    if (val_formatter) {
-      try { val_formatter(spec, field, {})}
+    if (formatter) {
+      try { formatter(spec, field, {})}
       catch(e) { }
     }
 
@@ -132,15 +135,15 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx): Gr
   return { values: cells }
 }
 
-interface GroupMap {
+interface GroupSpec {
   name?: string;
   fields: DfField[];
   is_dim?: boolean;
 }
 
-function group_fields(fields: DfField[], options: VTableOptions) : GroupMap[] {
+function create_groups(fields: DfField[], options: VTableOptions) : GroupSpec[] {
 
-  const groups: GroupMap[] = [];
+  const groups: GroupSpec[] = [];
 
   const {dimension_field: dim, group_by_label: label} = options;
   if (dim && dim.length) {
@@ -174,29 +177,17 @@ function group_fields(fields: DfField[], options: VTableOptions) : GroupMap[] {
   return groups;
 }
 
-function groups_to_cells(gm: GroupMap[], val_formatter, options: VTableOptions, style: GridStyle, next_field_style, order, df): GridGroup[] {
+function create_gridgroups(gss: GroupSpec[], options: VTableOptions, ctx:FieldCtx, style: GridStyle, next_field_style): GridGroup[] {
 
-  const ctx: FieldCtx = {
-    df: df,
-    val_formatter: val_formatter,
-    style: undefined,
-    order,
-  }
-
-  const groups = gm.map(g => {
+  const gridgroups = gss.map(g => {
       return {
-        label: g.name ? rce('div',
-          {
-            key: `__group${g.name}`,
-            className: style.grouplabel
-          },
-          g.name) : undefined,
+        label: g.name ? rce('div', {key: `__group${g.name}`, className: style.grouplabel}, g.name) : undefined,
         fields: g.fields.map(f => create_field(f, options, {...ctx, style: next_field_style(g.is_dim)}))
       }
     }
   )
 
-  return groups;
+  return gridgroups;
 }
 
 
@@ -224,11 +215,12 @@ function str_comparer(a: string, b: string, nullfirst?:boolean, desc?:boolean): 
 }
 
 function get_order(fields: DfField[], options: VTableOptions) : number[] | undefined {
+
   const {sort} = options;
 
   if (! (sort.field && sort.field.length)) return undefined;
 
-  const field = fields.find(f => f.name == options.sort.field);
+  const field = fields.find(f => f.name == sort.field);
   if (! field) return undefined;
 
   const ordermap = field.values.toArray().map((v, i)=> {
@@ -243,8 +235,7 @@ function get_order(fields: DfField[], options: VTableOptions) : number[] | undef
   return ordermap.map(v => v.i);
 }
 
-
-function parse_colspec(str: string, size: number) : {as:string[], ws:number[]} {
+function parse_colspec(str: string, size: number) : {aligns:string[], widths:number[]} {
   const re = /\s*([r|c|l]?)\s*([0-9]*)\s*/;
 
   const specs = str.split(',').map(f =>
@@ -263,7 +254,24 @@ function parse_colspec(str: string, size: number) : {as:string[], ws:number[]} {
     specs.fill(specs[len - 1], len);
   }
 
-  return {as: specs.map(s => s[0] as string), ws: specs.map(s => s[1] as number)}
+  return {aligns: specs.map(s => s[0] as string), widths: specs.map(s => s[1] as number)}
+}
+
+
+function get_ncols(fields: DfField[], options: VTableOptions) {
+  if (options.is_horizontal)
+    return fields.length;
+
+  return (fields?.[0].values.length ?? 0) + 1;
+}
+
+
+function get_colspecs(spec: string, maxcols: number) {
+  if (! (spec && spec.length))
+    return {aligns: [], widths: []};
+
+
+  return parse_colspec(spec, maxcols);
 }
 
 
@@ -274,21 +282,11 @@ export function VTable({ data, options, height, width }: Props) {
     return rce('div', null, 'No data');
 
   const df = data.series[0];
+  const fields = df.fields;
   const style = useGridStyle(options.is_horizontal);
 
-  let colws : number[];
-  let aligns = [];
-
-  if (options.custom_columns) {
-    let ncols = 0;
-    if (options.is_horizontal)
-      ncols = df.fields.length;
-    else
-      ncols = (df.fields?.[0].values.length ?? 0) + 1;
-    const res = parse_colspec(options.custom_columns, ncols);
-    aligns = res.as
-    colws = res.ws;
-  }
+  const maxcols = get_ncols(fields, options);
+  const {widths, aligns} = get_colspecs(options.custom_columns, maxcols);
 
   let next_field_style;
 
@@ -313,29 +311,27 @@ export function VTable({ data, options, height, width }: Props) {
     }
   }
 
-  let val_formatter;
+  let formatter;
 
-  if (options.formatcode) {
+  if (options.use_formatcode) {
     try {
       const f = Function('value', 'field', 'context', 'lib', options.formatcode);
-      val_formatter = (value, field, context) => f(value, field, {df, ...context}, { moment })
+      formatter = (value, field, context) => f(value, field, {df, ...context}, { moment })
     }
     catch(e) {
       console.log('failed to compile formatter', e)
     }
   }
 
-  const fields = df.fields;
-
   const ctx: FieldCtx = {
-    val_formatter,
+    formatter,
     df,
     style: undefined,
-    order: get_order(fields, options);
+    order: get_order(fields, options),
   }
 
-  const gm = group_fields(fields, options);
-  const groups = groups_to_cells(gm, val_formatter, options, style, next_field_style, ctx.order, df);
+  const groups = create_groups(fields, options);
+  const gridgroups = create_gridgroups(groups, options, ctx, style, next_field_style);
 
   return rce(options.is_horizontal ? HGrid : VGrid, {
     className: css`
@@ -343,7 +339,7 @@ export function VTable({ data, options, height, width }: Props) {
                 height: ${height}px;
                 overflow: auto;
               `,
-    groups,
-    colws,
+    groups: gridgroups,
+    colws: widths.length ? widths : undefined,
   })
 };

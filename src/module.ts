@@ -22,14 +22,35 @@ const suggestions: CodeEditorSuggestionItem[] = [
     { kind: CodeEditorSuggestionItemKind.Property, label: 'context.df' },
 ]
 
-function JsEditor({ value, onChange }) {
-    const on_change = (s: string) => onChange(s.trim().length ? s : undefined)
+const DEF_CODE = `
+/*
+    This code would be called for formatting each value.
+    The object 'value' is in scope for modification.
 
+    Set the text:
+      value.text = 'foo'
+    Set the style:
+      value.style = {'color': 'red', 'border': '1px solid'}
+    Render as (sanitized) html:
+      value.html = '<a href="http://www.grafana.com">Go to base</a>'
+    Get raw (numeric) value:
+      let a = value.raw
+
+    Extra objects are in scope to help the formatting:
+      field: dataframe field of this value. The field.name is most useful here.
+      context.df: whole dataframe
+      lib.moment: moment.js library, handy for the datetimes.
+*/
+
+value.text = field.name + ':' + value.raw
+value.style = {'color': 'red'}`;
+
+function JsEditor({ value, onChange }) {
     return React.createElement(CodeEditor,
         {
             value,
-            onBlur: on_change,
-            onSave: on_change,
+            onBlur: onChange,
+            onSave: onChange,
             language: 'javascript',
             showMiniMap: false,
             showLineNumbers: true,
@@ -135,12 +156,20 @@ plugin.setPanelOptions((builder) => {
             name: 'Nulls go first',
             category: ['Sort'],
         })
+        .addBooleanSwitch({
+            path: 'use_formatcode',
+            name: 'Use formatting code (DANGER!)',
+            category: ['Custom formatting'],
+            defaultValue: false,
+        })
         .addCustomEditor({
             id: 'formatcode',
             path: 'formatcode',
-            name: 'Custom formatting code (unsafe!)',
+            name: 'Code',
+            showIf: (options) => options.use_formatcode,
             category: ['Custom formatting'],
             editor: JsEditor,
+            defaultValue: DEF_CODE,
         })
 })
 
