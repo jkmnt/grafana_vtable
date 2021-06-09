@@ -615,7 +615,8 @@ var fetch_fields = function fetch_fields(context) {
   });
 };
 
-var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_2__["PanelPlugin"](_vtable__WEBPACK_IMPORTED_MODULE_4__["VTable"]).setPanelOptions(function (builder) {
+var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_2__["PanelPlugin"](_vtable__WEBPACK_IMPORTED_MODULE_4__["VTable"]);
+plugin.setPanelOptions(function (builder) {
   builder.addSelect({
     path: 'dimension_field',
     name: 'Dimension field name',
@@ -675,7 +676,8 @@ var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_2__["PanelPlugin"](_vtab
     category: ['Custom formatting'],
     editor: JsEditor
   });
-}).useFieldConfig({
+});
+plugin.useFieldConfig({
   useCustomConfig: function useCustomConfig(builder) {
     builder.addRadio({
       path: 'display_mode',
@@ -696,6 +698,7 @@ var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_2__["PanelPlugin"](_vtab
     });
   }
 });
+console.log(plugin);
 
 /***/ }),
 
