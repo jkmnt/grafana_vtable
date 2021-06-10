@@ -8,12 +8,20 @@
     "author": {
       "name": "jkmnt"
     },
-    "keywords": [],
+    "keywords": []  ,
     "logos": {
       "small": "img/logo.svg",
       "large": "img/logo.svg"
     },
     "links": [
+      {
+        "name": "Github",
+        "url": "https://github.com/jkmnt/grafana_vtable"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/jkmnt/grafana_vtable/blob/main/LICENSE"
+      }
     ],
     "screenshots": [],
     "version": "1.0.0",

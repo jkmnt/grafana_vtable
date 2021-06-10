@@ -72,7 +72,6 @@ const fetch_groups = async (context: FieldOverrideContext) => {
                     labels.push(k)
             })
         )
-        console.log(labels);
         labels.forEach(l => options.push({ label: l, value: l }))
     }
     return Promise.resolve(options);
@@ -190,5 +189,3 @@ plugin.useFieldConfig({
             })
     }
 })
-
-console.log(plugin);
