@@ -1,10 +1,10 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "panel",
-  "name": "vtable",
+  "name": "VTable",
   "id": "vtable-panel",
   "info": {
-    "description": "vertical table panel",
+    "description": "VTable panel",
     "author": {
       "name": "jkmnt"
     },

@@ -1,7 +1,7 @@
 {
   "name": "vtable",
   "version": "1.0.0",
-  "description": "jssucks",
+  "description": "Vegetable panel",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
     "test": "grafana-toolkit plugin:test",
@@ -10,7 +10,7 @@
     "sign": "grafana-toolkit plugin:sign"
   },
   "author": "jkmnt",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "devDependencies": {
     "@grafana/data": "latest",
     "@grafana/toolkit": "latest",

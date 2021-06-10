@@ -1,28 +1,35 @@
-# Grafana vertical table plugin
+# Grafana Vtable plugin
 
-This plugin is dirty and hackish. I know nothing about JS, TS, React and all this hipster stuff,
-prefering the old good C and Python. Just fiddle with some code until it kind of works.
-
-Build-in grafana table is tailored to displaying time frames as rows.
-Each column contains same metric of same type.
-A lot of metrics means a lot of columns.
-
-There is a need to display a table for the single time frame partitioned by
-entity number (think sensor number). Each row contains metric of same type.
-A lot of metrics means a lot of rows.
-That's the plugin idea.
-
-stock table:
-
-![example](https://github.com/jkmnt/grafana_vtable/blob/16686ebce7037a3cac796a199e19e9cac2c5a8be/stock_table.png)
+This is the table panel for Grafana with a few features I miss in the stock Table panel.
 
 
-vtable:
+* Horizontal and vertical orientation
 
-![example](https://github.com/jkmnt/grafana_vtable/blob/16686ebce7037a3cac796a199e19e9cac2c5a8be/vtable.png)
+  Some datasets are better displayed with the columns transformed to rows.
+  It's the case for the data with a lot of columns and a few rows.
+  The comparison tables are good example.
+  
+  ![example](horizontal.png) ![example](vertical.png)
 
-Feel free to hack/fork it.
+* Marking some field as the dimension
+ 
+  This field is moved to the first row (or first column) and becomes fixed while scrolling.   
 
-Maybe the Grafana guys would stop coding all this shiny new stuff
-and make the base platform much more powerful and robust.
-... No, it's boring, I know. The JS mindset tells us to go for the new and shiny.
+* Grouping fields by label
+ 
+  ![example](grouping.png)
+
+* Stripping the units off values and showing them once at the field label
+
+  Repeating the unit in each cell adds too much clutter.
+
+* Flexible values formatting 
+
+  This is a case for some dates/times, bitmaps etc. Build-in Grafana unit formatter can't cover 
+  all the cases. The user JS code is called to format these. And yes, you could emit HTML too.
+  
+  ![example](jsformat.png)
+
+
+The Vtable is built upon the CSS Grid with no virtualization used, so it works best with the
+small and possible static datasets. Please use the stock Table panel for big and dynamic tables.

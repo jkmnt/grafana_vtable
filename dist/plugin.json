@@ -1,10 +1,10 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "panel",
-  "name": "vtable",
+  "name": "VTable",
   "id": "vtable-panel",
   "info": {
-    "description": "vertical table panel",
+    "description": "VTable panel",
     "author": {
       "name": "jkmnt"
     },
@@ -17,7 +17,7 @@
     ],
     "screenshots": [],
     "version": "1.0.0",
-    "updated": "2021-03-29"
+    "updated": "2021-06-10"
   },
   "dependencies": {
     "grafanaDependency": ">=7.0.0",
