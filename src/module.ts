@@ -4,6 +4,9 @@ import { FieldOverrideContext, getFieldDisplayName, Labels, PanelPlugin} from '@
 import { CodeEditor, CodeEditorSuggestionItem, CodeEditorSuggestionItemKind} from '@grafana/ui';
 import { VTable, VTableOptions } from './vtable';
 
+import {config as gf_config} from "@grafana/runtime"
+import Options from '@grafana/ui/slate-plugins/slate-prism/options';
+
 interface CustomFieldConfig {
     display_mode: string;
 }
@@ -158,6 +161,7 @@ plugin.setPanelOptions((builder) => {
         .addBooleanSwitch({
             path: 'use_formatcode',
             name: 'Use formatting code (DANGER!)',
+            description: gf_config.disableSanitizeHtml ? "" : "Feature is disabled. Set disable_sanitize_html = false in Grafana config to activate it.",
             category: ['Custom formatting'],
             defaultValue: false,
         })
@@ -165,7 +169,7 @@ plugin.setPanelOptions((builder) => {
             id: 'formatcode',
             path: 'formatcode',
             name: 'Code',
-            showIf: (options) => options.use_formatcode,
+            showIf: (options) => options.use_formatcode && gf_config.disableSanitizeHtml,
             category: ['Custom formatting'],
             editor: JsEditor,
             defaultValue: DEF_CODE,

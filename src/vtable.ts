@@ -5,6 +5,7 @@ import { css } from 'emotion';
 import { PanelProps, getFieldDisplayName, getDisplayProcessor, Field as DfField, DataFrame, FieldType } from '@grafana/data';
 import { getTextColorForBackground } from '@grafana/ui';
 
+import {config as gf_config} from "@grafana/runtime"
 
 import { VGrid, HGrid, GridField, GridGroup } from './grid';
 import { useGridStyle, GridStyle} from './styles'
@@ -305,7 +306,7 @@ export function VTable({ data, options, height, width }: PanelProps<VTableOption
 
   let formatter: Formatter | undefined;
 
-  if (options.use_formatcode && options.formatcode) {
+  if (gf_config.disableSanitizeHtml && options.use_formatcode && options.formatcode) {
     try {
       const f = Function('value', 'field', 'context', 'lib', options.formatcode);
       formatter = (value, field, context) => f(value, field, { df, ...context }, { moment })
