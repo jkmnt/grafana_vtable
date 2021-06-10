@@ -9,6 +9,21 @@ const BORDER_BG = '#202020'
 const HL = 'rgb(51, 162, 229)'
 const DIM = 'rgb(123, 128, 135)'
 
+const base = {
+    cell: css`
+        padding: 8px;
+        white-space: nowrap;
+    `,
+    lsticky: css`
+        position: sticky;
+        left: 0;
+    `,
+    tsticky: css`
+        position: sticky;
+        top: 0;
+    `,
+}
+
 export interface GridStyle {
     field: {
         name: string;
@@ -21,161 +36,135 @@ export interface GridStyle {
     grouplabel: string;
 }
 
+interface Theme {
+    dim: string;
+    hl: string;
+    sticky_bg: string
+    border_bg: string;
+}
+
+let styles:{h: GridStyle, v: GridStyle}|undefined = undefined;
+let gtheme: GrafanaTheme;
+
 // TODO: make all styles static ? init on both themes once.
 // and compose 'em from small styles w/o redundancy
 
 export function useGridStyle(is_horizontal: boolean): GridStyle {
-    const theme = useTheme();
-    return is_horizontal ? get_hstyle(theme) : get_vstyle(theme);
+    const gft = useTheme();
+
+    if (! styles || gtheme != gft) {
+        const theme : Theme = {
+            dim: gft.colors.textWeak,
+            hl: gft.colors.textBlue,
+            sticky_bg: gft.colors.panelBg,
+            border_bg: gft.colors.border1,
+        }
+        styles = {h: build_hstyle(theme), v:build_vstyle(theme)};
+        gtheme = gft;
+
+        console.log('building style');
+    }
+
+    return is_horizontal ? styles.h : styles.v;
 }
 
-function get_vstyle(theme: GrafanaTheme): GridStyle {
-
-    const dim = theme.colors.textWeak;
-    const hl = theme.colors.textBlue;
-    const sticky_bg = theme.colors.panelBg;
-    const border_bg = theme.colors.border1;
-
+function build_vstyle(theme: Theme): GridStyle {
     return {
 
         field: {
-            name: css`
-                position: sticky;
-                left: 0;
+            name: css(base.cell, base.lsticky, css`
                 z-index: 2;
 
-                padding: 8px;
-                background-color: ${sticky_bg};
-                color: ${dim};
+                background-color: ${theme.sticky_bg};
+                color: ${theme.dim};
 
-                border-bottom: 1px solid ${border_bg};
-
-                white-space: nowrap;
-            `,
-            value: css`
-                padding: 8px;
-
+                border-bottom: 1px solid ${theme.border_bg};
+            `),
+            value: css(base.cell, css`
                 text-align: right;
+                border-bottom: 1px solid ${theme.border_bg};
 
-                border-bottom: 1px solid ${border_bg};
-
-                white-space: nowrap;
-            `,
+            `),
         },
         dimfield: {
-            name: css`
-                position: sticky;
-                top: 0;
+            name: css(base.cell, base.lsticky, base.tsticky, css`
                 z-index: 3;
 
-                left: 0;
-                padding: 8px;
-                background-color: ${sticky_bg};
-                color: ${dim};
-
-                white-space: nowrap;
-            `,
-            value: css`
-                position: sticky;
-                top: 0;
+                background-color: ${theme.sticky_bg};
+                color: ${theme.dim};
+            `),
+            value: css(base.cell, base.tsticky, css`
                 z-index: 1;
 
-                padding: 8px;
-                background-color: ${sticky_bg};
-                color: ${hl};
+                background-color: ${theme.sticky_bg};
+                color: ${theme.hl};
 
                 text-align: right;
-
-                white-space: nowrap;
-            `,
+            `),
         },
-        grouplabel: css`
-            position: sticky;
-            left: 0;
+        grouplabel: css(base.lsticky, css`
             z-index: 2;
 
             padding: 16px 8px 0 4px;
-            background-color: ${sticky_bg};
-            color: ${hl};
-        `,
+            background-color: ${theme.sticky_bg};
+            color: ${theme.hl};
+        `),
     }
 }
 
-function get_hstyle(theme: GrafanaTheme): GridStyle {
-
-    const dim = theme.colors.textWeak;
-    const hl = theme.colors.textBlue;
-    const sticky_bg = theme.colors.panelBg;
-    const border_bg = theme.colors.border1;
-
+function build_hstyle(theme: Theme): GridStyle {
     return {
 
         field: {
-            name: css`
-                position: sticky;
-                top: 0;
+            name: css(base.cell, base.tsticky, css`
                 z-index: 1;
 
-                padding: 8px;
+                color: ${theme.hl};
 
-                color: ${hl};
-
-                border-right: 1px solid ${border_bg};
-                background-color: ${sticky_bg};
+                border-right: 1px solid ${theme.border_bg};
+                background-color: ${theme.sticky_bg};
 
                 text-align: right;
-            `,
-            value: css`
-                padding: 8px;
+                white-space: normal;
+            `),
+            value: css(base.cell, css`
 
                 text-align: right;
 
-                border-bottom: 1px solid ${border_bg};
-                white-space: nowrap;
-            `,
+                border-bottom: 1px solid ${theme.border_bg};
+            `),
         },
         dimfield: {
-            name: css`
-                position: sticky;
-                top: 0;
-                left: 0;
+            name: css(base.cell, base.tsticky, base.lsticky, css`
                 z-index: 3;
 
-                padding: 8px;
-
-                color: ${hl};
-                background-color: ${sticky_bg};
+                color: ${theme.hl};
+                background-color: ${theme.sticky_bg};
 
                 text-align: right;
-            `,
-            value: css`
-                position: sticky;
-                left: 0;
+                white-space: normal;
+            `),
+            value: css(base.cell, base.lsticky, css`
+
                 z-index: 2;
 
-                padding: 8px;
+                color: ${theme.dim};
+                background-color: ${theme.sticky_bg};
 
-                color: ${dim};
-                background-color: ${sticky_bg};
-
-                border-bottom: 1px solid ${border_bg};
+                border-bottom: 1px solid ${theme.border_bg};
 
                 text-align: right;
-
-                white-space: nowrap;
-            `,
+            `),
         },
-        grouplabel: css`
-            position: sticky;
-            top: 0;
-            padding: 8px;
-
-            color: ${hl};
-            border-right: 1px solid ${border_bg};
-            background-color: ${sticky_bg};
+        grouplabel: css(base.cell, base.tsticky, css`
+            color: ${theme.hl};
+            border-right: 1px solid ${theme.border_bg};
+            background-color: ${theme.sticky_bg};
 
             text-align: center;
-        `
+
+            white-space: normal;
+        `)
     }
 }
 
