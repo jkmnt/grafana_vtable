@@ -44,6 +44,7 @@ export function VGrid(props: GridProps) {
         if (g.label) {
             const new_style = {...g.label.props?.style, 'grid-column': `1 / span ${ncols}`, 'justify-self': 'start'}
             cells.push(React.cloneElement(g.label, {style: new_style}));
+            nrows += 1;
         }
         g.fields.forEach(f => cells.push(...f.values))
         nrows += g.fields.length;
