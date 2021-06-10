@@ -7,7 +7,7 @@ import { getTextColorForBackground } from '@grafana/ui';
 
 
 import { VGrid, HGrid, GridField, GridGroup } from './grid';
-import { useGridStyle, GridStyle, alignstyles } from './styles'
+import { useGridStyle, GridStyle} from './styles'
 
 var rce = React.createElement;
 
@@ -261,8 +261,8 @@ function parse_colspec(str: string, size: number): { a: string | undefined, w: n
 
   const specs = str.split(',').map(f => {
     const m = f.match(re);
-    const a = m ? alignstyles[m[1]] : undefined;
-    const w = m && m[2].length ? Number.parseInt(m[2]) : 0;
+    const a = m && m[1] != '' ? m[1] : undefined;
+    const w = m && m[2] != '' ? Number.parseInt(m[2]) : 0;
 
     return {a, w}
   });
