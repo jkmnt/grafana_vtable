@@ -2,8 +2,8 @@ import React from 'react';
 import moment from 'moment';
 
 import { css } from 'emotion';
-import { PanelProps, getFieldDisplayName, getDisplayProcessor, Field as DfField, DataFrame, FieldType } from '@grafana/data';
-import { getTextColorForBackground } from '@grafana/ui';
+import { PanelProps, getFieldDisplayName, getDisplayProcessor, Field as DfField, DataFrame, FieldType, GrafanaTheme2 } from '@grafana/data';
+import { getTextColorForBackground, useTheme2 } from '@grafana/ui';
 
 import {config as gf_config} from "@grafana/runtime"
 
@@ -40,6 +40,7 @@ interface FieldCtx {
   formatter?: Formatter,
   style: GridStyle;
   order?: number[],
+  theme: GrafanaTheme2;
 }
 
 interface ValueSpec {
@@ -62,7 +63,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
   const field_name = getFieldDisplayName(field, df);
 
   if (!field.display)
-    field.display = getDisplayProcessor({ field });
+    field.display = getDisplayProcessor({ field, theme: ctx.theme });
 
   let common_unit = undefined;
 
@@ -73,7 +74,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
   if (options.show_common_unit && field.type == FieldType.number) {
     const saved_mappings = field.config.mappings;
     field.config.mappings = undefined;
-    common_unit = getDisplayProcessor({ field })(1).suffix;
+    common_unit = getDisplayProcessor({ field, theme:ctx.theme })(1).suffix;
     field.config.mappings = saved_mappings;
   }
 
@@ -294,6 +295,8 @@ function get_colspecs(spec: string | undefined, maxcols: number) {
 export function VTable({ data, options, height, width }: PanelProps<VTableOptions>) {
   const is_empty = !(data.series && data.series.length && data.series[0]?.fields?.length);
 
+  const theme: GrafanaTheme2 = useTheme2 ? useTheme2() : undefined as unknown as GrafanaTheme2;
+
   if (is_empty)
     return rce('div', null, 'No data');
 
@@ -321,6 +324,7 @@ export function VTable({ data, options, height, width }: PanelProps<VTableOption
     df,
     style,
     order: get_order(fields, options),
+    theme,
   }
 
   const groups = fields_to_groups(fields, options);

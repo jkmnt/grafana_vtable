@@ -12,11 +12,12 @@
   "author": "jkmnt",
   "license": "MIT",
   "devDependencies": {
-    "@grafana/data": "latest",
-    "@grafana/toolkit": "latest",
-    "@grafana/ui": "latest",
-    "@grafana/runtime": "latest",
-    "emotion": "10.0.27"
+    "@grafana/data": "8.0.2",
+    "@grafana/toolkit": "8.0.2",
+    "@grafana/ui": "8.0.2",
+    "@grafana/runtime": "8.0.2",
+    "emotion": "10.0.27",
+    "tslib": "^2.1.0"
   },
   "engines": {
     "node": ">=14"

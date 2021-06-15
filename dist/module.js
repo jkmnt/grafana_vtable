@@ -1,2 +1,1231 @@
-define(["emotion","@grafana/ui","react","@grafana/data","@grafana/runtime","moment"],(function(e,n,t,o,r,l){return function(e){var n={};function t(o){if(n[o])return n[o].exports;var r=n[o]={i:o,l:!1,exports:{}};return e[o].call(r.exports,r,r.exports,t),r.l=!0,r.exports}return t.m=e,t.c=n,t.d=function(e,n,o){t.o(e,n)||Object.defineProperty(e,n,{enumerable:!0,get:o})},t.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},t.t=function(e,n){if(1&n&&(e=t(e)),8&n)return e;if(4&n&&"object"==typeof e&&e&&e.__esModule)return e;var o=Object.create(null);if(t.r(o),Object.defineProperty(o,"default",{enumerable:!0,value:e}),2&n&&"string"!=typeof e)for(var r in e)t.d(o,r,function(n){return e[n]}.bind(null,r));return o},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,n){return Object.prototype.hasOwnProperty.call(e,n)},t.p="/",t(t.s=6)}([function(n,t){n.exports=e},function(e,t){e.exports=n},function(e,n){e.exports=t},function(e,n){e.exports=o},function(e,n){e.exports=r},function(e,n){e.exports=l},function(e,n,t){"use strict";t.r(n);var o=function(){return(o=Object.assign||function(e){for(var n,t=1,o=arguments.length;t<o;t++)for(var r in n=arguments[t])Object.prototype.hasOwnProperty.call(n,r)&&(e[r]=n[r]);return e}).apply(this,arguments)};function r(e,n,t,o){return new(t||(t=Promise))((function(r,l){function i(e){try{u(o.next(e))}catch(e){l(e)}}function a(e){try{u(o.throw(e))}catch(e){l(e)}}function u(e){var n;e.done?r(e.value):(n=e.value,n instanceof t?n:new t((function(e){e(n)}))).then(i,a)}u((o=o.apply(e,n||[])).next())}))}function l(e,n){var t,o,r,l,i={label:0,sent:function(){if(1&r[0])throw r[1];return r[1]},trys:[],ops:[]};return l={next:a(0),throw:a(1),return:a(2)},"function"==typeof Symbol&&(l[Symbol.iterator]=function(){return this}),l;function a(l){return function(a){return function(l){if(t)throw new TypeError("Generator is already executing.");for(;i;)try{if(t=1,o&&(r=2&l[0]?o.return:l[0]?o.throw||((r=o.return)&&r.call(o),0):o.next)&&!(r=r.call(o,l[1])).done)return r;switch(o=0,r&&(l=[2&l[0],r.value]),l[0]){case 0:case 1:r=l;break;case 4:return i.label++,{value:l[1],done:!1};case 5:i.label++,o=l[1],l=[0];continue;case 7:l=i.ops.pop(),i.trys.pop();continue;default:if(!(r=i.trys,(r=r.length>0&&r[r.length-1])||6!==l[0]&&2!==l[0])){i=0;continue}if(3===l[0]&&(!r||l[1]>r[0]&&l[1]<r[3])){i.label=l[1];break}if(6===l[0]&&i.label<r[1]){i.label=r[1],r=l;break}if(r&&i.label<r[2]){i.label=r[2],i.ops.push(l);break}r[2]&&i.ops.pop(),i.trys.pop();continue}l=n.call(e,i)}catch(e){l=[6,e],o=0}finally{t=r=0}if(5&l[0])throw l[1];return{value:l[0]?l[1]:void 0,done:!0}}([l,a])}}}function i(e,n){var t="function"==typeof Symbol&&e[Symbol.iterator];if(!t)return e;var o,r,l=t.call(e),i=[];try{for(;(void 0===n||n-- >0)&&!(o=l.next()).done;)i.push(o.value)}catch(e){r={error:e}}finally{try{o&&!o.done&&(t=l.return)&&t.call(l)}finally{if(r)throw r.error}}return i}function a(){for(var e=[],n=0;n<arguments.length;n++)e=e.concat(i(arguments[n]));return e}function u(e,n){return Object.defineProperty?Object.defineProperty(e,"raw",{value:n}):e.raw=n,e}var s=t(2),c=t.n(s),d=t(3),f=t(1),m=t(5),p=t.n(m),g=t(0),v=t(4);function h(e,n,t){var o=Array(n).fill(t);if(!e||!e.length)return o;for(var r=0;r<n;r++){var l=e[r];l&&l>0&&(o[r]=l+"px")}return o}function b(e){var n,t,r=e.groups,l=[],i=null!==(t=null===(n=r.find((function(e){return e.fields.length})))||void 0===n?void 0:n.fields[0].values.length)&&void 0!==t?t:0,u=0;r.forEach((function(e){var n;if(e.label){var t=o(o({},null===(n=e.label.props)||void 0===n?void 0:n.style),{"grid-column":"1 / span "+i,"justify-self":"start"});l.push(c.a.cloneElement(e.label,{style:t})),u+=1}e.fields.forEach((function(e){return l.push.apply(l,a(e.values))})),u+=e.fields.length}));var s=h(e.colws,i,"minmax(max-content, 1fr)"),d=h(e.rowhs,u,"max-content"),f={display:"grid","grid-template-columns":s.join(" "),"grid-template-rows":d.join(" ")};return c.a.createElement("div",{style:f,className:e.className},l)}function y(e){var n,t,r=e.groups,l=[],i=r.find((function(e){return e.label})),u=null!==(t=null===(n=r.find((function(e){return e.fields.length})))||void 0===n?void 0:n.fields[0].values.length)&&void 0!==t?t:0;if(i){u+=1;var s=1;r.forEach((function(e){var n,t={"grid-row":"1 / 2","grid-column":s+" / span "+e.fields.length},r=e.label?c.a.cloneElement(e.label,{style:o(o({},null===(n=e.label.props)||void 0===n?void 0:n.style),t)}):c.a.createElement("div",{style:t});l.push(r),s+=e.fields.length}))}var d=0;r.forEach((function(e){e.fields.forEach((function(e){l.push.apply(l,a(e.values))})),d+=e.fields.length}));var f=h(e.colws,d,"auto"),m=h(e.rowhs,u,"max-content"),p={display:"grid","grid-template-columns":f.join(" "),"grid-template-rows":m.join(" "),"grid-auto-flow":"column"};return c.a.createElement("div",{style:p,className:e.className},l)}Object(g.css)(w||(w=u(["text-align: left;"],["text-align: left;"]))),Object(g.css)(j||(j=u(["text-align: center;"],["text-align: center;"]))),Object(g.css)(O||(O=u(["text-align: right;"],["text-align: right;"])));var x,w,j,O,S,_,E,k,C,z,P,N,I,T,F,B,K,V,M=void 0;function D(e){var n=Object(f.useTheme)();if(!M||x!=n){var t={dim:n.colors.textWeak,hl:n.colors.textBlue,sticky_bg:n.colors.panelBg,border_bg:n.colors.border1};M=function(e){var n=Object(g.css)(S||(S=u(["\n        padding: 8px;\n        white-space: nowrap;\n    "],["\n        padding: 8px;\n        white-space: nowrap;\n    "]))),t=Object(g.css)(_||(_=u(["\n        border-bottom: 1px solid ",";\n    "],["\n        border-bottom: 1px solid ",";\n    "])),e.border_bg),o=(Object(g.css)(E||(E=u(["\n        border-right: 1px solid ",";\n    "],["\n        border-right: 1px solid ",";\n    "])),e.border_bg),Object(g.css)(k||(k=u(["\n        position: sticky;\n        background-color: ",";\n    "],["\n        position: sticky;\n        background-color: ",";\n    "])),e.sticky_bg)),r={field:{name:Object(g.css)(n,o,t,Object(g.css)(C||(C=u(["\n                left: 0;\n                z-index: 2;\n                color: ",";\n            "],["\n                left: 0;\n                z-index: 2;\n                color: ",";\n            "])),e.dim)),value:Object(g.css)(n,t,Object(g.css)(z||(z=u(["\n                text-align: right;\n            "],["\n                text-align: right;\n            "]))))},dimfield:{name:Object(g.css)(n,o,Object(g.css)(P||(P=u(["\n                left: 0;\n                top: 0;\n                z-index: 3;\n\n                color: ",";\n            "],["\n                left: 0;\n                top: 0;\n                z-index: 3;\n\n                color: ",";\n            "])),e.dim)),value:Object(g.css)(n,o,Object(g.css)(N||(N=u(["\n                top: 0;\n                z-index: 1;\n\n                color: ",";\n\n                text-align: right;\n            "],["\n                top: 0;\n                z-index: 1;\n\n                color: ",";\n\n                text-align: right;\n            "])),e.hl))},grouplabel:Object(g.css)(o,Object(g.css)(I||(I=u(["\n            left: 0;\n            z-index: 2;\n\n            padding: 16px 8px 0 4px;\n            color: ",";\n        "],["\n            left: 0;\n            z-index: 2;\n\n            padding: 16px 8px 0 4px;\n            color: ",";\n        "])),e.hl))};return{h:{field:{name:Object(g.css)(n,o,Object(g.css)(T||(T=u(["\n                top: 0;\n                z-index: 1;\n\n                color: ",";\n\n                text-align: right;\n                white-space: normal;\n            "],["\n                top: 0;\n                z-index: 1;\n\n                color: ",";\n\n                text-align: right;\n                white-space: normal;\n            "])),e.hl)),value:Object(g.css)(n,t,Object(g.css)(F||(F=u(["\n                text-align: right;\n            "],["\n                text-align: right;\n            "]))))},dimfield:{name:Object(g.css)(n,o,Object(g.css)(B||(B=u(["\n                left: 0;\n                top: 0;\n                z-index: 3;\n\n                color: ",";\n\n                text-align: right;\n                white-space: normal;\n            "],["\n                left: 0;\n                top: 0;\n                z-index: 3;\n\n                color: ",";\n\n                text-align: right;\n                white-space: normal;\n            "])),e.hl)),value:Object(g.css)(n,o,t,Object(g.css)(K||(K=u(["\n                left: 0;\n                z-index: 2;\n\n                color: ",";\n                text-align: right;\n            "],["\n                left: 0;\n                z-index: 2;\n\n                color: ",";\n                text-align: right;\n            "])),e.dim))},grouplabel:Object(g.css)(n,o,Object(g.css)(V||(V=u(["\n            top: 0;\n            color: ",";\n\n            text-align: center;\n\n            white-space: normal;\n        "],["\n            top: 0;\n            color: ",";\n\n            text-align: center;\n\n            white-space: normal;\n        "])),e.hl))},v:r}}(t),x=n}return e?M.h:M.v}var G,H=c.a.createElement;function A(e,n,t,o){var r=0;return e.map((function(e){return{label:e.name?H("div",{key:"__group."+e.name,className:t.style.grouplabel},e.name):void 0,fields:e.fields.map((function(l){return function(e,n,t,o){var r,l,i,a=t.df,u=t.formatter,s=t.order,c=Object(d.getFieldDisplayName)(e,a);e.display||(e.display=Object(d.getDisplayProcessor)({field:e}));var m=void 0;if(n.show_common_unit&&e.type==d.FieldType.number){var p=e.config.mappings;e.config.mappings=void 0,m=Object(d.getDisplayProcessor)({field:e})(1).suffix,e.config.mappings=p}for(var g,v,h=[H("div",{key:e.name,className:o.name},m?c+", "+m:c)],b=0;b<e.values.length;b++){var y=e.name+"."+b,x=e.values.get(s?s[b]:b);null==x&&(x=void 0);var w=e.display(x),j={raw:x,i:b,text:n.show_common_unit?w.text:""+(null!==(r=w.prefix)&&void 0!==r?r:"")+w.text+(null!==(l=w.suffix)&&void 0!==l?l:""),style:(g=null===(i=e.config.custom)||void 0===i?void 0:i.display_mode,v=w.color,v?"fg"==g?{color:v}:"bg"==g?{background:v,color:Object(f.getTextColorForBackground)(v)}:{}:{}),html:void 0};if(u)try{u(j,e,{})}catch(e){}var O=void 0;O=(null==j?void 0:j.html)?H("div",{key:y,style:j.style,className:o.value(b),dangerouslySetInnerHTML:{__html:j.html}}):H("div",{key:y,style:j.style,className:o.value(b)},j.text),h.push(O)}return{values:h}}(l,n,t,function(e,r){var l=r?t.style.dimfield:t.style.field;return n.is_horizontal?{name:Object(g.css)(l.name,o[e]),value:function(n){return Object(g.css)(l.value,o[e])}}:{name:Object(g.css)(l.name,o[0]),value:function(e){return Object(g.css)(l.value,o[e+1])}}}(r++,!!e.is_dim))}))}}))}function R(e,n){var t=n.sort;if(t.field&&t.field.length){var o=e.find((function(e){return e.name==t.field}));if(o){var r=o.values.toArray().map((function(e,n){return{v:0==e&&t.zeronull?null:e,i:n}}));return o.type==d.FieldType.number?r.sort((function(e,n){return function(e,n,t,o){return null==e&&null==n?0:null==e?t?-1:1:null==n?t?1:-1:o?n-e:e-n}(e.v,n.v,t.nullfirst,t.desc)})):r.sort((function(e,n){return function(e,n,t,o){if(null==e&&null==n)return 0;if(null==e)return t?-1:1;if(null==n)return t?1:-1;if(o){if(e>n)return-1;if(e<n)return 1}else{if(e<n)return-1;if(e>n)return 1}return 0}(e.v,n.v,t.nullfirst,t.desc)})),r.map((function(e){return e.i}))}}}function L(e,n){return e&&e.length?(t=n,o=/\s*([r|c|l]?)\s*([0-9]*)\s*/,r=e.split(",").map((function(e){var n=e.match(o);return{a:n&&""!=n[1]?n[1]:void 0,w:n&&""!=n[2]?Number.parseInt(n[2]):0}})),(l=r.length)&&l<t&&(r.length=t,r.fill(r[l-1],l)),r):[];var t,o,r,l}t.d(n,"plugin",(function(){return Q}));var U=[{kind:f.CodeEditorSuggestionItemKind.Field,label:"value"},{kind:f.CodeEditorSuggestionItemKind.Property,label:"value.raw"},{kind:f.CodeEditorSuggestionItemKind.Property,label:"value.text"},{kind:f.CodeEditorSuggestionItemKind.Property,label:"value.style"},{kind:f.CodeEditorSuggestionItemKind.Property,label:"value.html"},{kind:f.CodeEditorSuggestionItemKind.Field,label:"field"},{kind:f.CodeEditorSuggestionItemKind.Property,label:"field.name"},{kind:f.CodeEditorSuggestionItemKind.Field,label:"lib"},{kind:f.CodeEditorSuggestionItemKind.Property,label:"lib.moment"},{kind:f.CodeEditorSuggestionItemKind.Field,label:"context"},{kind:f.CodeEditorSuggestionItemKind.Property,label:"context.df"}];function W(e){var n=e.value,t=e.onChange;return c.a.createElement(f.CodeEditor,{value:n,onBlur:t,onSave:t,language:"javascript",showMiniMap:!1,showLineNumbers:!0,getSuggestions:function(){return U},height:400})}var q=function(e){return r(void 0,void 0,void 0,(function(){var n,t,o;return l(this,(function(r){return n=[{value:"",label:"─"}],e&&e.data&&e.data.length&&(t=e.data[0],o=[],t.fields.filter((function(e){return e.labels})).forEach((function(e){return Object.entries(e.labels).forEach((function(e){var n=i(e,2),t=n[0],r=n[1];null==t||null==r||o.includes(t)||o.push(t)}))})),o.forEach((function(e){return n.push({label:e,value:e})}))),[2,Promise.resolve(n)]}))}))},J=function(e){return r(void 0,void 0,void 0,(function(){var n,t;return l(this,(function(o){return n=[{value:"",label:"─"}],e&&e.data&&e.data.length&&(t=e.data[0]).fields.forEach((function(e){var o=Object(d.getFieldDisplayName)(e,t);n.push({label:o!=e.name?o+" ("+e.name+")":e.name,value:e.name})})),[2,Promise.resolve(n)]}))}))},Q=new d.PanelPlugin((function(e){var n,t,r=e.data,l=e.options,s=e.height,c=e.width;if(!(r.series&&r.series.length&&(null===(t=null===(n=r.series[0])||void 0===n?void 0:n.fields)||void 0===t?void 0:t.length)))return H("div",null,"No data");var d,f=r.series[0],m=f.fields,h=D(!!l.is_horizontal),x=function(e){var n;return Math.max(e.length,null!==(n=(null==e?void 0:e[0].values.length)+1)&&void 0!==n?n:1)}(m),w=L(l.custom_columns,x);if(v.config.disableSanitizeHtml&&l.use_formatcode&&l.formatcode)try{var j=Function("value","field","context","lib",l.formatcode);d=function(e,n,t){return j(e,n,o({df:f},t),{moment:p.a})}}catch(e){}var O={formatter:d,df:f,style:h,order:R(m,l)},S=A(function(e,n){var t,o=n.dimension_field,r=n.group_by_label,l=[];if(o&&o.length){var u=e.find((function(e){return e.name==o}));u&&(l.push({fields:[u],is_dim:!0}),e=e.filter((function(e){return e!=u})))}if(r&&r.length){var s=new Map;s.set(void 0,[]),e.forEach((function(e){var n,t,o=null===(n=null==e?void 0:e.labels)||void 0===n?void 0:n[r];s.has(o)||s.set(o,[]),null===(t=s.get(o))||void 0===t||t.push(e)})),(null===(t=s.get(void 0))||void 0===t?void 0:t.length)||s.delete(void 0),l.push.apply(l,a(a(s).map((function(e){var n=i(e,2);return{name:n[0],fields:n[1]}}))))}else l.push({fields:e});return l}(m,l),l,O,w.map((function(e){return e.a})));return H(l.is_horizontal?y:b,{className:Object(g.css)(G||(G=u(["\n                width: ","px;\n                height: ","px;\n                overflow: auto;\n              "],["\n                width: ","px;\n                height: ","px;\n                overflow: auto;\n              "])),c,s),groups:S,colws:w.length?w.map((function(e){return e.w})):void 0})}));Q.setPanelOptions((function(e){e.addSelect({path:"dimension_field",name:"Dimension field name",settings:{allowCustomValue:!0,options:[],getOptions:J},defaultValue:""}).addBooleanSwitch({path:"is_horizontal",name:"Horizontal layout ",defaultValue:!1}).addBooleanSwitch({path:"show_common_unit",name:"Show common unit",defaultValue:!0}).addSelect({path:"group_by_label",name:"Group by label",settings:{allowCustomValue:!0,options:[],getOptions:q},defaultValue:""}).addTextInput({path:"custom_columns",name:"Custom column widths and text alignments",description:"Comma-separated format string: r100, c200, l300, etc"}).addSelect({path:"sort.field",name:"By field",settings:{allowCustomValue:!0,options:[],getOptions:J},defaultValue:"",category:["Sort"]}).addBooleanSwitch({path:"sort.desc",name:"Descending",category:["Sort"]}).addBooleanSwitch({path:"sort.zeronull",name:"Treat zeros as nulls",category:["Sort"]}).addBooleanSwitch({path:"sort.nullfirst",name:"Nulls go first",category:["Sort"]}).addBooleanSwitch({path:"use_formatcode",name:"Use formatting code (DANGER!)",description:v.config.disableSanitizeHtml?"":"Feature is disabled. Set disable_sanitize_html = false in Grafana config to activate it.",category:["Custom formatting"],defaultValue:!1}).addCustomEditor({id:"formatcode",path:"formatcode",name:"Code",showIf:function(e){return e.use_formatcode&&v.config.disableSanitizeHtml},category:["Custom formatting"],editor:W,defaultValue:"\n/*\n    This code would be called for formatting each value.\n    The object 'value' is in scope for modification.\n\n    Set the text:\n      value.text = 'foo'\n    Set the style:\n      value.style = {'color': 'red', 'border': '1px solid'}\n    Render as html instead of text:\n      value.html = '<a href=\"http://www.grafana.com\">Go to base</a>'\n    Get raw (numeric) value:\n      let a = value.raw\n\n    Extra objects are in scope to help the formatting:\n      field: dataframe field of this value. The field.name is most useful here.\n      context.df: whole dataframe\n      lib.moment: moment.js library, handy for the datetimes.\n*/\n\nvalue.text = field.name + ':' + value.raw\nvalue.style = {'color': 'red'}"})})),Q.useFieldConfig({useCustomConfig:function(e){e.addRadio({path:"display_mode",name:"Cell display mode",settings:{options:[{value:"auto",label:"Auto"},{value:"fg",label:"Color text"},{value:"bg",label:"Color background"}]},defaultValue:"auto"})}})}])}));
+define(["@grafana/data","@grafana/runtime","@grafana/ui","emotion","moment","react"], function(__WEBPACK_EXTERNAL_MODULE__grafana_data__, __WEBPACK_EXTERNAL_MODULE__grafana_runtime__, __WEBPACK_EXTERNAL_MODULE__grafana_ui__, __WEBPACK_EXTERNAL_MODULE_emotion__, __WEBPACK_EXTERNAL_MODULE_moment__, __WEBPACK_EXTERNAL_MODULE_react__) { return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "/";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = "./module.ts");
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ "../node_modules/tslib/tslib.es6.js":
+/*!******************************************!*\
+  !*** ../node_modules/tslib/tslib.es6.js ***!
+  \******************************************/
+/*! exports provided: __extends, __assign, __rest, __decorate, __param, __metadata, __awaiter, __generator, __createBinding, __exportStar, __values, __read, __spread, __spreadArrays, __spreadArray, __await, __asyncGenerator, __asyncDelegator, __asyncValues, __makeTemplateObject, __importStar, __importDefault, __classPrivateFieldGet, __classPrivateFieldSet */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__extends", function() { return __extends; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__assign", function() { return __assign; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__rest", function() { return __rest; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__decorate", function() { return __decorate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__param", function() { return __param; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__metadata", function() { return __metadata; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__awaiter", function() { return __awaiter; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__generator", function() { return __generator; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__createBinding", function() { return __createBinding; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__exportStar", function() { return __exportStar; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__values", function() { return __values; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__read", function() { return __read; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__spread", function() { return __spread; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__spreadArrays", function() { return __spreadArrays; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__spreadArray", function() { return __spreadArray; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__await", function() { return __await; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__asyncGenerator", function() { return __asyncGenerator; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__asyncDelegator", function() { return __asyncDelegator; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__asyncValues", function() { return __asyncValues; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__makeTemplateObject", function() { return __makeTemplateObject; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__importStar", function() { return __importStar; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__importDefault", function() { return __importDefault; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__classPrivateFieldGet", function() { return __classPrivateFieldGet; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__classPrivateFieldSet", function() { return __classPrivateFieldSet; });
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+/* global Reflect, Promise */
+
+var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+    return extendStatics(d, b);
+};
+
+function __extends(d, b) {
+    if (typeof b !== "function" && b !== null)
+        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+    extendStatics(d, b);
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+
+var __assign = function() {
+    __assign = Object.assign || function __assign(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    }
+    return __assign.apply(this, arguments);
+}
+
+function __rest(s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+}
+
+function __decorate(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+}
+
+function __param(paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+}
+
+function __metadata(metadataKey, metadataValue) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
+}
+
+function __awaiter(thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+
+function __generator(thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+}
+
+var __createBinding = Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+});
+
+function __exportStar(m, o) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);
+}
+
+function __values(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+}
+
+function __read(o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+}
+
+/** @deprecated */
+function __spread() {
+    for (var ar = [], i = 0; i < arguments.length; i++)
+        ar = ar.concat(__read(arguments[i]));
+    return ar;
+}
+
+/** @deprecated */
+function __spreadArrays() {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+}
+
+function __spreadArray(to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || from);
+}
+
+function __await(v) {
+    return this instanceof __await ? (this.v = v, this) : new __await(v);
+}
+
+function __asyncGenerator(thisArg, _arguments, generator) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var g = generator.apply(thisArg, _arguments || []), i, q = [];
+    return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
+    function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
+    function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
+    function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
+    function fulfill(value) { resume("next", value); }
+    function reject(value) { resume("throw", value); }
+    function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
+}
+
+function __asyncDelegator(o) {
+    var i, p;
+    return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
+    function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: n === "return" } : f ? f(v) : v; } : f; }
+}
+
+function __asyncValues(o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+}
+
+function __makeTemplateObject(cooked, raw) {
+    if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
+    return cooked;
+};
+
+var __setModuleDefault = Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+};
+
+function __importStar(mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+}
+
+function __importDefault(mod) {
+    return (mod && mod.__esModule) ? mod : { default: mod };
+}
+
+function __classPrivateFieldGet(receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+}
+
+function __classPrivateFieldSet(receiver, state, value, kind, f) {
+    if (kind === "m") throw new TypeError("Private method is not writable");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+}
+
+
+/***/ }),
+
+/***/ "./grid.ts":
+/*!*****************!*\
+  !*** ./grid.ts ***!
+  \*****************/
+/*! exports provided: VGrid, HGrid */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "VGrid", function() { return VGrid; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HGrid", function() { return HGrid; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "../node_modules/tslib/tslib.es6.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+
+
+
+function calc_sizes(spec, n, defsize) {
+  var sizes = Array(n).fill(defsize);
+  if (!(spec && spec.length)) return sizes;
+
+  for (var i = 0; i < n; i++) {
+    var v = spec[i];
+    if (v && v > 0) sizes[i] = v + "px";
+  }
+
+  return sizes;
+}
+
+function VGrid(props) {
+  var _a, _b;
+
+  var groups = props.groups;
+  var cells = [];
+  var ncols = (_b = (_a = groups.find(function (g) {
+    return g.fields.length;
+  })) === null || _a === void 0 ? void 0 : _a.fields[0].values.length) !== null && _b !== void 0 ? _b : 0;
+  var nrows = 0;
+  groups.forEach(function (g) {
+    var _a; // NOTE: justify-self is for the [likely to be used] sticky to work
+
+
+    if (g.label) {
+      var new_style = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])(Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({}, (_a = g.label.props) === null || _a === void 0 ? void 0 : _a.style), {
+        'grid-column': "1 / span " + ncols,
+        'justify-self': 'start'
+      });
+
+      cells.push(react__WEBPACK_IMPORTED_MODULE_1___default.a.cloneElement(g.label, {
+        style: new_style
+      }));
+      nrows += 1;
+    }
+
+    g.fields.forEach(function (f) {
+      return cells.push.apply(cells, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spreadArray"])([], Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__read"])(f.values)));
+    });
+    nrows += g.fields.length;
+  }); // TODO: investigate the minmax etc
+
+  var gtcs = calc_sizes(props.colws, ncols, 'minmax(max-content, 1fr)');
+  var gtrs = calc_sizes(props.rowhs, nrows, 'max-content');
+  var style = {
+    'display': 'grid',
+    'grid-template-columns': gtcs.join(' '),
+    'grid-template-rows': gtrs.join(' ')
+  };
+  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement('div', {
+    style: style,
+    className: props.className
+  }, cells);
+}
+function HGrid(props) {
+  var _a, _b;
+
+  var groups = props.groups;
+  var cells = [];
+  var any_labels = groups.find(function (g) {
+    return g.label;
+  });
+  var nrows = (_b = (_a = groups.find(function (g) {
+    return g.fields.length;
+  })) === null || _a === void 0 ? void 0 : _a.fields[0].values.length) !== null && _b !== void 0 ? _b : 0; // fixed layout all the groups label first, then let the    grid autolayout fields
+
+  if (any_labels) {
+    nrows += 1;
+    var col1_1 = 1;
+    groups.forEach(function (g) {
+      var _a;
+
+      var new_style = {
+        'grid-row': '1 / 2',
+        'grid-column': col1_1 + " / span " + g.fields.length
+      };
+      var cell = g.label ? react__WEBPACK_IMPORTED_MODULE_1___default.a.cloneElement(g.label, {
+        style: Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])(Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({}, (_a = g.label.props) === null || _a === void 0 ? void 0 : _a.style), new_style)
+      }) : react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement('div', {
+        style: new_style
+      });
+      cells.push(cell);
+      col1_1 += g.fields.length;
+    });
+  } // TODO: some flatmap should be faster
+
+
+  var ncols = 0; // this is needed for the widths only
+
+  groups.forEach(function (g) {
+    g.fields.forEach(function (f) {
+      cells.push.apply(cells, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spreadArray"])([], Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__read"])(f.values)));
+    });
+    ncols += g.fields.length;
+  }); // minmax(max-content, 1fr)
+
+  var gtcs = calc_sizes(props.colws, ncols, 'auto');
+  var gtrs = calc_sizes(props.rowhs, nrows, 'max-content');
+  var style = {
+    'display': 'grid',
+    'grid-template-columns': gtcs.join(' '),
+    'grid-template-rows': gtrs.join(' '),
+    'grid-auto-flow': 'column'
+  };
+  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement('div', {
+    style: style,
+    className: props.className
+  }, cells);
+}
+
+/***/ }),
+
+/***/ "./module.ts":
+/*!*******************!*\
+  !*** ./module.ts ***!
+  \*******************/
+/*! exports provided: plugin */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "plugin", function() { return plugin; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "../node_modules/tslib/tslib.es6.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @grafana/data */ "@grafana/data");
+/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_grafana_data__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @grafana/ui */ "@grafana/ui");
+/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_grafana_ui__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _vtable__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./vtable */ "./vtable.ts");
+/* harmony import */ var _grafana_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @grafana/runtime */ "@grafana/runtime");
+/* harmony import */ var _grafana_runtime__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_grafana_runtime__WEBPACK_IMPORTED_MODULE_5__);
+
+
+
+
+
+
+var suggestions = [{
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Field,
+  label: 'value'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
+  label: 'value.raw'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
+  label: 'value.text'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
+  label: 'value.style'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
+  label: 'value.html'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Field,
+  label: 'field'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
+  label: 'field.name'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Field,
+  label: 'lib'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
+  label: 'lib.moment'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Field,
+  label: 'context'
+}, {
+  kind: _grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditorSuggestionItemKind"].Property,
+  label: 'context.df'
+}];
+var DEF_CODE = "\n/*\n    This code would be called for formatting each value.\n    The object 'value' is in scope for modification.\n\n    Set the text:\n      value.text = 'foo'\n    Set the style:\n      value.style = {'color': 'red', 'border': '1px solid'}\n    Render as html instead of text:\n      value.html = '<a href=\"http://www.grafana.com\">Go to base</a>'\n    Get raw (numeric) value:\n      let a = value.raw\n\n    Extra objects are in scope to help the formatting:\n      field: dataframe field of this value. The field.name is most useful here.\n      context.df: whole dataframe\n      lib.moment: moment.js library, handy for the datetimes.\n*/\n\nvalue.text = field.name + ':' + value.raw\nvalue.style = {'color': 'red'}";
+
+function JsEditor(_a) {
+  var value = _a.value,
+      onChange = _a.onChange;
+  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_grafana_ui__WEBPACK_IMPORTED_MODULE_3__["CodeEditor"], {
+    value: value,
+    onBlur: onChange,
+    onSave: onChange,
+    language: 'javascript',
+    showMiniMap: false,
+    showLineNumbers: true,
+    getSuggestions: function getSuggestions() {
+      return suggestions;
+    },
+    height: 400 // width:'100%',
+
+  });
+}
+
+var fetch_groups = function fetch_groups(context) {
+  return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(void 0, void 0, void 0, function () {
+    var options, df, labels_1;
+    return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__generator"])(this, function (_a) {
+      options = [{
+        value: '',
+        label: '─'
+      }];
+
+      if (context && context.data && context.data.length) {
+        df = context.data[0];
+        labels_1 = [];
+        df.fields.filter(function (f) {
+          return f.labels;
+        }).forEach(function (f) {
+          return Object.entries(f.labels).forEach(function (_a) {
+            var _b = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__read"])(_a, 2),
+                k = _b[0],
+                v = _b[1];
+
+            if (k != undefined && v != undefined && !labels_1.includes(k)) labels_1.push(k);
+          });
+        });
+        labels_1.forEach(function (l) {
+          return options.push({
+            label: l,
+            value: l
+          });
+        });
+      }
+
+      return [2
+      /*return*/
+      , Promise.resolve(options)];
+    });
+  });
+};
+
+var fetch_fields = function fetch_fields(context) {
+  return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(void 0, void 0, void 0, function () {
+    var options, df_1;
+    return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__generator"])(this, function (_a) {
+      options = [{
+        value: '',
+        label: '─'
+      }];
+
+      if (context && context.data && context.data.length) {
+        df_1 = context.data[0];
+        df_1.fields.forEach(function (f) {
+          var label = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_2__["getFieldDisplayName"])(f, df_1);
+          options.push({
+            label: label != f.name ? label + " (" + f.name + ")" : f.name,
+            value: f.name
+          });
+        });
+      }
+
+      return [2
+      /*return*/
+      , Promise.resolve(options)];
+    });
+  });
+};
+
+var plugin = new _grafana_data__WEBPACK_IMPORTED_MODULE_2__["PanelPlugin"](_vtable__WEBPACK_IMPORTED_MODULE_4__["VTable"]);
+plugin.setPanelOptions(function (builder) {
+  builder.addSelect({
+    path: 'dimension_field',
+    name: 'Dimension field name',
+    settings: {
+      allowCustomValue: true,
+      options: [],
+      getOptions: fetch_fields
+    },
+    defaultValue: ''
+  }).addBooleanSwitch({
+    path: 'is_horizontal',
+    name: 'Horizontal layout ',
+    defaultValue: false
+  }).addBooleanSwitch({
+    path: 'show_common_unit',
+    name: 'Show common unit',
+    defaultValue: true
+  }).addSelect({
+    path: 'group_by_label',
+    name: 'Group by label',
+    settings: {
+      allowCustomValue: true,
+      options: [],
+      getOptions: fetch_groups
+    },
+    defaultValue: ''
+  }).addTextInput({
+    path: 'custom_columns',
+    name: 'Custom column widths and text alignments',
+    description: 'Comma-separated format string: r100, c200, l300, etc'
+  }).addSelect({
+    path: 'sort.field',
+    name: 'By field',
+    settings: {
+      allowCustomValue: true,
+      options: [],
+      getOptions: fetch_fields
+    },
+    defaultValue: '',
+    category: ['Sort']
+  }).addBooleanSwitch({
+    path: 'sort.desc',
+    name: 'Descending',
+    category: ['Sort']
+  }).addBooleanSwitch({
+    path: 'sort.zeronull',
+    name: 'Treat zeros as nulls',
+    category: ['Sort']
+  }).addBooleanSwitch({
+    path: 'sort.nullfirst',
+    name: 'Nulls go first',
+    category: ['Sort']
+  }).addBooleanSwitch({
+    path: 'use_formatcode',
+    name: 'Use formatting code (DANGER!)',
+    description: _grafana_runtime__WEBPACK_IMPORTED_MODULE_5__["config"].disableSanitizeHtml ? "" : "Feature is disabled. Set disable_sanitize_html = false in Grafana config to activate it.",
+    category: ['Custom formatting'],
+    defaultValue: false
+  }).addCustomEditor({
+    id: 'formatcode',
+    path: 'formatcode',
+    name: 'Code',
+    showIf: function showIf(options) {
+      return options.use_formatcode && _grafana_runtime__WEBPACK_IMPORTED_MODULE_5__["config"].disableSanitizeHtml;
+    },
+    category: ['Custom formatting'],
+    editor: JsEditor,
+    defaultValue: DEF_CODE
+  });
+});
+plugin.useFieldConfig({
+  useCustomConfig: function useCustomConfig(builder) {
+    builder.addRadio({
+      path: 'display_mode',
+      name: 'Cell display mode',
+      settings: {
+        options: [{
+          value: 'auto',
+          label: 'Auto'
+        }, {
+          value: 'fg',
+          label: 'Color text'
+        }, {
+          value: 'bg',
+          label: 'Color background'
+        }]
+      },
+      defaultValue: 'auto'
+    });
+  }
+});
+
+/***/ }),
+
+/***/ "./styles.ts":
+/*!*******************!*\
+  !*** ./styles.ts ***!
+  \*******************/
+/*! exports provided: alignstyles, useGridStyle */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "alignstyles", function() { return alignstyles; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "useGridStyle", function() { return useGridStyle; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "../node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @grafana/ui */ "@grafana/ui");
+/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_grafana_ui__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var emotion__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! emotion */ "emotion");
+/* harmony import */ var emotion__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(emotion__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
+var alignstyles = {
+  l: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_1 || (templateObject_1 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["text-align: left;"], ["text-align: left;"]))),
+  c: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_2 || (templateObject_2 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["text-align: center;"], ["text-align: center;"]))),
+  r: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_3 || (templateObject_3 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["text-align: right;"], ["text-align: right;"])))
+};
+var styles = undefined;
+var gtheme;
+function useGridStyle(is_horizontal) {
+  var gft = Object(_grafana_ui__WEBPACK_IMPORTED_MODULE_1__["useTheme"])(); // cache
+
+  if (!styles || gtheme != gft) {
+    var theme = {
+      dim: gft.colors.textWeak,
+      hl: gft.colors.textBlue,
+      sticky_bg: gft.colors.panelBg,
+      border_bg: gft.colors.border1
+    };
+    styles = build_styles(theme);
+    gtheme = gft;
+    console.log('building styles');
+  }
+
+  return is_horizontal ? styles.h : styles.v;
+}
+
+function build_styles(theme) {
+  var cell = Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_4 || (templateObject_4 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        padding: 8px;\n        white-space: nowrap;\n    "], ["\n        padding: 8px;\n        white-space: nowrap;\n    "])));
+  var bborder = Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_5 || (templateObject_5 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        border-bottom: 1px solid ", ";\n    "], ["\n        border-bottom: 1px solid ", ";\n    "])), theme.border_bg);
+  var rborder = Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_6 || (templateObject_6 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        border-right: 1px solid ", ";\n    "], ["\n        border-right: 1px solid ", ";\n    "])), theme.border_bg);
+  var sticky = Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_7 || (templateObject_7 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        position: sticky;\n        background-color: ", ";\n    "], ["\n        position: sticky;\n        background-color: ", ";\n    "])), theme.sticky_bg);
+  var v = {
+    field: {
+      name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, sticky, bborder, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_8 || (templateObject_8 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                left: 0;\n                z-index: 2;\n                color: ", ";\n            "], ["\n                left: 0;\n                z-index: 2;\n                color: ", ";\n            "])), theme.dim)),
+      value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, bborder, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_9 || (templateObject_9 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                text-align: right;\n            "], ["\n                text-align: right;\n            "]))))
+    },
+    dimfield: {
+      name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, sticky, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_10 || (templateObject_10 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                left: 0;\n                top: 0;\n                z-index: 3;\n\n                color: ", ";\n            "], ["\n                left: 0;\n                top: 0;\n                z-index: 3;\n\n                color: ", ";\n            "])), theme.dim)),
+      value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, sticky, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_11 || (templateObject_11 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                top: 0;\n                z-index: 1;\n\n                color: ", ";\n\n                text-align: right;\n            "], ["\n                top: 0;\n                z-index: 1;\n\n                color: ", ";\n\n                text-align: right;\n            "])), theme.hl))
+    },
+    grouplabel: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(sticky, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_12 || (templateObject_12 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            left: 0;\n            z-index: 2;\n\n            padding: 16px 8px 0 4px;\n            color: ", ";\n        "], ["\n            left: 0;\n            z-index: 2;\n\n            padding: 16px 8px 0 4px;\n            color: ", ";\n        "])), theme.hl))
+  };
+  var h = {
+    field: {
+      name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, sticky, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_13 || (templateObject_13 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                top: 0;\n                z-index: 1;\n\n                color: ", ";\n\n                text-align: right;\n                white-space: normal;\n            "], ["\n                top: 0;\n                z-index: 1;\n\n                color: ", ";\n\n                text-align: right;\n                white-space: normal;\n            "])), theme.hl)),
+      value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, bborder, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_14 || (templateObject_14 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                text-align: right;\n            "], ["\n                text-align: right;\n            "]))))
+    },
+    dimfield: {
+      name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, sticky, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_15 || (templateObject_15 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                left: 0;\n                top: 0;\n                z-index: 3;\n\n                color: ", ";\n\n                text-align: right;\n                white-space: normal;\n            "], ["\n                left: 0;\n                top: 0;\n                z-index: 3;\n\n                color: ", ";\n\n                text-align: right;\n                white-space: normal;\n            "])), theme.hl)),
+      value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, sticky, bborder, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_16 || (templateObject_16 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                left: 0;\n                z-index: 2;\n\n                color: ", ";\n                text-align: right;\n            "], ["\n                left: 0;\n                z-index: 2;\n\n                color: ", ";\n                text-align: right;\n            "])), theme.dim))
+    },
+    grouplabel: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, sticky, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_17 || (templateObject_17 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            top: 0;\n            color: ", ";\n\n            text-align: center;\n\n            white-space: normal;\n        "], ["\n            top: 0;\n            color: ", ";\n\n            text-align: center;\n\n            white-space: normal;\n        "])), theme.hl))
+  };
+  return {
+    h: h,
+    v: v
+  };
+}
+
+var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5, templateObject_6, templateObject_7, templateObject_8, templateObject_9, templateObject_10, templateObject_11, templateObject_12, templateObject_13, templateObject_14, templateObject_15, templateObject_16, templateObject_17;
+
+/***/ }),
+
+/***/ "./vtable.ts":
+/*!*******************!*\
+  !*** ./vtable.ts ***!
+  \*******************/
+/*! exports provided: VTable */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "VTable", function() { return VTable; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "../node_modules/tslib/tslib.es6.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! moment */ "moment");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var emotion__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! emotion */ "emotion");
+/* harmony import */ var emotion__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(emotion__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @grafana/data */ "@grafana/data");
+/* harmony import */ var _grafana_data__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_grafana_data__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @grafana/ui */ "@grafana/ui");
+/* harmony import */ var _grafana_ui__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_grafana_ui__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _grafana_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @grafana/runtime */ "@grafana/runtime");
+/* harmony import */ var _grafana_runtime__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_grafana_runtime__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _grid__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./grid */ "./grid.ts");
+/* harmony import */ var _styles__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./styles */ "./styles.ts");
+
+
+
+
+
+
+
+
+
+var rce = react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement;
+
+function colorize_cell(mode, color) {
+  if (!color) return {};
+  if (mode == 'fg') return {
+    'color': color
+  };
+  if (mode == 'bg') return {
+    'background': color,
+    'color': Object(_grafana_ui__WEBPACK_IMPORTED_MODULE_5__["getTextColorForBackground"])(color)
+  };
+  return {};
+}
+
+function create_field(field, options, ctx, style) {
+  var _a, _b, _c;
+
+  var df = ctx.df,
+      formatter = ctx.formatter,
+      order = ctx.order;
+  var field_name = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_4__["getFieldDisplayName"])(field, df);
+  if (!field.display) field.display = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_4__["getDisplayProcessor"])({
+    field: field,
+    theme: ctx.theme
+  });
+  var common_unit = undefined; // try to render the field with the sample input == 1 to obtain the unit.
+  // probing with 0 may be wrong since it may be special.
+  // mappings are detached while probing and reattached later.
+  // this is done only if field is numeric
+
+  if (options.show_common_unit && field.type == _grafana_data__WEBPACK_IMPORTED_MODULE_4__["FieldType"].number) {
+    var saved_mappings = field.config.mappings;
+    field.config.mappings = undefined;
+    common_unit = Object(_grafana_data__WEBPACK_IMPORTED_MODULE_4__["getDisplayProcessor"])({
+      field: field,
+      theme: ctx.theme
+    })(1).suffix;
+    field.config.mappings = saved_mappings;
+  }
+
+  var namecell = rce('div', {
+    key: field.name,
+    className: style.name
+  }, common_unit ? field_name + ", " + common_unit : field_name);
+  var cells = [namecell]; // the index loop here instead of map is for easily attaching the sorting feature
+  // should it be needed someday
+
+  for (var i = 0; i < field.values.length; i++) {
+    var key = field.name + "." + i;
+    var v = field.values.get(order ? order[i] : i);
+    if (v == null) v = undefined;
+    var dv = field.display(v);
+    var spec = {
+      raw: v,
+      i: i,
+      text: options.show_common_unit ? dv.text : "" + ((_a = dv.prefix) !== null && _a !== void 0 ? _a : '') + dv.text + ((_b = dv.suffix) !== null && _b !== void 0 ? _b : ''),
+      style: colorize_cell((_c = field.config.custom) === null || _c === void 0 ? void 0 : _c.display_mode, dv.color),
+      html: undefined
+    };
+
+    if (formatter) {
+      try {
+        formatter(spec, field, {});
+      } catch (e) {}
+    }
+
+    var cell = void 0;
+
+    if (spec === null || spec === void 0 ? void 0 : spec.html) {
+      cell = rce('div', {
+        key: key,
+        style: spec.style,
+        className: style.value(i),
+        dangerouslySetInnerHTML: {
+          __html: spec.html
+        }
+      });
+    } else {
+      cell = rce('div', {
+        key: key,
+        style: spec.style,
+        className: style.value(i)
+      }, spec.text);
+    }
+
+    cells.push(cell);
+  }
+
+  return {
+    values: cells
+  };
+}
+
+function fields_to_groups(fields, options) {
+  var _a;
+
+  var dim = options.dimension_field,
+      label = options.group_by_label;
+  var groups = [];
+
+  if (dim && dim.length) {
+    var dimfield_1 = fields.find(function (f) {
+      return f.name == dim;
+    });
+
+    if (dimfield_1) {
+      groups.push({
+        fields: [dimfield_1],
+        is_dim: true
+      });
+      fields = fields.filter(function (f) {
+        return f != dimfield_1;
+      });
+    }
+  }
+
+  if (label && label.length) {
+    var gm_1 = new Map();
+    gm_1.set(undefined, []);
+    fields.forEach(function (f) {
+      var _a, _b;
+
+      var lab = (_a = f === null || f === void 0 ? void 0 : f.labels) === null || _a === void 0 ? void 0 : _a[label];
+      if (!gm_1.has(lab)) gm_1.set(lab, []);
+      (_b = gm_1.get(lab)) === null || _b === void 0 ? void 0 : _b.push(f); // '?' just to calm down the linter
+    });
+    if (!((_a = gm_1.get(undefined)) === null || _a === void 0 ? void 0 : _a.length)) gm_1["delete"](undefined);
+    groups.push.apply(groups, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spreadArray"])([], Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__read"])(Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spreadArray"])([], Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__read"])(gm_1)).map(function (_a) {
+      var _b = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__read"])(_a, 2),
+          name = _b[0],
+          fields = _b[1];
+
+      return {
+        name: name,
+        fields: fields
+      };
+    }))));
+  } else {
+    groups.push({
+      fields: fields
+    }); // shortcut if no grouping
+  }
+
+  return groups;
+}
+
+function create_gridgroups(gss, options, ctx, aligns) {
+  var field_style = function field_style(field_idx, is_dimension) {
+    var base = is_dimension ? ctx.style.dimfield : ctx.style.field;
+    return options.is_horizontal ? {
+      name: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(base.name, aligns[field_idx]),
+      value: function value(i) {
+        return Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(base.value, aligns[field_idx]);
+      }
+    } : {
+      name: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(base.name, aligns[0]),
+      value: function value(i) {
+        return Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(base.value, aligns[i + 1]);
+      }
+    };
+  };
+
+  var field_idx = 0;
+  var gridgroups = gss.map(function (g) {
+    return {
+      label: g.name ? rce('div', {
+        key: "__group." + g.name,
+        className: ctx.style.grouplabel
+      }, g.name) : undefined,
+      fields: g.fields.map(function (f) {
+        return create_field(f, options, ctx, field_style(field_idx++, !!g.is_dim));
+      })
+    };
+  });
+  return gridgroups;
+}
+
+function num_comparer(a, b, nullfirst, desc) {
+  if (a == null && b == null) return 0;
+  if (a == null) return nullfirst ? -1 : 1;
+  if (b == null) return nullfirst ? 1 : -1;
+  return desc ? b - a : a - b;
+}
+
+function str_comparer(a, b, nullfirst, desc) {
+  if (a == null && b == null) return 0;
+  if (a == null) return nullfirst ? -1 : 1;
+  if (b == null) return nullfirst ? 1 : -1;
+
+  if (desc) {
+    if (a > b) return -1;
+    if (a < b) return 1;
+  } else {
+    if (a < b) return -1;
+    if (a > b) return 1;
+  }
+
+  return 0;
+}
+
+function get_order(fields, options) {
+  var sort = options.sort;
+  if (!(sort.field && sort.field.length)) return undefined;
+  var field = fields.find(function (f) {
+    return f.name == sort.field;
+  });
+  if (!field) return undefined;
+  var ordermap = field.values.toArray().map(function (v, i) {
+    return {
+      v: v == 0 && sort.zeronull ? null : v,
+      i: i
+    };
+  });
+  if (field.type == _grafana_data__WEBPACK_IMPORTED_MODULE_4__["FieldType"].number) ordermap.sort(function (a, b) {
+    return num_comparer(a.v, b.v, sort.nullfirst, sort.desc);
+  });else ordermap.sort(function (a, b) {
+    return str_comparer(a.v, b.v, sort.nullfirst, sort.desc);
+  });
+  return ordermap.map(function (v) {
+    return v.i;
+  });
+}
+
+function parse_colspec(str, size) {
+  var re = /\s*([r|c|l]?)\s*([0-9]*)\s*/;
+  var specs = str.split(',').map(function (f) {
+    var m = f.match(re);
+    var a = m && m[1] != '' ? m[1] : undefined;
+    var w = m && m[2] != '' ? Number.parseInt(m[2]) : 0;
+    return {
+      a: a,
+      w: w
+    };
+  });
+  var len = specs.length;
+
+  if (len && len < size) {
+    specs.length = size;
+    specs.fill(specs[len - 1], len);
+  }
+
+  return specs;
+} // this returns the maximum of rows or columns regardless of the orientation
+
+
+function estimate_maxcols(fields) {
+  var _a;
+
+  return Math.max(fields.length, (_a = (fields === null || fields === void 0 ? void 0 : fields[0].values.length) + 1) !== null && _a !== void 0 ? _a : 1);
+}
+
+function get_colspecs(spec, maxcols) {
+  if (!(spec && spec.length)) return [];
+  return parse_colspec(spec, maxcols);
+}
+
+function VTable(_a) {
+  var _b, _c;
+
+  var data = _a.data,
+      options = _a.options,
+      height = _a.height,
+      width = _a.width;
+  var is_empty = !(data.series && data.series.length && ((_c = (_b = data.series[0]) === null || _b === void 0 ? void 0 : _b.fields) === null || _c === void 0 ? void 0 : _c.length));
+  var theme = _grafana_ui__WEBPACK_IMPORTED_MODULE_5__["useTheme2"] ? Object(_grafana_ui__WEBPACK_IMPORTED_MODULE_5__["useTheme2"])() : undefined;
+  if (is_empty) return rce('div', null, 'No data');
+  var df = data.series[0];
+  var fields = df.fields;
+  var style = Object(_styles__WEBPACK_IMPORTED_MODULE_8__["useGridStyle"])(!!options.is_horizontal);
+  var maxcols = estimate_maxcols(fields);
+  var colspecs = get_colspecs(options.custom_columns, maxcols);
+  var formatter;
+
+  if (_grafana_runtime__WEBPACK_IMPORTED_MODULE_6__["config"].disableSanitizeHtml && options.use_formatcode && options.formatcode) {
+    try {
+      var f_1 = Function('value', 'field', 'context', 'lib', options.formatcode);
+
+      formatter = function formatter(value, field, context) {
+        return f_1(value, field, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({
+          df: df
+        }, context), {
+          moment: moment__WEBPACK_IMPORTED_MODULE_2___default.a
+        });
+      };
+    } catch (e) {
+      console.log('failed to compile formatter', e);
+    }
+  }
+
+  var ctx = {
+    formatter: formatter,
+    df: df,
+    style: style,
+    order: get_order(fields, options),
+    theme: theme
+  };
+  var groups = fields_to_groups(fields, options);
+  var gridgroups = create_gridgroups(groups, options, ctx, colspecs.map(function (c) {
+    return c.a;
+  }));
+  return rce(options.is_horizontal ? _grid__WEBPACK_IMPORTED_MODULE_7__["HGrid"] : _grid__WEBPACK_IMPORTED_MODULE_7__["VGrid"], {
+    className: Object(emotion__WEBPACK_IMPORTED_MODULE_3__["css"])(templateObject_1 || (templateObject_1 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                width: ", "px;\n                height: ", "px;\n                overflow: auto;\n              "], ["\n                width: ", "px;\n                height: ", "px;\n                overflow: auto;\n              "])), width, height),
+    groups: gridgroups,
+    colws: colspecs.length ? colspecs.map(function (c) {
+      return c.w;
+    }) : undefined
+  });
+}
+;
+var templateObject_1;
+
+/***/ }),
+
+/***/ "@grafana/data":
+/*!********************************!*\
+  !*** external "@grafana/data" ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__grafana_data__;
+
+/***/ }),
+
+/***/ "@grafana/runtime":
+/*!***********************************!*\
+  !*** external "@grafana/runtime" ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__grafana_runtime__;
+
+/***/ }),
+
+/***/ "@grafana/ui":
+/*!******************************!*\
+  !*** external "@grafana/ui" ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__grafana_ui__;
+
+/***/ }),
+
+/***/ "emotion":
+/*!**************************!*\
+  !*** external "emotion" ***!
+  \**************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_emotion__;
+
+/***/ }),
+
+/***/ "moment":
+/*!*************************!*\
+  !*** external "moment" ***!
+  \*************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_moment__;
+
+/***/ }),
+
+/***/ "react":
+/*!************************!*\
+  !*** external "react" ***!
+  \************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_react__;
+
+/***/ })
+
+/******/ })});;
 //# sourceMappingURL=module.js.map
