@@ -27,10 +27,19 @@ interface Theme {
     border_bg: string;
 }
 
-let styles:{h: GridStyle, v: GridStyle}|undefined = undefined;
+interface GridStyles {
+    h: GridStyle,
+    v: GridStyle,
+}
+
+let styles: {
+    normal: GridStyles;
+    transparent: GridStyles;
+}|undefined = undefined;
+
 let gtheme: GrafanaTheme;
 
-export function useGridStyle(is_horizontal: boolean): GridStyle {
+export function useGridStyle(is_horizontal: boolean, transparent: boolean): GridStyle {
     const gft = useTheme();
 
     // cache
@@ -41,13 +50,16 @@ export function useGridStyle(is_horizontal: boolean): GridStyle {
             sticky_bg: gft.colors.panelBg,
             border_bg: gft.colors.border1,
         }
-        styles = build_styles(theme);
+        styles = {
+            normal: build_styles(theme),
+            transparent: build_styles({...theme, sticky_bg: gft.colors.dashboardBg})
+        }
         gtheme = gft;
 
         console.log('building styles');
     }
 
-    return is_horizontal ? styles.h : styles.v;
+    return (transparent ? styles.transparent : styles.normal)[is_horizontal ? 'h' : 'v'];
 }
 
 function build_styles(theme: Theme): {h: GridStyle, v: GridStyle} {

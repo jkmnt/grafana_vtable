@@ -291,7 +291,7 @@ function get_colspecs(spec: string | undefined, maxcols: number) {
   return parse_colspec(spec, maxcols);
 }
 
-export function VTable({ data, options, height, width }: PanelProps<VTableOptions>) {
+export function VTable({ data, options, height, width, transparent }: PanelProps<VTableOptions>) {
   const is_empty = !(data.series && data.series.length && data.series[0]?.fields?.length);
 
   if (is_empty)
@@ -299,7 +299,7 @@ export function VTable({ data, options, height, width }: PanelProps<VTableOption
 
   const df = data.series[0];
   const fields = df.fields;
-  const style = useGridStyle(!! options.is_horizontal);
+  const style = useGridStyle(!! options.is_horizontal, transparent);
 
   const maxcols = estimate_maxcols(fields);
   const colspecs = get_colspecs(options.custom_columns, maxcols);
