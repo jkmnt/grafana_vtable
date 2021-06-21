@@ -45,7 +45,7 @@ export function useGridStyle(is_horizontal: boolean, transparent: boolean): Grid
     // cache
     if (! styles || gtheme != gft) {
         const theme : Theme = {
-            dim: gft.colors.textWeak,
+            dim: gft.colors.textSemiWeak,
             hl: gft.colors.textBlue,
             sticky_bg: gft.colors.panelBg,
             border_bg: gft.colors.border1,
@@ -111,7 +111,7 @@ function build_styles(theme: Theme): {h: GridStyle, v: GridStyle} {
             left: 0;
             z-index: 2;
 
-            padding: 16px 8px 0 4px;
+            padding: 16px 8px 4px 4px;
             color: ${theme.hl};
         `),
     }

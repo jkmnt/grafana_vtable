@@ -1,10 +1,12 @@
 import React from 'react';
 
 export interface GridField {
+    key: string;
     values: React.ReactElement[];
 }
 
 export interface GridGroup {
+    key: string;
     label?: React.ReactElement;
     fields: GridField[];
 }
@@ -83,7 +85,7 @@ export function HGrid(props: GridProps) {
                 'grid-column' : `${col1} / span ${g.fields.length}`
             };
             const cell = g.label ? React.cloneElement(g.label, {style: {...g.label.props?.style, ...new_style}})
-                                 : React.createElement('div', {style: new_style});
+                                 : React.createElement('div', {key: `__spacer.${col1}`, style: new_style});
             cells.push(cell);
             col1 += g.fields.length;
         })
