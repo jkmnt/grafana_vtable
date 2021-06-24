@@ -1,5 +1,4 @@
-import { GrafanaTheme } from '@grafana/data';
-import { useTheme } from '@grafana/ui';
+import { config } from '@grafana/runtime';
 import { css } from 'emotion';
 
 export const alignstyles : {[key: string]: string}= {
@@ -20,63 +19,44 @@ export interface GridStyle {
     grouplabel: string;
 }
 
-interface Theme {
+interface StyleOptions {
     dim: string;
     hl: string;
     sticky_bg: string
     border_bg: string;
 }
 
-interface GridStyles {
-    h: GridStyle,
-    v: GridStyle,
-}
+function make_all() {
+    const theme = config.theme;
 
-let styles: {
-    normal: GridStyles;
-    transparent: GridStyles;
-}|undefined = undefined;
-
-let gtheme: GrafanaTheme;
-
-export function useGridStyle(is_horizontal: boolean, transparent: boolean): GridStyle {
-    const gft = useTheme();
-
-    // cache
-    if (! styles || gtheme != gft) {
-        const theme : Theme = {
-            dim: gft.colors.textSemiWeak,
-            hl: gft.colors.textBlue,
-            sticky_bg: gft.colors.panelBg,
-            border_bg: gft.colors.border1,
-        }
-        styles = {
-            normal: build_styles(theme),
-            transparent: build_styles({...theme, sticky_bg: gft.colors.dashboardBg})
-        }
-        gtheme = gft;
-
-        console.log('building styles');
+    const opts : StyleOptions = {
+        dim: theme.colors.textSemiWeak,
+        hl: theme.colors.textBlue,
+        sticky_bg: theme.colors.panelBg,
+        border_bg: theme.colors.border1,
     }
 
-    return (transparent ? styles.transparent : styles.normal)[is_horizontal ? 'h' : 'v'];
+    return {
+        normal: build_styles(opts),
+        transparent: build_styles({...opts, sticky_bg: theme.colors.dashboardBg})
+    }
 }
 
-function build_styles(theme: Theme): {h: GridStyle, v: GridStyle} {
+function build_styles(opts: StyleOptions): {h: GridStyle, v: GridStyle} {
 
     const cell = css`
         padding: 8px;
         white-space: nowrap;
     `;
     const bborder = css`
-        border-bottom: 1px solid ${theme.border_bg};
+        border-bottom: 1px solid ${opts.border_bg};
     `;
     const rborder = css`
-        border-right: 1px solid ${theme.border_bg};
+        border-right: 1px solid ${opts.border_bg};
     `;
     const sticky = css`
         position: sticky;
-        background-color: ${theme.sticky_bg};
+        background-color: ${opts.sticky_bg};
     `;
 
     const v = {
@@ -84,7 +64,7 @@ function build_styles(theme: Theme): {h: GridStyle, v: GridStyle} {
             name: css(cell, sticky, bborder, css`
                 left: 0;
                 z-index: 2;
-                color: ${theme.dim};
+                color: ${opts.dim};
             `),
             value: css(cell, bborder, css`
                 text-align: right;
@@ -96,13 +76,13 @@ function build_styles(theme: Theme): {h: GridStyle, v: GridStyle} {
                 top: 0;
                 z-index: 3;
 
-                color: ${theme.dim};
+                color: ${opts.dim};
             `),
             value: css(cell, sticky, css`
                 top: 0;
                 z-index: 1;
 
-                color: ${theme.hl};
+                color: ${opts.hl};
 
                 text-align: right;
             `),
@@ -112,7 +92,7 @@ function build_styles(theme: Theme): {h: GridStyle, v: GridStyle} {
             z-index: 2;
 
             padding: 16px 8px 4px 4px;
-            color: ${theme.hl};
+            color: ${opts.hl};
         `),
     }
 
@@ -122,7 +102,7 @@ function build_styles(theme: Theme): {h: GridStyle, v: GridStyle} {
                 top: 0;
                 z-index: 1;
 
-                color: ${theme.hl};
+                color: ${opts.hl};
 
                 text-align: right;
                 white-space: normal;
@@ -137,7 +117,7 @@ function build_styles(theme: Theme): {h: GridStyle, v: GridStyle} {
                 top: 0;
                 z-index: 3;
 
-                color: ${theme.hl};
+                color: ${opts.hl};
 
                 text-align: right;
                 white-space: normal;
@@ -146,13 +126,13 @@ function build_styles(theme: Theme): {h: GridStyle, v: GridStyle} {
                 left: 0;
                 z-index: 2;
 
-                color: ${theme.dim};
+                color: ${opts.dim};
                 text-align: right;
             `),
         },
         grouplabel: css(cell, sticky, css`
             top: 0;
-            color: ${theme.hl};
+            color: ${opts.hl};
 
             text-align: center;
 
@@ -161,4 +141,11 @@ function build_styles(theme: Theme): {h: GridStyle, v: GridStyle} {
     }
 
     return {h, v};
+}
+
+
+const styles = make_all();
+
+export function useGridStyle(is_horizontal: boolean, transparent: boolean): GridStyle {
+    return (transparent ? styles.transparent : styles.normal)[is_horizontal ? 'h' : 'v'];
 }
