@@ -5,10 +5,10 @@ import { css } from 'emotion';
 import { PanelProps, getFieldDisplayName, getDisplayProcessor, Field as DfField, DataFrame, FieldType } from '@grafana/data';
 import { getTextColorForBackground } from '@grafana/ui';
 
-import {config as gf_config} from "@grafana/runtime"
+import { config as gf_config} from "@grafana/runtime"
 
 import { VGrid, HGrid, GridField, GridGroup } from './grid';
-import { useGridStyle, GridStyle} from './styles'
+import { useGridStyle, GridStyle, alignstyles} from './styles'
 
 var rce = React.createElement;
 
@@ -317,6 +317,8 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
     }
   }
 
+  console.log('render');
+
   const ctx: FieldCtx = {
     formatter,
     df,
@@ -325,7 +327,7 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
   }
 
   const groups = fields_to_groups(fields, options);
-  const gridgroups = create_gridgroups(groups, options, ctx, colspecs.map(c => c.a));
+  const gridgroups = create_gridgroups(groups, options, ctx, colspecs.map(c => c.a ? alignstyles[c.a] : undefined));
 
   const grid = (options.is_horizontal ? HGrid : VGrid)(gridgroups,
     { colws: colspecs.length ? colspecs.map(c => c.w) : undefined},
