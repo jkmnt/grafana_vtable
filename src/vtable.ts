@@ -328,13 +328,25 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
   const groups = fields_to_groups(fields, options);
   const gridgroups = create_gridgroups(groups, options, ctx, colspecs.map(c => c.a));
 
-  return rce(options.is_horizontal ? HGrid : VGrid, {
-    className: css`
-                width: ${width}px;
-                height: ${height}px;
-                overflow: auto;
-              `,
-    groups: gridgroups,
-    colws: colspecs.length ? colspecs.map(c => c.w) : undefined,
-  })
+  const grid = (options.is_horizontal ? HGrid : VGrid)(gridgroups,
+    { colws: colspecs.length ? colspecs.map(c => c.w) : undefined},
+  )
+
+  const container = rce(
+    'div',
+    {
+      style: {
+        'width': width,
+        'height': height
+      },
+      className: css`
+        display: flex;
+        flex-direction: column;
+      `
+    },
+    rce('div', {className: css`overflow: auto;`, ...grid})
+    // TODO: add series picker after the grid if there are multiple queries
+  );
+
+  return container;
 };

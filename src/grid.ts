@@ -11,13 +11,9 @@ export interface GridGroup {
     fields: GridField[];
 }
 
-export interface GridProps {
-    className?: string;
-
+export interface GridOptions {
     colws?: number[];
     rowhs?: number[];
-
-    groups: GridGroup[];
 }
 
 function calc_sizes(spec: number[] | undefined, n: number, defsize: string) {
@@ -34,8 +30,7 @@ function calc_sizes(spec: number[] | undefined, n: number, defsize: string) {
     return sizes;
 }
 
-export function VGrid(props: GridProps) {
-    const groups = props.groups;
+export function VGrid(groups: GridGroup[], opts: GridOptions = {}) {
 
     const cells: React.ReactNode[] = [];
     const ncols = groups.find(g => g.fields.length)?.fields[0].values.length ?? 0;
@@ -53,8 +48,8 @@ export function VGrid(props: GridProps) {
     })
 
     // TODO: investigate the minmax etc
-    const gtcs = calc_sizes(props.colws, ncols, 'minmax(max-content, 1fr)')
-    const gtrs = calc_sizes(props.rowhs, nrows, 'max-content')
+    const gtcs = calc_sizes(opts.colws, ncols, 'minmax(max-content, 1fr)')
+    const gtrs = calc_sizes(opts.rowhs, nrows, 'max-content')
 
     const style = {
         'display': 'grid',
@@ -62,12 +57,11 @@ export function VGrid(props: GridProps) {
         'grid-template-rows': gtrs.join(' '),
     }
 
-    return React.createElement('div', { style, className: props.className }, cells);
+    return {style, children: cells}
 }
 
 
-export function HGrid(props: GridProps) {
-    const groups = props.groups;
+export function HGrid(groups: GridGroup[], opts: GridOptions = {}) {
 
     const cells: React.ReactNode[] = [];
 
@@ -100,8 +94,8 @@ export function HGrid(props: GridProps) {
     })
 
     // minmax(max-content, 1fr)
-    const gtcs = calc_sizes(props.colws, ncols, 'auto');
-    const gtrs = calc_sizes(props.rowhs, nrows, 'max-content');
+    const gtcs = calc_sizes(opts.colws, ncols, 'auto');
+    const gtrs = calc_sizes(opts.rowhs, nrows, 'max-content');
 
     const style = {
         'display': 'grid',
@@ -110,5 +104,5 @@ export function HGrid(props: GridProps) {
         'grid-auto-flow': 'column',
     }
 
-    return React.createElement('div', { style, className: props.className }, cells);
+    return {style, children: cells}
 }
