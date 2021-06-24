@@ -1,12 +1,10 @@
 import React from 'react';
 
 export interface GridField {
-    key: string;
     values: React.ReactElement[];
 }
 
 export interface GridGroup {
-    key: string;
     label?: React.ReactElement;
     fields: GridField[];
 }

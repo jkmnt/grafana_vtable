@@ -138,7 +138,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
     cells.push(cell);
   }
 
-  return { key: field.name, values: cells }
+  return { values: cells }
 }
 
 interface GroupSpec {
@@ -204,7 +204,6 @@ function create_gridgroups(gss: GroupSpec[], options: VTableOptions, ctx: FieldC
   const gridgroups = gss.map(g => {
     const key = `__group.${g?.name}`;
     return {
-      key,
       label: g.name ? rce('div', { key, className: ctx.style.grouplabel }, g.name) : undefined,
       fields: g.fields.map(f => create_field(f, options, ctx, field_style(field_idx++, !! g.is_dim)))
     }
