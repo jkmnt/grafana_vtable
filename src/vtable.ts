@@ -9,6 +9,7 @@ import { config as gf_config} from "@grafana/runtime"
 
 import { VGrid, HGrid, GridField, GridGroup } from './grid';
 import { useGridStyle, GridStyle, alignstyles} from './styles'
+import { fields_to_groups, get_colspecs, GroupSpec } from './utils';
 
 var rce = React.createElement;
 
@@ -141,50 +142,6 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
   return { values: cells }
 }
 
-interface GroupSpec {
-  name?: string;
-  fields: DfField[];
-  is_dim?: boolean;
-}
-
-
-function fields_to_groups(fields: DfField[], options: VTableOptions): GroupSpec[] {
-  const { dimension_field: dim, group_by_label: label } = options;
-
-  const groups: GroupSpec[] = [];
-
-  if (dim && dim.length) {
-    const dimfield = fields.find(f => f.name == dim);
-    if (dimfield) {
-      groups.push({ fields: [dimfield], is_dim: true })
-      fields = fields.filter(f => f != dimfield);
-    }
-  }
-
-  if (label && label.length) {
-    const gm = new Map<string | undefined, DfField[]>();
-    gm.set(undefined, []);
-
-    fields.forEach(f => {
-        const lab = f?.labels?.[label];
-        if (!gm.has(lab))
-          gm.set(lab, [])
-        gm.get(lab)?.push(f)  // '?' just to calm down the linter
-      }
-    );
-
-    if (! gm.get(undefined)?.length)
-      gm.delete(undefined);
-
-    groups.push(...[...gm].map(([name, fields]) => { return { name, fields } }))
-  }
-  else {
-    groups.push({ fields }) // shortcut if no grouping
-  }
-
-  return groups;
-}
-
 
 function create_gridgroups(gss: GroupSpec[], options: VTableOptions, ctx: FieldCtx, aligns: (string | undefined)[]): GridGroup[] {
 
@@ -258,26 +215,6 @@ function get_order(fields: DfField[], options: VTableOptions): number[] | undefi
   return ordermap.map(v => v.i);
 }
 
-function parse_colspec(str: string, size: number): { a: string | undefined, w: number }[] {
-  const re = /\s*([r|c|l]?)\s*([0-9]*)\s*/;
-
-  const specs = str.split(',').map(f => {
-    const m = f.match(re);
-    const a = m && m[1] != '' ? m[1] : undefined;
-    const w = m && m[2] != '' ? Number.parseInt(m[2]) : 0;
-
-    return {a, w}
-  });
-
-  const len = specs.length;
-
-  if (len && len < size) {
-    specs.length = size;
-    specs.fill(specs[len - 1], len);
-  }
-
-  return specs;
-}
 
 // this returns the maximum of rows or columns regardless of the orientation
 function estimate_maxcols(fields: DfField[]) {
@@ -285,12 +222,6 @@ function estimate_maxcols(fields: DfField[]) {
 }
 
 
-function get_colspecs(spec: string | undefined, maxcols: number) {
-  if (!(spec && spec.length))
-    return [];
-
-  return parse_colspec(spec, maxcols);
-}
 
 export function VTable({ data, options, height, width, transparent }: PanelProps<VTableOptions>) {
   const is_empty = !(data.series && data.series.length && data.series[0]?.fields?.length);
@@ -326,7 +257,7 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
     order: get_order(fields, options),
   }
 
-  const groups = fields_to_groups(fields, options);
+  const groups = fields_to_groups(fields, options.dimension_field, options.group_by_label);
   const gridgroups = create_gridgroups(groups, options, ctx, colspecs.map(c => c.a ? alignstyles[c.a] : undefined));
 
   const grid = (options.is_horizontal ? HGrid : VGrid)(gridgroups,
