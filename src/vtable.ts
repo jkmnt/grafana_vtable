@@ -276,7 +276,13 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
         flex-direction: column;
       `
     },
-    rce('div', {className: css`overflow: auto;`, ...grid})
+    rce(
+      'div',
+      {
+        className: css(css`
+          overflow: auto;
+        `, style.scrollbars)
+        , ...grid})
     // TODO: add series picker after the grid if there are multiple queries
   );
 
