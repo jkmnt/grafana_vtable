@@ -8,7 +8,7 @@ import { getTextColorForBackground } from '@grafana/ui';
 import { config as gf_config} from "@grafana/runtime"
 
 import { VGrid, HGrid, GridField, GridGroup } from './grid';
-import { useGridStyle, GridStyle, alignstyles} from './styles'
+import { get_style} from './styles'
 import { discover_unit, fields_to_groups, get_colspecs, GroupSpec } from './utils';
 
 var rce = React.createElement;
@@ -39,7 +39,7 @@ type Formatter = (value: ValueSpec, field: DfField, context: any) => void;
 interface FieldCtx {
   df: DataFrame,
   formatter?: Formatter,
-  style: GridStyle;
+  style;
   order?: number[],
 }
 
@@ -137,13 +137,12 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
 function create_gridgroups(gss: GroupSpec[], options: VTableOptions, ctx: FieldCtx, aligns: (string | undefined)[]): GridGroup[] {
 
   const field_style = (field_idx: number, is_dimension: boolean) => {
-    const base = is_dimension ? ctx.style.dimfield : ctx.style.field;
     return options.is_horizontal ? {
-      name: css(base.name, aligns[field_idx]),
-      value: (i: number) => css(base.value, aligns[field_idx]),
+      name: ctx.style.field.name(is_dimension, aligns[field_idx]),
+      value: (i: number) => ctx.style.field.value(is_dimension, aligns[field_idx]),
     } : {
-      name: css(base.name, aligns[0]),
-      value: (i: number) => css(base.value, aligns[i + 1]),
+      name: ctx.style.field.name(is_dimension, aligns[0]),
+      value: (i: number) => ctx.style.field.value(is_dimension, aligns[i + 1]),
     }
   }
 
@@ -222,7 +221,7 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
 
   const df = data.series[0];
   const fields = df.fields;
-  const style = useGridStyle(!! options.is_horizontal, transparent);
+  const style = get_style(options.is_horizontal, transparent);
 
   const maxcols = estimate_maxcols(fields);
   const colspecs = get_colspecs(options.custom_columns, maxcols);
@@ -249,7 +248,7 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
   }
 
   const groups = fields_to_groups(fields, options.dimension_field, options.group_by_label);
-  const gridgroups = create_gridgroups(groups, options, ctx, colspecs.map(c => c.a ? alignstyles[c.a] : undefined));
+  const gridgroups = create_gridgroups(groups, options, ctx, colspecs.map(c => c.a));
 
   const grid = (options.is_horizontal ? HGrid : VGrid)(gridgroups,
     { colws: colspecs.length ? colspecs.map(c => c.w) : undefined},
