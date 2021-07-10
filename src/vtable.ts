@@ -8,7 +8,7 @@ import { getTextColorForBackground } from '@grafana/ui';
 import { config as gf_config} from "@grafana/runtime"
 
 import { VGrid, HGrid, GridField, GridGroup } from './grid';
-import { get_style} from './styles'
+import { get_style, GridStyle} from './styles'
 import { discover_unit, fields_to_groups, get_colspecs, GroupSpec } from './utils';
 
 var rce = React.createElement;
@@ -30,8 +30,8 @@ export interface VTableOptions {
 }
 
 interface FieldStyle {
-  name: string;
-  value: (i: number) => string;
+  nameclass: string;
+  get_valueclass: (i: number) => string;
 }
 
 type Formatter = (value: ValueSpec, field: DfField, context: any) => void;
@@ -39,7 +39,7 @@ type Formatter = (value: ValueSpec, field: DfField, context: any) => void;
 interface FieldCtx {
   df: DataFrame,
   formatter?: Formatter,
-  style;
+  style: GridStyle,
   order?: number[],
 }
 
@@ -72,7 +72,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
     'div',
     {
       key: field.name,
-      className: style.name,
+      className: style.nameclass,
     },
     common_unit ? `${field_name}, ${common_unit}` : field_name
   );
@@ -112,7 +112,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
         {
           key,
           style: spec.style,
-          className: style.value(i),
+          className: style.get_valueclass(i),
           dangerouslySetInnerHTML: { __html: spec.html },
         });
     }
@@ -122,7 +122,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
         {
           key,
           style: spec.style,
-          className: style.value(i),
+          className: style.get_valueclass(i),
         },
         spec.text);
     }
@@ -137,12 +137,13 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
 function create_gridgroups(gss: GroupSpec[], options: VTableOptions, ctx: FieldCtx, aligns: (string | undefined)[]): GridGroup[] {
 
   const field_style = (field_idx: number, is_dimension: boolean) => {
+    const fieldstyle = ctx.style.get_fieldstyle(is_dimension)
     return options.is_horizontal ? {
-      name: ctx.style.field.name(is_dimension, aligns[field_idx]),
-      value: (i: number) => ctx.style.field.value(is_dimension, aligns[field_idx]),
+      nameclass: fieldstyle.get_nameclass(aligns[field_idx]),
+      get_valueclass: (i: number) => fieldstyle.get_valueclass(aligns[field_idx]),
     } : {
-      name: ctx.style.field.name(is_dimension, aligns[0]),
-      value: (i: number) => ctx.style.field.value(is_dimension, aligns[i + 1]),
+      nameclass: fieldstyle.get_nameclass(aligns[0]),
+      get_valueclass: (i: number) => fieldstyle.get_valueclass(aligns[i + 1]),
     }
   }
 
