@@ -13,16 +13,18 @@ interface CustomFieldConfig {
 
 const suggestions: CodeEditorSuggestionItem[] = [
     { kind: CodeEditorSuggestionItemKind.Field, label: 'value' },
-    { kind: CodeEditorSuggestionItemKind.Property, label: 'value.raw' },
     { kind: CodeEditorSuggestionItemKind.Property, label: 'value.text' },
     { kind: CodeEditorSuggestionItemKind.Property, label: 'value.style' },
     { kind: CodeEditorSuggestionItemKind.Property, label: 'value.html' },
+    { kind: CodeEditorSuggestionItemKind.Constant, label: 'value.raw' },
+    { kind: CodeEditorSuggestionItemKind.Constant, label: 'value.name' },
+    { kind: CodeEditorSuggestionItemKind.Constant, label: 'value.i' },
     { kind: CodeEditorSuggestionItemKind.Field, label: 'field' },
-    { kind: CodeEditorSuggestionItemKind.Property, label: 'field.name' },
+    { kind: CodeEditorSuggestionItemKind.Constant, label: 'field.name' },
     { kind: CodeEditorSuggestionItemKind.Field, label: 'lib' },
     { kind: CodeEditorSuggestionItemKind.Property, label: 'lib.moment' },
     { kind: CodeEditorSuggestionItemKind.Field, label: 'context' },
-    { kind: CodeEditorSuggestionItemKind.Property, label: 'context.df' },
+    { kind: CodeEditorSuggestionItemKind.Constant, label: 'context.df' },
 ]
 
 const DEF_CODE = `
