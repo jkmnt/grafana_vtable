@@ -9,7 +9,7 @@ import { config as gf_config} from "@grafana/runtime"
 
 import { VGrid, HGrid, GridField, GridGroup } from './grid';
 import { useGridStyle, GridStyle, alignstyles} from './styles'
-import { fields_to_groups, get_colspecs, GroupSpec } from './utils';
+import { discover_unit, fields_to_groups, get_colspecs, GroupSpec } from './utils';
 
 var rce = React.createElement;
 
@@ -46,6 +46,7 @@ interface FieldCtx {
 interface ValueSpec {
     raw: any,
     i: number,
+    name: string,
     text: string;
     style: {},
     html: string | undefined,
@@ -62,21 +63,10 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
   const { df, formatter, order } = ctx;
   const field_name = getFieldDisplayName(field, df);
 
-  if (!field.display)
-    field.display = getDisplayProcessor({ field });
+  const display = field.display ?? getDisplayProcessor({ field });
 
-  let common_unit = undefined;
-
-  // try to render the field with the sample input == 1 to obtain the unit.
-  // probing with 0 may be wrong since it may be special.
-  // mappings are detached while probing and reattached later.
-  // this is done only if field is numeric
-  if (options.show_common_unit && field.type == FieldType.number) {
-    const saved_mappings = field.config.mappings;
-    field.config.mappings = undefined;
-    common_unit = getDisplayProcessor({ field })(1).suffix;
-    field.config.mappings = saved_mappings;
-  }
+  const common_unit = (options.show_common_unit && field.type == FieldType.number)
+                      ? discover_unit(field) : undefined
 
   const namecell = rce(
     'div',
@@ -99,10 +89,11 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
     if (v == null)
       v = undefined;
 
-    const dv = field.display(v);
+    const dv = display(v);
     const spec: ValueSpec = {
       raw: v,
       i,
+      name: field.name,
       text: options.show_common_unit ? dv.text : `${dv.prefix ?? ''}${dv.text}${dv.suffix ?? ''}`,
       style: colorize_cell(field.config.custom?.display_mode, dv.color),
       html: undefined,
@@ -162,7 +153,7 @@ function create_gridgroups(gss: GroupSpec[], options: VTableOptions, ctx: FieldC
     const key = `__group.${g?.name}`;
     return {
       label: g.name ? rce('div', { key, className: ctx.style.grouplabel }, g.name) : undefined,
-      fields: g.fields.map(f => create_field(f, options, ctx, field_style(field_idx++, !! g.is_dim)))
+      fields: g.fields.map(f => create_field(f as DfField, options, ctx, field_style(field_idx++, !! g.is_dim)))
     }
   }
   )

@@ -1,11 +1,19 @@
-import {Field as DfField } from '@grafana/data';
+import { Field as DfField, getDisplayProcessor } from '@grafana/data';
+
+export interface Labels {
+    [key: string]: string;
+}
+
+export interface Field {
+    name: string,
+    labels?: Labels,
+}
 
 export interface GroupSpec {
     name?: string;
-    fields: DfField[];
+    fields: Field[];
     is_dim?: boolean;
-  }
-
+}
 
 export function get_colspecs(spec: string | undefined, maxcols: number) {
     if (!(spec && spec.length))
@@ -36,7 +44,7 @@ export function parse_colspec(str: string, size: number): { a: string | undefine
 }
 
 
-export function fields_to_groups(fields: DfField[], dim?: string, label?:string): GroupSpec[] {
+export function fields_to_groups(fields: Field[], dim?: string, label?: string): GroupSpec[] {
 
     const groups: GroupSpec[] = [];
 
@@ -49,7 +57,7 @@ export function fields_to_groups(fields: DfField[], dim?: string, label?:string)
     }
 
     if (label && label.length) {
-        const gm = new Map<string | undefined, DfField[]>();
+        const gm = new Map<string | undefined, Field[]>();
         gm.set(undefined, []);
 
         fields.forEach(f => {
@@ -70,4 +78,16 @@ export function fields_to_groups(fields: DfField[], dim?: string, label?:string)
     }
 
     return groups;
+}
+
+export function discover_unit(field: DfField): string | undefined {
+    // try to render the field with the sample input == 1 to obtain the unit.
+    // probing with 0 may be wrong since it may be special.
+    // mappings are detached while probing and reattached later.
+    const saved_mappings = field.config.mappings;
+    field.config.mappings = undefined;
+    const unit = getDisplayProcessor({ field })(1).suffix;
+    field.config.mappings = saved_mappings;
+
+    return unit && unit.length ? unit : undefined
 }
