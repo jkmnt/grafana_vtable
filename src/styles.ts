@@ -11,7 +11,7 @@ interface ClassBuildInput {
         value: string;
     },
     grouplabel: string;
-    scrollbars: string;
+    grid: string;
 }
 
 export interface GridStyle {
@@ -20,7 +20,7 @@ export interface GridStyle {
         get_valueclass: (align?: string) => string;
     },
     grouplabel: string;
-    scrollbars: string;
+    grid: string;
 }
 
 interface StyleBuildOptions {
@@ -37,7 +37,7 @@ function build_classes(style: ClassBuildInput, prefix: string) {
         ...with_aligns(prefix + '__field--dim__name', style.dimfield.name),
         ...with_aligns(prefix + '__field--dim__value', style.dimfield.value),
         [prefix + '__grouplabel']: style.grouplabel,
-        [prefix + '__scrollbars']: style.scrollbars,
+        [prefix]: style.grid,
     }
 }
 
@@ -113,7 +113,9 @@ function build_vstyle(opts: StyleBuildOptions): ClassBuildInput {
 
             padding: 19px 4px 0px 4px;
             color: ${opts.hl};`),
-        scrollbars,
+        grid: css(scrollbars, css`
+            overflow: auto;
+        `)
     }
 }
 
@@ -192,7 +194,10 @@ function build_hstyle(opts: StyleBuildOptions): ClassBuildInput {
             text-align: center;
 
             white-space: normal;`),
-        scrollbars
+        grid: css(scrollbars, css`
+            overflow: auto;
+            padding-bottom: 16px;
+        `)
     }
 }
 
@@ -205,8 +210,8 @@ export function get_style(horizontal?: boolean, transparent?: boolean): GridStyl
     const prefix = `panel${transparent ? '--transparent' : ''}__grid${horizontal ? '--horizontal' : ''}`;
 
     return {
+        grid: CLASSES[prefix],
         grouplabel: CLASSES[`${prefix}__grouplabel`],
-        scrollbars: CLASSES[`${prefix}__scrollbars`],
         get_fieldstyle: (dim) => {
             const field_prefix = `${prefix}__field${dim ? '--dim' : ''}`
             return {

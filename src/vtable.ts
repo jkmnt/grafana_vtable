@@ -1,7 +1,6 @@
 import React from 'react';
 import moment from 'moment';
 
-import { css } from 'emotion';
 import { PanelProps, getFieldDisplayName, getDisplayProcessor, Field as DfField, DataFrame, FieldType } from '@grafana/data';
 import { getTextColorForBackground } from '@grafana/ui';
 
@@ -260,20 +259,16 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
     {
       style: {
         'width': width,
-        'height': height
+        'height': height,
+        'display': 'flex',
+        'flex-direction': 'column',
       },
-      className: css`
-        display: flex;
-        flex-direction: column;
-      `
     },
     rce(
       'div',
       {
-        className: css(css`
-          overflow: auto;
-        `, style.scrollbars)
-        , ...grid})
+        className: style.grid,
+        ...grid})
     // TODO: add series picker after the grid if there are multiple queries
   );
 
