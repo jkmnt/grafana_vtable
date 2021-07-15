@@ -75,6 +75,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
     {
       key: field.name,
       'data-align': style.namealign,
+      'data-is_dimension': style.is_dimension ? '' : undefined,
       className: style.nameclass,
     },
     common_unit ? `${field_name}, ${common_unit}` : field_name
@@ -144,7 +145,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
 function create_gridgroups(gss: GroupSpec[], options: VTableOptions, ctx: FieldCtx, aligns: (string | undefined)[]): GridGroup[] {
 
   const field_style = (field_idx: number, is_dimension: boolean) => {
-    const fieldstyle = ctx.style.get_fieldstyle(is_dimension)
+    const fieldstyle = ctx.style
     return options.is_horizontal ? {
       nameclass: fieldstyle.nameclass,
       namealign: aligns[field_idx],

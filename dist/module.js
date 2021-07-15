@@ -745,7 +745,7 @@ __webpack_require__.r(__webpack_exports__);
 function build_classes(style, prefix) {
   var _a;
 
-  return _a = {}, _a[prefix + '__field__name'] = style.field.name, _a[prefix + '__field__value'] = style.field.value, _a[prefix + '__field--dim__name'] = style.dimfield.name, _a[prefix + '__field--dim__value'] = style.dimfield.value, _a[prefix + '__grouplabel'] = style.grouplabel, _a[prefix] = style.grid, _a;
+  return _a = {}, _a[prefix + '__name'] = style.field_name, _a[prefix + '__value'] = style.field_value, _a[prefix + '__grouplabel'] = style.grouplabel, _a[prefix] = style.grid, _a;
 }
 
 function build_all() {
@@ -767,7 +767,6 @@ function build_all() {
 function build_vstyle(opts) {
   var _a = build_common_style(opts),
       cell = _a.cell,
-      sticky = _a.sticky,
       bborder = _a.bborder,
       scrollbars = _a.scrollbars,
       lborder = _a.lborder,
@@ -775,36 +774,29 @@ function build_vstyle(opts) {
       aligns = _a.aligns;
 
   return {
-    field: {
-      name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, sticky, bborder, aligns, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_1 || (templateObject_1 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                left: 0;\n                z-index: 2;\n                color: var(--dim);\n                "], ["\n                left: 0;\n                z-index: 2;\n                color: var(--dim);\n                "])))),
-      value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, bborder, aligns, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_2 || (templateObject_2 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                text-align: right;\n                "], ["\n                text-align: right;\n                "]))))
-    },
-    dimfield: {
-      name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, sticky, bborder, aligns, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_3 || (templateObject_3 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                left: 0;\n                top: 0;\n                z-index: 3;\n\n                padding: 15px 16px 4px 16px;\n\n                color: var(--dim);"], ["\n                left: 0;\n                top: 0;\n                z-index: 3;\n\n                padding: 15px 16px 4px 16px;\n\n                color: var(--dim);"])))),
-      value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, sticky, bborder, aligns, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_4 || (templateObject_4 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                top: 0;\n                z-index: 1;\n\n                padding: 15px 16px 4px 16px;\n\n                color: var(--hl);\n\n                text-align: right;"], ["\n                top: 0;\n                z-index: 1;\n\n                padding: 15px 16px 4px 16px;\n\n                color: var(--hl);\n\n                text-align: right;"]))))
-    },
-    grouplabel: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(sticky, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_5 || (templateObject_5 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            left: 0;\n            z-index: 2;\n\n            padding: 19px 4px 0px 4px;\n            color: var(--hl);\n            display: inline-block;\n            width: auto;"], ["\n            left: 0;\n            z-index: 2;\n\n            padding: 19px 4px 0px 4px;\n            color: var(--hl);\n            display: inline-block;\n            width: auto;"])))),
-    grid: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(scrollbars, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_6 || (templateObject_6 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            overflow: auto;\n            position: relative;\n            --panel_bg: ", ";\n            --dim: ", ";\n            --hl: ", ";\n            --border_bg: ", ";\n        "], ["\n            overflow: auto;\n            position: relative;\n            --panel_bg: ", ";\n            --dim: ", ";\n            --hl: ", ";\n            --border_bg: ", ";\n        "])), opts.panel_bg, opts.dim, opts.hl, opts.border_bg))
+    field_name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, bborder, aligns, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_1 || (templateObject_1 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                position: sticky;\n                background-color: var(--panel_bg);\n                left: 0;\n                z-index: 2;\n                color: var(--dim);\n                &[data-is_dimension] {\n                    top: 0;\n                    z-index: 3;\n                    padding: 15px 16px 4px 16px;\n                }"], ["\n                position: sticky;\n                background-color: var(--panel_bg);\n                left: 0;\n                z-index: 2;\n                color: var(--dim);\n                &[data-is_dimension] {\n                    top: 0;\n                    z-index: 3;\n                    padding: 15px 16px 4px 16px;\n                }"])))),
+    field_value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, bborder, aligns, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_2 || (templateObject_2 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                text-align: right;\n                &[data-is_dimension] {\n                    position: sticky;\n                    background-color: var(--panel_bg);\n                    top: 0;\n                    z-index: 1;\n                    padding: 15px 16px 4px 16px;\n                    color: var(--hl);\n                }"], ["\n                text-align: right;\n                &[data-is_dimension] {\n                    position: sticky;\n                    background-color: var(--panel_bg);\n                    top: 0;\n                    z-index: 1;\n                    padding: 15px 16px 4px 16px;\n                    color: var(--hl);\n                }"])))),
+    grouplabel: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_3 || (templateObject_3 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            position: sticky;\n            background-color: var(--panel_bg);\n            left: 0;\n            z-index: 2;\n\n            padding: 19px 4px 0px 4px;\n            color: var(--hl);\n            display: inline-block;\n            width: auto;"], ["\n            position: sticky;\n            background-color: var(--panel_bg);\n            left: 0;\n            z-index: 2;\n\n            padding: 19px 4px 0px 4px;\n            color: var(--hl);\n            display: inline-block;\n            width: auto;"]))),
+    grid: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(scrollbars, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_4 || (templateObject_4 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            overflow: auto;\n            position: relative;\n            --panel_bg: ", ";\n            --dim: ", ";\n            --hl: ", ";\n            --border_bg: ", ";\n        "], ["\n            overflow: auto;\n            position: relative;\n            --panel_bg: ", ";\n            --dim: ", ";\n            --hl: ", ";\n            --border_bg: ", ";\n        "])), opts.panel_bg, opts.dim, opts.hl, opts.border_bg))
   };
 }
 
 function build_common_style(opts) {
   return {
-    cell: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_7 || (templateObject_7 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            padding: 9px 16px 9px 16px;\n            white-space: nowrap;"], ["\n            padding: 9px 16px 9px 16px;\n            white-space: nowrap;"]))),
-    bborder: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_8 || (templateObject_8 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            border-bottom: 1px solid ", ";"], ["\n            border-bottom: 1px solid ", ";"])), opts.border_bg),
-    tborder: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_9 || (templateObject_9 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            border-top: 1px solid ", ";"], ["\n            border-top: 1px solid ", ";"])), opts.border_bg),
-    rborder: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_10 || (templateObject_10 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            border-right: 1px solid ", ";"], ["\n            border-right: 1px solid ", ";"])), opts.border_bg),
-    lborder: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_11 || (templateObject_11 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            border-left: 1px solid ", ";"], ["\n            border-left: 1px solid ", ";"])), opts.border_bg),
-    sticky: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_12 || (templateObject_12 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            position: sticky;\n            background-color: var(--panel_bg);"], ["\n            position: sticky;\n            background-color: var(--panel_bg);"]))),
-    scrollbars: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_13 || (templateObject_13 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            ::-webkit-scrollbar {\n                height: revert;\n            }\n            ::-webkit-scrollbar-corner {\n                background-color: var(--panel_bg);\n            }"], ["\n            ::-webkit-scrollbar {\n                height: revert;\n            }\n            ::-webkit-scrollbar-corner {\n                background-color: var(--panel_bg);\n            }"]))),
-    aligns: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_14 || (templateObject_14 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            &[data-align='l'] {\n                text-align: left;\n            }\n            &[data-align='c'] {\n                text-align: center;\n            }\n            &[data-align='r'] {\n                text-align: right;\n            }"], ["\n            &[data-align='l'] {\n                text-align: left;\n            }\n            &[data-align='c'] {\n                text-align: center;\n            }\n            &[data-align='r'] {\n                text-align: right;\n            }"])))
+    cell: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_5 || (templateObject_5 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            padding: 9px 16px 9px 16px;\n            white-space: nowrap;"], ["\n            padding: 9px 16px 9px 16px;\n            white-space: nowrap;"]))),
+    bborder: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_6 || (templateObject_6 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            border-bottom: 1px solid ", ";"], ["\n            border-bottom: 1px solid ", ";"])), opts.border_bg),
+    tborder: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_7 || (templateObject_7 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            border-top: 1px solid ", ";"], ["\n            border-top: 1px solid ", ";"])), opts.border_bg),
+    rborder: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_8 || (templateObject_8 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            border-right: 1px solid ", ";"], ["\n            border-right: 1px solid ", ";"])), opts.border_bg),
+    lborder: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_9 || (templateObject_9 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            border-left: 1px solid ", ";"], ["\n            border-left: 1px solid ", ";"])), opts.border_bg),
+    sticky: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_10 || (templateObject_10 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            position: sticky;\n            background-color: var(--panel_bg);"], ["\n            position: sticky;\n            background-color: var(--panel_bg);"]))),
+    scrollbars: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_11 || (templateObject_11 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            ::-webkit-scrollbar {\n                height: revert;\n            }\n            ::-webkit-scrollbar-corner {\n                background-color: var(--panel_bg);\n            }"], ["\n            ::-webkit-scrollbar {\n                height: revert;\n            }\n            ::-webkit-scrollbar-corner {\n                background-color: var(--panel_bg);\n            }"]))),
+    aligns: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_12 || (templateObject_12 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            &[data-align='l'] {\n                text-align: left;\n            }\n            &[data-align='c'] {\n                text-align: center;\n            }\n            &[data-align='r'] {\n                text-align: right;\n            }"], ["\n            &[data-align='l'] {\n                text-align: left;\n            }\n            &[data-align='c'] {\n                text-align: center;\n            }\n            &[data-align='r'] {\n                text-align: right;\n            }"])))
   };
 }
 
 function build_hstyle(opts) {
   var _a = build_common_style(opts),
       cell = _a.cell,
-      sticky = _a.sticky,
       bborder = _a.bborder,
       scrollbars = _a.scrollbars,
       lborder = _a.lborder,
@@ -812,16 +804,10 @@ function build_hstyle(opts) {
       aligns = _a.aligns;
 
   return {
-    field: {
-      name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, sticky, bborder, aligns, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_15 || (templateObject_15 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                top: 0;\n                z-index: 1;\n\n                color: ", ";\n\n                padding: 7px 16px 4px 16px;\n\n                text-align: right;\n                white-space: normal;"], ["\n                top: 0;\n                z-index: 1;\n\n                color: ", ";\n\n                padding: 7px 16px 4px 16px;\n\n                text-align: right;\n                white-space: normal;"])), opts.hl)),
-      value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, bborder, aligns, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_16 || (templateObject_16 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                text-align: right;\n                "], ["\n                text-align: right;\n                "]))))
-    },
-    dimfield: {
-      name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, sticky, bborder, aligns, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_17 || (templateObject_17 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                left: 0;\n                top: 0;\n                z-index: 3;\n\n                padding: 7px 16px 4px 16px;\n\n                color: ", ";\n\n                text-align: right;\n                white-space: normal;"], ["\n                left: 0;\n                top: 0;\n                z-index: 3;\n\n                padding: 7px 16px 4px 16px;\n\n                color: ", ";\n\n                text-align: right;\n                white-space: normal;"])), opts.hl)),
-      value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, sticky, bborder, aligns, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_18 || (templateObject_18 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n                left: 0;\n                z-index: 2;\n\n                color: ", ";\n                text-align: right;"], ["\n                left: 0;\n                z-index: 2;\n\n                color: ", ";\n                text-align: right;"])), opts.dim))
-    },
-    grouplabel: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, sticky, lborder, rborder, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_19 || (templateObject_19 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            top: 0;\n            color: ", ";\n\n            padding: 8px 4px 0px 4px;\n\n            text-align: center;\n\n            white-space: normal;"], ["\n            top: 0;\n            color: ", ";\n\n            padding: 8px 4px 0px 4px;\n\n            text-align: center;\n\n            white-space: normal;"])), opts.hl)),
-    grid: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(scrollbars, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_20 || (templateObject_20 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            overflow: auto;\n            padding-bottom: 16px;\n        "], ["\n            overflow: auto;\n            padding-bottom: 16px;\n        "]))))
+    field_name: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, bborder, aligns, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_13 || (templateObject_13 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            position: sticky;\n            background-color: var(--panel_bg);\n            top: 0;\n            z-index: 1;\n\n            color: var(--hl);\n\n            padding: 7px 16px 4px 16px;\n\n            text-align: right;\n            white-space: normal;\n\n            &[data-is_dimension] {\n                left: 0;\n                z-index: 3;\n            }"], ["\n            position: sticky;\n            background-color: var(--panel_bg);\n            top: 0;\n            z-index: 1;\n\n            color: var(--hl);\n\n            padding: 7px 16px 4px 16px;\n\n            text-align: right;\n            white-space: normal;\n\n            &[data-is_dimension] {\n                left: 0;\n                z-index: 3;\n            }"])))),
+    field_value: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, bborder, aligns, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_14 || (templateObject_14 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            text-align: right;\n            &[data-is_dimension] {\n                position: sticky;\n                background-color: var(--panel_bg);\n                left: 0;\n                z-index: 2;\n                color: var(--dim);\n            }"], ["\n            text-align: right;\n            &[data-is_dimension] {\n                position: sticky;\n                background-color: var(--panel_bg);\n                left: 0;\n                z-index: 2;\n                color: var(--dim);\n            }"])))),
+    grouplabel: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(cell, lborder, rborder, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_15 || (templateObject_15 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            position: sticky;\n            background-color: var(--panel_bg);\n            top: 0;\n            color: var(--hl);\n\n            padding: 8px 4px 0px 4px;\n\n            text-align: center;\n\n            white-space: normal;"], ["\n            position: sticky;\n            background-color: var(--panel_bg);\n            top: 0;\n            color: var(--hl);\n\n            padding: 8px 4px 0px 4px;\n\n            text-align: center;\n\n            white-space: normal;"])))),
+    grid: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(scrollbars, Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_16 || (templateObject_16 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n            overflow: auto;\n            --panel_bg: ", ";\n            --dim: ", ";\n            --hl: ", ";\n            --border_bg: ", ";\n        "], ["\n            overflow: auto;\n            --panel_bg: ", ";\n            --dim: ", ";\n            --hl: ", ";\n            --border_bg: ", ";\n        "])), opts.panel_bg, opts.dim, opts.hl, opts.border_bg))
   };
 }
 
@@ -831,16 +817,11 @@ function get_style(horizontal, transparent) {
   return {
     grid: CLASSES[prefix],
     grouplabel: CLASSES[prefix + "__grouplabel"],
-    get_fieldstyle: function get_fieldstyle(dim) {
-      var field_prefix = prefix + "__field" + (dim ? '--dim' : '');
-      return {
-        nameclass: CLASSES[field_prefix + "__name"],
-        valueclass: CLASSES[field_prefix + "__value"]
-      };
-    }
+    nameclass: CLASSES[prefix + "__name"],
+    valueclass: CLASSES[prefix + "__value"]
   };
 }
-var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5, templateObject_6, templateObject_7, templateObject_8, templateObject_9, templateObject_10, templateObject_11, templateObject_12, templateObject_13, templateObject_14, templateObject_15, templateObject_16, templateObject_17, templateObject_18, templateObject_19, templateObject_20;
+var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5, templateObject_6, templateObject_7, templateObject_8, templateObject_9, templateObject_10, templateObject_11, templateObject_12, templateObject_13, templateObject_14, templateObject_15, templateObject_16;
 
 /***/ }),
 
@@ -1012,6 +993,7 @@ function create_field(field, options, ctx, style) {
   var namecell = rce('div', {
     key: field.name,
     'data-align': style.namealign,
+    'data-is_dimension': style.is_dimension ? '' : undefined,
     className: style.nameclass
   }, common_unit ? field_name + ", " + common_unit : field_name);
   var cells = [namecell]; // the index loop here instead of map is for easily attaching the sorting feature
@@ -1070,7 +1052,7 @@ function create_field(field, options, ctx, style) {
 
 function create_gridgroups(gss, options, ctx, aligns) {
   var field_style = function field_style(field_idx, is_dimension) {
-    var fieldstyle = ctx.style.get_fieldstyle(is_dimension);
+    var fieldstyle = ctx.style;
     return options.is_horizontal ? {
       nameclass: fieldstyle.nameclass,
       namealign: aligns[field_idx],

@@ -2,23 +2,15 @@ import { config } from '@grafana/runtime';
 import { css } from 'emotion';
 
 interface ClassBuildInput {
-    field: {
-        name: string;
-        value: string;
-    },
-    dimfield: {
-        name: string;
-        value: string;
-    },
+    field_name: string;
+    field_value: string;
     grouplabel: string;
     grid: string;
 }
 
 export interface GridStyle {
-    get_fieldstyle: (dim?: boolean) => {
-        nameclass: string;
-        valueclass: string;
-    },
+    nameclass: string;
+    valueclass: string;
     grouplabel: string;
     grid: string;
 }
@@ -32,10 +24,8 @@ interface StyleBuildOptions {
 
 function build_classes(style: ClassBuildInput, prefix: string) {
     return {
-        [prefix + '__field__name']: style.field.name,
-        [prefix + '__field__value']: style.field.value,
-        [prefix + '__field--dim__name']: style.dimfield.name,
-        [prefix + '__field--dim__value']: style.dimfield.value,
+        [prefix + '__name']: style.field_name,
+        [prefix + '__value']: style.field_value,
         [prefix + '__grouplabel']: style.grouplabel,
         [prefix]: style.grid,
     }
@@ -68,46 +58,41 @@ function build_all() {
 
 function build_vstyle(opts: StyleBuildOptions): ClassBuildInput {
 
-    const { cell, sticky, bborder, scrollbars, lborder, rborder, aligns } = build_common_style(opts);
+    const { cell, bborder, scrollbars, lborder, rborder, aligns } = build_common_style(opts);
 
     return {
-        field: {
-            name: css(cell, sticky, bborder, aligns, css`
+        field_name: css(cell, bborder, aligns, css`
+                position: sticky;
+                background-color: var(--panel_bg);
                 left: 0;
                 z-index: 2;
                 color: var(--dim);
-                `),
-            value: css(cell, bborder, aligns, css`
+                &[data-is_dimension] {
+                    top: 0;
+                    z-index: 3;
+                    padding: 15px 16px 4px 16px;
+                }`),
+        field_value: css(cell, bborder, aligns, css`
                 text-align: right;
-                `)
-        },
-        dimfield: {
-            name: css(cell, sticky, bborder, aligns, css`
-                left: 0;
-                top: 0;
-                z-index: 3;
-
-                padding: 15px 16px 4px 16px;
-
-                color: var(--dim);`),
-            value: css(cell, sticky, bborder, aligns, css`
-                top: 0;
-                z-index: 1;
-
-                padding: 15px 16px 4px 16px;
-
-                color: var(--hl);
-
-                text-align: right;`)
-        },
-        grouplabel: css(sticky, css`
+                &[data-is_dimension] {
+                    position: sticky;
+                    background-color: var(--panel_bg);
+                    top: 0;
+                    z-index: 1;
+                    padding: 15px 16px 4px 16px;
+                    color: var(--hl);
+                }`)
+        ,
+        grouplabel: css`
+            position: sticky;
+            background-color: var(--panel_bg);
             left: 0;
             z-index: 2;
 
             padding: 19px 4px 0px 4px;
             color: var(--hl);
             display: inline-block;
-            width: auto;`),
+            width: auto;`,
         grid: css(scrollbars, css`
             overflow: auto;
             position: relative;
@@ -158,48 +143,40 @@ function build_common_style(opts: StyleBuildOptions) {
 
 function build_hstyle(opts: StyleBuildOptions): ClassBuildInput {
 
-    const { cell, sticky, bborder, scrollbars, lborder, rborder, aligns } = build_common_style(opts);
+    const { cell, bborder, scrollbars, lborder, rborder, aligns } = build_common_style(opts);
 
     return {
-        field: {
-            name: css(cell, sticky, bborder, aligns, css`
-                top: 0;
-                z-index: 1;
+        field_name: css(cell, bborder, aligns, css`
+            position: sticky;
+            background-color: var(--panel_bg);
+            top: 0;
+            z-index: 1;
 
-                color: ${opts.hl};
+            color: var(--hl);
 
-                padding: 7px 16px 4px 16px;
+            padding: 7px 16px 4px 16px;
 
-                text-align: right;
-                white-space: normal;`
-            ),
-            value: css(cell, bborder, aligns, css`
-                text-align: right;
-                `),
-        },
-        dimfield: {
-            name: css(cell, sticky, bborder, aligns, css`
+            text-align: right;
+            white-space: normal;
+
+            &[data-is_dimension] {
                 left: 0;
-                top: 0;
                 z-index: 3;
-
-                padding: 7px 16px 4px 16px;
-
-                color: ${opts.hl};
-
-                text-align: right;
-                white-space: normal;`),
-            value: css(cell, sticky, bborder, aligns, css`
+            }`),
+        field_value: css(cell, bborder, aligns, css`
+            text-align: right;
+            &[data-is_dimension] {
+                position: sticky;
+                background-color: var(--panel_bg);
                 left: 0;
                 z-index: 2;
-
-                color: ${opts.dim};
-                text-align: right;`),
-        },
-
-        grouplabel: css(cell, sticky, lborder, rborder, css`
+                color: var(--dim);
+            }`),
+        grouplabel: css(cell, lborder, rborder, css`
+            position: sticky;
+            background-color: var(--panel_bg);
             top: 0;
-            color: ${opts.hl};
+            color: var(--hl);
 
             padding: 8px 4px 0px 4px;
 
@@ -208,7 +185,10 @@ function build_hstyle(opts: StyleBuildOptions): ClassBuildInput {
             white-space: normal;`),
         grid: css(scrollbars, css`
             overflow: auto;
-            padding-bottom: 16px;
+            --panel_bg: ${opts.panel_bg};
+            --dim: ${opts.dim};
+            --hl: ${opts.hl};
+            --border_bg: ${opts.border_bg};
         `)
     }
 }
@@ -224,14 +204,7 @@ export function get_style(horizontal?: boolean, transparent?: boolean): GridStyl
     return {
         grid: CLASSES[prefix],
         grouplabel: CLASSES[`${prefix}__grouplabel`],
-        get_fieldstyle: (dim) => {
-
-            const field_prefix = `${prefix}__field${dim ? '--dim' : ''}`
-            return {
-                nameclass: CLASSES[`${field_prefix}__name`],
-                valueclass: CLASSES[`${field_prefix}__value`]
-            }
-        }
+        nameclass: CLASSES[`${prefix}__name`],
+        valueclass: CLASSES[`${prefix}__value`]
     }
-
 }
