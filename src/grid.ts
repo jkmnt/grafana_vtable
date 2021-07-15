@@ -37,8 +37,17 @@ export function VGrid(groups: GridGroup[], opts: GridOptions = {}) {
     groups.forEach(g => {
         // NOTE: justify-self is for the [likely to be used] sticky to work
         if (g.label) {
-            const new_style = {...g.label.props?.style, 'grid-column': `1 / span ${ncols}`, 'justify-self': 'start'}
-            cells.push(React.cloneElement(g.label, {style: new_style}));
+            //const new_style = {...g.label.props?.style, 'grid-column': `1 / span ${ncols}`, 'justify-self': 'start'}
+            //const new_style = {...g.label.props?.style, 'grid-column': `1 / span ${ncols}`,
+            //}
+
+            const cell = React.createElement('div', {
+                key: g.label.key,
+                style: {'grid-column': `1 / span ${ncols}`},
+            },
+                g.label
+            )
+            cells.push(cell);
             nrows += 1;
         }
         g.fields.forEach(f => cells.push(...f.values))

@@ -30,7 +30,10 @@ export interface VTableOptions {
 
 interface FieldStyle {
   nameclass: string;
-  get_valueclass: (i: number) => string;
+  valueclass: string;
+  namealign: string|undefined;
+  get_valuealign: (i: number) => string|undefined;
+  is_dimension?: boolean;
 }
 
 type Formatter = (value: ValueSpec, field: DfField, context: any) => void;
@@ -71,6 +74,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
     'div',
     {
       key: field.name,
+      'data-align': style.namealign,
       className: style.nameclass,
     },
     common_unit ? `${field_name}, ${common_unit}` : field_name
@@ -111,7 +115,9 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
         {
           key,
           style: spec.style,
-          className: style.get_valueclass(i),
+          className: style.valueclass,
+          'data-align': style.get_valuealign(i),
+          'data-is_dimension': style.is_dimension ? '' : undefined,
           dangerouslySetInnerHTML: { __html: spec.html },
         });
     }
@@ -121,7 +127,9 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
         {
           key,
           style: spec.style,
-          className: style.get_valueclass(i),
+          className: style.valueclass,
+          'data-align': style.get_valuealign(i),
+          'data-is_dimension': style.is_dimension ? '' : undefined,
         },
         spec.text);
     }
@@ -138,11 +146,17 @@ function create_gridgroups(gss: GroupSpec[], options: VTableOptions, ctx: FieldC
   const field_style = (field_idx: number, is_dimension: boolean) => {
     const fieldstyle = ctx.style.get_fieldstyle(is_dimension)
     return options.is_horizontal ? {
-      nameclass: fieldstyle.get_nameclass(aligns[field_idx]),
-      get_valueclass: (i: number) => fieldstyle.get_valueclass(aligns[field_idx]),
+      nameclass: fieldstyle.nameclass,
+      namealign: aligns[field_idx],
+      valueclass: fieldstyle.valueclass,
+      is_dimension: is_dimension,
+      get_valuealign: (i:number) => aligns[field_idx],
     } : {
-      nameclass: fieldstyle.get_nameclass(aligns[0]),
-      get_valueclass: (i: number) => fieldstyle.get_valueclass(aligns[i + 1]),
+      nameclass: fieldstyle.nameclass,
+      namealign: aligns[0],
+      valueclass: fieldstyle.valueclass,
+      is_dimension: is_dimension,
+      get_valuealign: (i:number) => aligns[i + 1],
     }
   }
 
