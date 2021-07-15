@@ -7,7 +7,7 @@ import { getTextColorForBackground } from '@grafana/ui';
 import { config as gf_config } from "@grafana/runtime"
 
 import { VGrid, HGrid, GridField, GridGroup } from './grid';
-import { get_style, GridStyle } from './styles'
+import { GridStyle, STYLES } from './styles'
 import { discover_unit, fields_to_groups, get_colspecs, GroupSpec } from './utils';
 
 var rce = React.createElement;
@@ -82,8 +82,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, att
 
   const cells = [namecell];
 
-  // the index loop here instead of map is for easily attaching the sorting feature
-  // should it be needed someday
+  // the index loop here instead of map is for the sorting feature
   for (var i = 0; i < field.values.length; i++) {
 
     const key = `${field.name}.${i}`
@@ -209,7 +208,7 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
 
   const df = data.series[0];
   const fields = df.fields;
-  const style = get_style(options.is_horizontal, transparent);
+  const style = options.is_horizontal ? STYLES.horizontal : STYLES.vertical
 
   const maxcols = estimate_maxcols(fields);
   const colspecs = get_colspecs(options.custom_columns, maxcols);
@@ -256,6 +255,7 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
       'div',
       {
         className: style.grid,
+        'data-is_transparent': transparent ? '' : undefined,
         ...grid
       })
     // TODO: add series picker after the grid if there are multiple queries
