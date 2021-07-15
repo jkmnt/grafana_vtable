@@ -9,9 +9,13 @@ export interface GridGroup {
     fields: GridField[];
 }
 
+type ColAttr = {[key: string]:string}
+
 export interface GridOptions {
     colws?: number[];
     rowhs?: number[];
+
+    colattrs?: (ColAttr | undefined)[];
 }
 
 function calc_sizes(spec: number[] | undefined, n: number, defsize: string) {
@@ -45,7 +49,13 @@ export function VGrid(groups: GridGroup[], opts: GridOptions = {}) {
             cells.push(cell);
             nrows += 1;
         }
-        g.fields.forEach(f => cells.push(...f.values))
+        g.fields.forEach(f =>
+            cells.push(...f.values.map((v, i) =>
+                {
+                    const attrs = opts?.colattrs?.[i];
+                    return attrs ? React.cloneElement(v, attrs) : v
+                }
+            )))
         nrows += g.fields.length;
     })
 
@@ -87,11 +97,19 @@ export function HGrid(groups: GridGroup[], opts: GridOptions = {}) {
         })
     }
 
-    // TODO: some flatmap should be faster
     let ncols = 0;  // this is needed for the widths only
+    let colidx = 0; // running column index for injecting per-column attributes
 
     groups.forEach(g => {
-        g.fields.forEach(f => {cells.push(...f.values)})
+        g.fields.forEach((f) => {
+            const attrs = opts?.colattrs?.[colidx++];
+
+            if (attrs)
+                cells.push(...f.values.map(v =>
+                    React.cloneElement(v, attrs)))
+            else
+                cells.push(...f.values)
+        })
         ncols += g.fields.length;
     })
 

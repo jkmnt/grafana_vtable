@@ -28,11 +28,6 @@ export interface VTableOptions {
   }
 }
 
-interface FieldAttrs {
-  aligns: (string | undefined)[]
-  is_dimension?: boolean;
-}
-
 type Formatter = (value: ValueSpec, field: DfField, context: any) => void;
 
 interface FieldCtx {
@@ -58,11 +53,11 @@ function colorize_cell(mode: string | undefined, color: string | undefined) {
   return {};
 }
 
-function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, attrs: FieldAttrs): GridField {
+function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, is_dimension?: boolean): GridField {
   const { df, formatter, order } = ctx;
   const field_name = getFieldDisplayName(field, df);
 
-  const dimension_attr = attrs.is_dimension ? '' : undefined
+  const dimension_attr = is_dimension ? '' : undefined
 
   const display = field.display ?? getDisplayProcessor({ field });
 
@@ -73,7 +68,6 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, att
     'div',
     {
       key: field.name,
-      'data-align': attrs.aligns?.[0],
       'data-is_dimension': dimension_attr,
       className: ctx.style.namecell,
     },
@@ -110,7 +104,6 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, att
       key,
       style: spec.style,
       className: ctx.style.valuecell,
-      'data-align': attrs?.aligns[i + 1],
       'data-is_dimension': dimension_attr,
     }
 
@@ -125,22 +118,13 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, att
 }
 
 
-function create_gridgroups(gss: GroupSpec[], options: VTableOptions, ctx: FieldCtx, aligns: (string | undefined)[]): GridGroup[] {
-
-  const field_attrs = (field_idx: number, is_dimension: boolean) => {
-    return {
-      is_dimension,
-      aligns: options.is_horizontal ? Array(aligns.length).fill(aligns?.[field_idx]) : aligns,
-    }
-  }
-
-  var field_idx = 0;
+function create_gridgroups(gss: GroupSpec[], options: VTableOptions, ctx: FieldCtx): GridGroup[] {
 
   const gridgroups = gss.map(g => {
     const key = `__group.${g?.name}`;
     return {
       label: g.name ? rce('div', { key, className: ctx.style.grouplabel }, g.name) : undefined,
-      fields: g.fields.map(f => create_field(f as DfField, options, ctx, field_attrs(field_idx++, !!g.is_dim)))
+      fields: g.fields.map(f => create_field(f as DfField, options, ctx, g.is_dim))
     }
   })
 
@@ -235,10 +219,17 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
   }
 
   const groups = fields_to_groups(fields, options.dimension_field, options.group_by_label);
-  const gridgroups = create_gridgroups(groups, options, ctx, colspecs.map(c => c.a));
+  const gridgroups = create_gridgroups(groups, options, ctx);
+
+  const colattrs = colspecs.map(c => {
+    return c.a ? {'data-align': c.a} : undefined
+  })
 
   const grid = (options.is_horizontal ? HGrid : VGrid)(gridgroups,
-    { colws: colspecs.length ? colspecs.map(c => c.w) : undefined },
+    {
+      colws: colspecs.length ? colspecs.map(c => c.w) : undefined,
+      colattrs: colattrs.length ? colattrs : undefined,
+    },
   )
 
   const container = rce(
