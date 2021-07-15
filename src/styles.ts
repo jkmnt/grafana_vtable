@@ -1,18 +1,22 @@
 import { config } from '@grafana/runtime';
 import { css } from 'emotion';
 
-interface ClassBuildInput {
-    field_name: string;
-    field_value: string;
+export interface GridStyle {
+    namecell: string;
+    valuecell: string;
     grouplabel: string;
     grid: string;
 }
 
-export interface GridStyle {
-    nameclass: string;
-    valueclass: string;
-    grouplabel: string;
-    grid: string;
+interface GridStyles {
+    vertical: {
+        filled: GridStyle,
+        transparent: GridStyle,
+    },
+    horizontal: {
+        filled: GridStyle,
+        transparent: GridStyle,
+    }
 }
 
 interface StyleBuildOptions {
@@ -22,16 +26,7 @@ interface StyleBuildOptions {
     border_bg: string;
 }
 
-function build_classes(style: ClassBuildInput, prefix: string) {
-    return {
-        [prefix + '__name']: style.field_name,
-        [prefix + '__value']: style.field_value,
-        [prefix + '__grouplabel']: style.grouplabel,
-        [prefix]: style.grid,
-    }
-}
-
-function build_all() {
+function build_all(): GridStyles {
 
     const theme = config.theme;
 
@@ -49,19 +44,23 @@ function build_all() {
 
 
     return {
-        ...build_classes(build_vstyle(normal_opts), 'panel__grid'),
-        ...build_classes(build_hstyle(normal_opts), 'panel__grid--horizontal'),
-        ...build_classes(build_vstyle(transparent_opts), 'panel--transparent__grid'),
-        ...build_classes(build_hstyle(transparent_opts), 'panel--transparent__grid--horizontal')
+        vertical: {
+            filled: build_vstyle(normal_opts),
+            transparent: build_vstyle(transparent_opts),
+        },
+        horizontal: {
+            filled: build_hstyle(normal_opts),
+            transparent: build_hstyle(transparent_opts),
+        }
     }
 }
 
-function build_vstyle(opts: StyleBuildOptions): ClassBuildInput {
+function build_vstyle(opts: StyleBuildOptions): GridStyle {
 
     const { cell, bborder, scrollbars, lborder, rborder, aligns } = build_common_style(opts);
 
     return {
-        field_name: css(cell, bborder, aligns, css`
+        namecell: css(cell, bborder, aligns, css`
                 position: sticky;
                 background-color: var(--panel_bg);
                 left: 0;
@@ -72,7 +71,7 @@ function build_vstyle(opts: StyleBuildOptions): ClassBuildInput {
                     z-index: 3;
                     padding: 15px 16px 4px 16px;
                 }`),
-        field_value: css(cell, bborder, aligns, css`
+        valuecell: css(cell, bborder, aligns, css`
                 text-align: right;
                 &[data-is_dimension] {
                     position: sticky;
@@ -141,12 +140,12 @@ function build_common_style(opts: StyleBuildOptions) {
     }
 }
 
-function build_hstyle(opts: StyleBuildOptions): ClassBuildInput {
+function build_hstyle(opts: StyleBuildOptions): GridStyle {
 
     const { cell, bborder, scrollbars, lborder, rborder, aligns } = build_common_style(opts);
 
     return {
-        field_name: css(cell, bborder, aligns, css`
+        namecell: css(cell, bborder, aligns, css`
             position: sticky;
             background-color: var(--panel_bg);
             top: 0;
@@ -163,7 +162,7 @@ function build_hstyle(opts: StyleBuildOptions): ClassBuildInput {
                 left: 0;
                 z-index: 3;
             }`),
-        field_value: css(cell, bborder, aligns, css`
+        valuecell: css(cell, bborder, aligns, css`
             text-align: right;
             &[data-is_dimension] {
                 position: sticky;
@@ -194,17 +193,10 @@ function build_hstyle(opts: StyleBuildOptions): ClassBuildInput {
 }
 
 
-const CLASSES: { [key: string]: string } = build_all();
-
+const STYLES: GridStyles = build_all();
 
 export function get_style(horizontal?: boolean, transparent?: boolean): GridStyle {
 
-    const prefix = `panel${transparent ? '--transparent' : ''}__grid${horizontal ? '--horizontal' : ''}`;
-
-    return {
-        grid: CLASSES[prefix],
-        grouplabel: CLASSES[`${prefix}__grouplabel`],
-        nameclass: CLASSES[`${prefix}__name`],
-        valueclass: CLASSES[`${prefix}__value`]
-    }
+    const t = horizontal ? STYLES.horizontal : STYLES.vertical;
+    return transparent ? t.transparent : t.filled;
 }

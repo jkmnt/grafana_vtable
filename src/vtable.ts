@@ -4,10 +4,10 @@ import moment from 'moment';
 import { PanelProps, getFieldDisplayName, getDisplayProcessor, Field as DfField, DataFrame, FieldType } from '@grafana/data';
 import { getTextColorForBackground } from '@grafana/ui';
 
-import { config as gf_config} from "@grafana/runtime"
+import { config as gf_config } from "@grafana/runtime"
 
 import { VGrid, HGrid, GridField, GridGroup } from './grid';
-import { get_style, GridStyle} from './styles'
+import { get_style, GridStyle } from './styles'
 import { discover_unit, fields_to_groups, get_colspecs, GroupSpec } from './utils';
 
 var rce = React.createElement;
@@ -28,11 +28,8 @@ export interface VTableOptions {
   }
 }
 
-interface FieldStyle {
-  nameclass: string;
-  valueclass: string;
-  namealign: string|undefined;
-  get_valuealign: (i: number) => string|undefined;
+interface FieldAttrs {
+  aligns: (string | undefined)[]
   is_dimension?: boolean;
 }
 
@@ -46,12 +43,12 @@ interface FieldCtx {
 }
 
 interface ValueSpec {
-    raw: any,
-    i: number,
-    name: string,
-    text: string;
-    style: {},
-    html: string | undefined,
+  raw: any,
+  i: number,
+  name: string,
+  text: string;
+  style: {},
+  html: string | undefined,
 }
 
 function colorize_cell(mode: string | undefined, color: string | undefined) {
@@ -61,22 +58,24 @@ function colorize_cell(mode: string | undefined, color: string | undefined) {
   return {};
 }
 
-function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, style: FieldStyle): GridField {
+function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, attrs: FieldAttrs): GridField {
   const { df, formatter, order } = ctx;
   const field_name = getFieldDisplayName(field, df);
+
+  const dimension_attr = attrs.is_dimension ? '' : undefined
 
   const display = field.display ?? getDisplayProcessor({ field });
 
   const common_unit = (options.show_common_unit && field.type == FieldType.number)
-                      ? discover_unit(field) : undefined
+    ? discover_unit(field) : undefined
 
   const namecell = rce(
     'div',
     {
       key: field.name,
-      'data-align': style.namealign,
-      'data-is_dimension': style.is_dimension ? '' : undefined,
-      className: style.nameclass,
+      'data-align': attrs.aligns?.[0],
+      'data-is_dimension': dimension_attr,
+      className: ctx.style.namecell,
     },
     common_unit ? `${field_name}, ${common_unit}` : field_name
   );
@@ -108,32 +107,17 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
       catch (e) { }
     }
 
-    let cell;
+    const cellprops = {
+      key,
+      style: spec.style,
+      className: ctx.style.valuecell,
+      'data-align': attrs?.aligns[i + 1],
+      'data-is_dimension': dimension_attr,
+    }
 
-    if (spec?.html) {
-      cell = rce(
-        'div',
-        {
-          key,
-          style: spec.style,
-          className: style.valueclass,
-          'data-align': style.get_valuealign(i),
-          'data-is_dimension': style.is_dimension ? '' : undefined,
-          dangerouslySetInnerHTML: { __html: spec.html },
-        });
-    }
-    else {
-      cell = rce(
-        'div',
-        {
-          key,
-          style: spec.style,
-          className: style.valueclass,
-          'data-align': style.get_valuealign(i),
-          'data-is_dimension': style.is_dimension ? '' : undefined,
-        },
-        spec.text);
-    }
+    const cell = spec?.html ?
+      rce('div', { ...cellprops, dangerouslySetInnerHTML: { __html: spec.html } })
+      : rce('div', { ...cellprops }, spec.text);
 
     cells.push(cell);
   }
@@ -144,20 +128,10 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, sty
 
 function create_gridgroups(gss: GroupSpec[], options: VTableOptions, ctx: FieldCtx, aligns: (string | undefined)[]): GridGroup[] {
 
-  const field_style = (field_idx: number, is_dimension: boolean) => {
-    const fieldstyle = ctx.style
-    return options.is_horizontal ? {
-      nameclass: fieldstyle.nameclass,
-      namealign: aligns[field_idx],
-      valueclass: fieldstyle.valueclass,
-      is_dimension: is_dimension,
-      get_valuealign: (i:number) => aligns[field_idx],
-    } : {
-      nameclass: fieldstyle.nameclass,
-      namealign: aligns[0],
-      valueclass: fieldstyle.valueclass,
-      is_dimension: is_dimension,
-      get_valuealign: (i:number) => aligns[i + 1],
+  const field_attrs = (field_idx: number, is_dimension: boolean) => {
+    return {
+      is_dimension,
+      aligns: options.is_horizontal ? Array(aligns.length).fill(aligns?.[field_idx]) : aligns,
     }
   }
 
@@ -167,10 +141,9 @@ function create_gridgroups(gss: GroupSpec[], options: VTableOptions, ctx: FieldC
     const key = `__group.${g?.name}`;
     return {
       label: g.name ? rce('div', { key, className: ctx.style.grouplabel }, g.name) : undefined,
-      fields: g.fields.map(f => create_field(f as DfField, options, ctx, field_style(field_idx++, !! g.is_dim)))
+      fields: g.fields.map(f => create_field(f as DfField, options, ctx, field_attrs(field_idx++, !!g.is_dim)))
     }
-  }
-  )
+  })
 
   return gridgroups;
 }
@@ -266,7 +239,7 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
   const gridgroups = create_gridgroups(groups, options, ctx, colspecs.map(c => c.a));
 
   const grid = (options.is_horizontal ? HGrid : VGrid)(gridgroups,
-    { colws: colspecs.length ? colspecs.map(c => c.w) : undefined},
+    { colws: colspecs.length ? colspecs.map(c => c.w) : undefined },
   )
 
   const container = rce(
@@ -283,7 +256,8 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
       'div',
       {
         className: style.grid,
-        ...grid})
+        ...grid
+      })
     // TODO: add series picker after the grid if there are multiple queries
   );
 

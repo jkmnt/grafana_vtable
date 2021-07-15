@@ -35,15 +35,10 @@ export function VGrid(groups: GridGroup[], opts: GridOptions = {}) {
     let nrows = 0;
 
     groups.forEach(g => {
-        // NOTE: justify-self is for the [likely to be used] sticky to work
         if (g.label) {
-            //const new_style = {...g.label.props?.style, 'grid-column': `1 / span ${ncols}`, 'justify-self': 'start'}
-            //const new_style = {...g.label.props?.style, 'grid-column': `1 / span ${ncols}`,
-            //}
-
             const cell = React.createElement('div', {
                 key: g.label.key,
-                style: {'grid-column': `1 / span ${ncols}`},
+                style: {'grid-column': `1 / -1`},
             },
                 g.label
             )
