@@ -19,7 +19,12 @@ interface GridStyles {
 const COMMON = {
     cell: css`
         padding: 9px 16px 9px 16px;
-        white-space: nowrap;`,
+        white-space: nowrap;
+        &[data-custom_width] {
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        `,
     bborder: css`
         border-bottom: 1px solid var(--border_bg);`,
     tborder: css`

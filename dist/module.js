@@ -409,11 +409,12 @@ function VGrid(groups, opts) {
     });
   }); // TODO: investigate the minmax etc
 
-  var gtcs = calc_sizes(opts.colws, ncols, 'minmax(max-content, 1fr)'); //const gtrs = calc_sizes(opts.rowhs, row, 'max-content')
-
+  var gtcs = calc_sizes(opts.colws, ncols, 'minmax(max-content, 1fr)');
+  var gtrs = calc_sizes(opts.rowhs, row, 'max-content');
   var style = {
     'display': 'grid',
-    'grid-template-columns': gtcs.join(' ')
+    'grid-template-columns': gtcs.join(' '),
+    'grid-template-rows': gtrs.join(' ')
   };
   return {
     style: style,
@@ -430,6 +431,7 @@ function HGrid(groups, opts) {
     return g.label;
   }) ? 1 : 0;
   var col = 0;
+  var nrows = fields_startrow;
   groups.forEach(function (g) {
     var _a;
 
@@ -457,16 +459,18 @@ function HGrid(groups, opts) {
           })
         }, attrs));
       });
+      nrows = Math.max(nrows, f.values.length + fields_startrow);
       cells.push.apply(cells, Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__spread"])(fields));
       col += 1;
     });
   }); // minmax(max-content, 1fr)
 
-  var gtcs = calc_sizes(opts.colws, col, 'auto'); //const gtrs = calc_sizes(opts.rowhs, startrow, 'max-content');
-
+  var gtcs = calc_sizes(opts.colws, col, 'auto');
+  var gtrs = calc_sizes(opts.rowhs, nrows, 'max-content');
   var style = {
     'display': 'grid',
-    'grid-template-columns': gtcs.join(' ')
+    'grid-template-columns': gtcs.join(' '),
+    'grid-template-rows': gtrs.join(' ')
   };
   return {
     style: style,
@@ -741,7 +745,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var COMMON = {
-  cell: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_1 || (templateObject_1 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        padding: 9px 16px 9px 16px;\n        white-space: nowrap;"], ["\n        padding: 9px 16px 9px 16px;\n        white-space: nowrap;"]))),
+  cell: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_1 || (templateObject_1 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        padding: 9px 16px 9px 16px;\n        white-space: nowrap;\n        &[data-custom_width] {\n            text-overflow: ellipsis;\n            overflow: hidden;\n        }\n        "], ["\n        padding: 9px 16px 9px 16px;\n        white-space: nowrap;\n        &[data-custom_width] {\n            text-overflow: ellipsis;\n            overflow: hidden;\n        }\n        "]))),
   bborder: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_2 || (templateObject_2 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        border-bottom: 1px solid var(--border_bg);"], ["\n        border-bottom: 1px solid var(--border_bg);"]))),
   tborder: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_3 || (templateObject_3 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        border-top: 1px solid var(--border_bg);"], ["\n        border-top: 1px solid var(--border_bg);"]))),
   rborder: Object(emotion__WEBPACK_IMPORTED_MODULE_2__["css"])(templateObject_4 || (templateObject_4 = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__makeTemplateObject"])(["\n        border-right: 1px solid var(--border_bg);"], ["\n        border-right: 1px solid var(--border_bg);"]))),
@@ -1111,8 +1115,9 @@ function VTable(_a) {
   var groups = Object(_utils__WEBPACK_IMPORTED_MODULE_8__["fields_to_groups"])(fields, options.dimension_field, options.group_by_label);
   var gridgroups = create_gridgroups(groups, options, ctx);
   var colattrs = colspecs.map(function (c) {
-    return c.a ? {
-      'data-align': c.a
+    return c.a || c.w ? {
+      'data-align': c.a || undefined,
+      'data-custom_width': c.w ? '' : undefined
     } : undefined;
   });
   var grid = (options.is_horizontal ? _grid__WEBPACK_IMPORTED_MODULE_6__["HGrid"] : _grid__WEBPACK_IMPORTED_MODULE_6__["VGrid"])(gridgroups, {

@@ -73,11 +73,12 @@ export function VGrid(groups: GridGroup[], opts: GridOptions = {}) {
 
     // TODO: investigate the minmax etc
     const gtcs = calc_sizes(opts.colws, ncols, 'minmax(max-content, 1fr)')
-    //const gtrs = calc_sizes(opts.rowhs, row, 'max-content')
+    const gtrs = calc_sizes(opts.rowhs, row, 'max-content')
 
     const style = {
         'display': 'grid',
-        'grid-template-columns': gtcs.join(' ')
+        'grid-template-columns': gtcs.join(' '),
+        'grid-template-rows': gtrs.join(' ')
     }
 
     return { style, children: cells }
@@ -91,6 +92,7 @@ export function HGrid(groups: GridGroup[], opts: GridOptions = {}) {
     const fields_startrow = groups.some(g => g.label) ? 1 : 0;
 
     let col = 0;
+    let nrows = fields_startrow;
 
     groups.forEach(g => {
         if (g.label) {
@@ -116,6 +118,8 @@ export function HGrid(groups: GridGroup[], opts: GridOptions = {}) {
                     ...attrs
                 }))
 
+            nrows = Math.max(nrows, f.values.length + fields_startrow)
+
             cells.push(...fields)
             col += 1;
         })
@@ -124,11 +128,12 @@ export function HGrid(groups: GridGroup[], opts: GridOptions = {}) {
 
     // minmax(max-content, 1fr)
     const gtcs = calc_sizes(opts.colws, col, 'auto');
-    //const gtrs = calc_sizes(opts.rowhs, startrow, 'max-content');
+    const gtrs = calc_sizes(opts.rowhs, nrows, 'max-content');
 
     const style = {
         'display': 'grid',
         'grid-template-columns': gtcs.join(' '),
+        'grid-template-rows': gtrs.join(' '),
     }
 
     return { style, children: cells }

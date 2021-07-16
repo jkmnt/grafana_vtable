@@ -218,7 +218,11 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
   const gridgroups = create_gridgroups(groups, options, ctx);
 
   const colattrs = colspecs.map(c => {
-    return c.a ? {'data-align': c.a} : undefined
+    return (c.a || c.w) ?
+    {
+      'data-align': c.a || undefined,
+      'data-custom_width': c.w ? '' : undefined,
+    } : undefined
   })
 
   const grid = (options.is_horizontal ? HGrid : VGrid)(gridgroups,
