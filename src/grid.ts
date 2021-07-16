@@ -9,7 +9,7 @@ export interface GridGroup {
     fields: GridField[];
 }
 
-type ColAttr = {[key: string]:string}
+type ColAttr = { [key: string]: string }
 
 export interface GridOptions {
     colws?: number[];
@@ -21,7 +21,7 @@ export interface GridOptions {
 function calc_sizes(spec: number[] | undefined, n: number, defsize: string) {
     const sizes = Array(n).fill(defsize);
 
-    if (! (spec && spec.length)) return sizes;
+    if (!(spec && spec.length)) return sizes;
 
     for (var i = 0; i < n; i++) {
         const v = spec[i];
@@ -35,39 +35,52 @@ function calc_sizes(spec: number[] | undefined, n: number, defsize: string) {
 export function VGrid(groups: GridGroup[], opts: GridOptions = {}) {
 
     const cells: React.ReactNode[] = [];
-    const ncols = groups.find(g => g.fields.length)?.fields[0].values.length ?? 0;
-    let nrows = 0;
+
+    let ncols = 0;
+    let row = 0;
 
     groups.forEach(g => {
         if (g.label) {
-            const cell = React.cloneElement(g.label, {
-                    style: {...g.label.props?.style, 'grid-column': `1 / -1`},
+            const labelcell = React.cloneElement(g.label, {
+                style: {
+                    ...g.label.props?.style,
+                    'grid-row': `${row + 1}`,
+                    'grid-column': `1/-1`,
                 },
-            )
-            cells.push(cell);
-            nrows += 1;
+            })
+            cells.push(labelcell);
+            row += 1;
+            ncols = Math.max(ncols, 1)
         }
-        g.fields.forEach(f =>
-            cells.push(...f.values.map((v, i) =>
-                {
-                    const attrs = opts?.colattrs?.[i];
-                    return attrs ? React.cloneElement(v, attrs) : v
-                }
-            )))
-        nrows += g.fields.length;
+
+        g.fields.forEach(f => {
+            const fieldcells = f.values.map((v, i) =>
+                React.cloneElement(v, {
+                    style: {
+                        ...v.props?.style,
+                        'grid-row': `${row + 1}`,
+                        'grid-column': `${i + 1}`,
+                    },
+                    ...opts?.colattrs?.[i]
+                })
+            )
+
+            cells.push(fieldcells);
+            ncols = Math.max(ncols, f.values.length)
+            row += 1;
+        })
     })
 
     // TODO: investigate the minmax etc
     const gtcs = calc_sizes(opts.colws, ncols, 'minmax(max-content, 1fr)')
-    const gtrs = calc_sizes(opts.rowhs, nrows, 'max-content')
+    //const gtrs = calc_sizes(opts.rowhs, row, 'max-content')
 
     const style = {
         'display': 'grid',
-        'grid-template-columns': gtcs.join(' '),
-        'grid-template-rows': gtrs.join(' '),
+        'grid-template-columns': gtcs.join(' ')
     }
 
-    return {style, children: cells}
+    return { style, children: cells }
 }
 
 
@@ -75,52 +88,48 @@ export function HGrid(groups: GridGroup[], opts: GridOptions = {}) {
 
     const cells: React.ReactNode[] = [];
 
-    const any_labels = groups.find(g => g.label);
-    let nrows = groups.find(g => g.fields.length)?.fields[0].values.length ?? 0;
+    const fields_startrow = groups.some(g => g.label) ? 1 : 0;
 
-    // fixed layout all the groups label first, then let the    grid autolayout fields
-    if (any_labels) {
-        nrows += 1;
-        let col1 = 1;
-
-        groups.forEach(g => {
-            const new_style = {
-                'grid-row' : '1 / 2',
-                'grid-column' : `${col1} / span ${g.fields.length}`
-            };
-            const cell = g.label ? React.cloneElement(g.label, {style: {...g.label.props?.style, ...new_style}})
-                                 : React.createElement('div', {key: `__spacer.${col1}`, style: new_style});
-            cells.push(cell);
-            col1 += g.fields.length;
-        })
-    }
-
-    let ncols = 0;  // this is needed for the widths only
-    let colidx = 0; // running column index for injecting per-column attributes
+    let col = 0;
 
     groups.forEach(g => {
-        g.fields.forEach((f) => {
-            const attrs = opts?.colattrs?.[colidx++];
+        if (g.label) {
+            const cell = React.cloneElement(g.label, {
+                style: {
+                    ...g.label.props?.style,
+                    'grid-row': '1',
+                    'grid-column': `${col + 1}/span ${g.fields.length}`
+                }
+            })
+            cells.push(cell);
+        }
 
-            if (attrs)
-                cells.push(...f.values.map(v =>
-                    React.cloneElement(v, attrs)))
-            else
-                cells.push(...f.values)
+        g.fields.forEach((f) => {
+            const attrs = opts?.colattrs?.[col];
+            const fields = f.values.map((v, i) =>
+                React.cloneElement(v, {
+                    style: {
+                        ...v.props?.style,
+                        'grid-row': `${fields_startrow + i + 1}`,
+                        'grid-column': `${col + 1}`,
+                    },
+                    ...attrs
+                }))
+
+            cells.push(...fields)
+            col += 1;
         })
-        ncols += g.fields.length;
     })
 
+
     // minmax(max-content, 1fr)
-    const gtcs = calc_sizes(opts.colws, ncols, 'auto');
-    const gtrs = calc_sizes(opts.rowhs, nrows, 'max-content');
+    const gtcs = calc_sizes(opts.colws, col, 'auto');
+    //const gtrs = calc_sizes(opts.rowhs, startrow, 'max-content');
 
     const style = {
         'display': 'grid',
         'grid-template-columns': gtcs.join(' '),
-        'grid-template-rows': gtrs.join(' '),
-        'grid-auto-flow': 'column',
     }
 
-    return {style, children: cells}
+    return { style, children: cells }
 }
