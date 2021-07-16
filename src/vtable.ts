@@ -228,8 +228,7 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
     },
   )
 
-  const container = rce(
-    'div',
+  const container = rce('div',
     {
       style: {
         'width': width,
@@ -238,13 +237,15 @@ export function VTable({ data, options, height, width, transparent }: PanelProps
         'flex-direction': 'column',
       },
     },
-    rce(
-      'div',
-      {
-        className: style.grid,
+    rce('div', {
+        className: style.container,
         'data-is_transparent': transparent ? '' : undefined,
-        ...grid
-      })
+      },
+      rce('div', {
+          className: style.grid,
+          ...grid
+        })
+    )
     // TODO: add series picker after the grid if there are multiple queries
   );
 

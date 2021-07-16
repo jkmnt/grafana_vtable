@@ -7,7 +7,8 @@ export interface GridStyle {
     dimnamecell: string;
     dimvaluecell: string;
     grouplabel: string;
-    grid: string;
+    container: string;
+    grid?: string;
 }
 
 interface GridStyles {
@@ -52,7 +53,8 @@ const VSTYLE = {
         background-color: var(--panel_bg);
         left: 0;
         z-index: 2;
-        color: var(--dim);`),
+        color: var(--dim);
+        `),
     valuecell: css(COMMON.cell, COMMON.bborder, COMMON.aligns, css`
         text-align: right;`),
     dimnamecell: css(COMMON.cell, COMMON.bborder, COMMON.aligns, css`
@@ -71,10 +73,9 @@ const VSTYLE = {
         z-index: 1;
         padding: 15px 16px 4px 16px;
         color: var(--hl);
-        &::before {
-            content: 'ЧВАЧАЧАЧ'
-        }`)
+        `)
     ,
+    // XXX: justify-self is for the horizontal sticky to work
     grouplabel: css`
         position: sticky;
         background-color: var(--panel_bg);
@@ -83,8 +84,9 @@ const VSTYLE = {
 
         padding: 19px 4px 0px 4px;
         color: var(--hl);
-        display: inline-block;
-        width: auto;`,
+
+        justify-self: start;
+        `,
 }
 
 const HSTYLE = {
@@ -148,10 +150,9 @@ function build_all(): GridStyles {
         dash_bg: theme.colors.dashboardBg,
     }
 
-    const grid = css(COMMON.scrollbars, css`
+    const container = css(COMMON.scrollbars, css`
         overflow: auto;
-        position: relative;
-        padding-bottom: 42px;
+
         --panel_bg: ${opts.panel_bg};
         --dim: ${opts.dim};
         --hl: ${opts.hl};
@@ -163,8 +164,8 @@ function build_all(): GridStyles {
         )
 
     return {
-        vertical: {...VSTYLE, grid},
-        horizontal: {...HSTYLE, grid}
+        vertical: {...VSTYLE, container: container},
+        horizontal: {...HSTYLE, container: container}
     }
 }
 

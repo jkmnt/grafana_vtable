@@ -40,11 +40,9 @@ export function VGrid(groups: GridGroup[], opts: GridOptions = {}) {
 
     groups.forEach(g => {
         if (g.label) {
-            const cell = React.createElement('div', {
-                key: g.label.key,
-                style: {'grid-column': `1 / -1`},
-            },
-                g.label
+            const cell = React.cloneElement(g.label, {
+                    style: {...g.label.props?.style, 'grid-column': `1 / -1`},
+                },
             )
             cells.push(cell);
             nrows += 1;
