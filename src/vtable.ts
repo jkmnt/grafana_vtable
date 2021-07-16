@@ -57,8 +57,6 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, is_
   const { df, formatter, order } = ctx;
   const field_name = getFieldDisplayName(field, df);
 
-  const dimension_attr = is_dimension ? '' : undefined
-
   const display = field.display ?? getDisplayProcessor({ field });
 
   const common_unit = (options.show_common_unit && field.type == FieldType.number)
@@ -68,8 +66,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, is_
     'div',
     {
       key: field.name,
-      'data-is_dimension': dimension_attr,
-      className: ctx.style.namecell,
+      className: is_dimension ? ctx.style.dimnamecell : ctx.style.namecell,
     },
     common_unit ? `${field_name}, ${common_unit}` : field_name
   );
@@ -103,8 +100,7 @@ function create_field(field: DfField, options: VTableOptions, ctx: FieldCtx, is_
     const cellprops = {
       key,
       style: spec.style,
-      className: ctx.style.valuecell,
-      'data-is_dimension': dimension_attr,
+      className: is_dimension ? ctx.style.dimvaluecell : ctx.style.valuecell,
     }
 
     const cell = spec?.html ?

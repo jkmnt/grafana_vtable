@@ -4,6 +4,8 @@ import { css } from 'emotion';
 export interface GridStyle {
     namecell: string;
     valuecell: string;
+    dimnamecell: string;
+    dimvaluecell: string;
     grouplabel: string;
     grid: string;
 }
@@ -46,26 +48,32 @@ const COMMON = {
 
 const VSTYLE = {
     namecell: css(COMMON.cell, COMMON.bborder, COMMON.aligns, css`
-            position: sticky;
-            background-color: var(--panel_bg);
-            left: 0;
-            z-index: 2;
-            color: var(--dim);
-            &[data-is_dimension] {
-                top: 0;
-                z-index: 3;
-                padding: 15px 16px 4px 16px;
-            }`),
+        position: sticky;
+        background-color: var(--panel_bg);
+        left: 0;
+        z-index: 2;
+        color: var(--dim);`),
     valuecell: css(COMMON.cell, COMMON.bborder, COMMON.aligns, css`
-            text-align: right;
-            &[data-is_dimension] {
-                position: sticky;
-                background-color: var(--panel_bg);
-                top: 0;
-                z-index: 1;
-                padding: 15px 16px 4px 16px;
-                color: var(--hl);
-            }`)
+        text-align: right;`),
+    dimnamecell: css(COMMON.cell, COMMON.bborder, COMMON.aligns, css`
+        position: sticky;
+        background-color: var(--panel_bg);
+        left: 0;
+        top: 0;
+        z-index: 3;
+        color: var(--dim);
+        padding: 15px 16px 4px 16px;`),
+    dimvaluecell: css(COMMON.cell, COMMON.bborder, COMMON.aligns, css`
+        text-align: right;
+        position: sticky;
+        background-color: var(--panel_bg);
+        top: 0;
+        z-index: 1;
+        padding: 15px 16px 4px 16px;
+        color: var(--hl);
+        &::before {
+            content: 'ЧВАЧАЧАЧ'
+        }`)
     ,
     grouplabel: css`
         position: sticky;
@@ -91,21 +99,29 @@ const HSTYLE = {
         padding: 7px 16px 4px 16px;
 
         text-align: right;
-        white-space: normal;
-
-        &[data-is_dimension] {
-            left: 0;
-            z-index: 3;
-        }`),
+        white-space: normal;`),
     valuecell: css(COMMON.cell, COMMON.bborder, COMMON.aligns, css`
+        text-align: right;`),
+    dimnamecell: css(COMMON.cell, COMMON.bborder, COMMON.aligns, css`
+        position: sticky;
+        background-color: var(--panel_bg);
+        top: 0;
+        z-index: 3;
+        left: 0;
+
+        color: var(--hl);
+
+        padding: 7px 16px 4px 16px;
+
         text-align: right;
-        &[data-is_dimension] {
-            position: sticky;
-            background-color: var(--panel_bg);
-            left: 0;
-            z-index: 2;
-            color: var(--dim);
-        }`),
+        white-space: normal;`),
+    dimvaluecell: css(COMMON.cell, COMMON.bborder, COMMON.aligns, css`
+        text-align: right;
+        position: sticky;
+        background-color: var(--panel_bg);
+        left: 0;
+        z-index: 2;
+        color: var(--dim);`),
     grouplabel: css(COMMON.cell, COMMON.lborder, COMMON.rborder, css`
         position: sticky;
         background-color: var(--panel_bg);
@@ -135,13 +151,16 @@ function build_all(): GridStyles {
     const grid = css(COMMON.scrollbars, css`
         overflow: auto;
         position: relative;
+        padding-bottom: 42px;
         --panel_bg: ${opts.panel_bg};
         --dim: ${opts.dim};
         --hl: ${opts.hl};
         --border_bg: ${opts.border_bg};
         &[data-is_transparent] {
             --panel_bg: ${opts.dash_bg};
-        }`)
+        }
+        `
+        )
 
     return {
         vertical: {...VSTYLE, grid},
