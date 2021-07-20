@@ -9,7 +9,7 @@ export interface GridGroup {
     fields: GridField[];
 }
 
-type ColAttr = { [key: string]: string }
+type ColAttr = { [key: string]: string|undefined }
 
 export interface GridOptions {
     colws?: number[];
