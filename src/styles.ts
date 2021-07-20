@@ -16,6 +16,7 @@ interface GridStyles {
     horizontal: GridStyle,
 }
 
+
 const COMMON = {
     cell: css`
         padding: 9px 16px 9px 16px;
@@ -61,10 +62,11 @@ const VSTYLE = {
         color: var(--dim);
         `),
     valuecell: css(COMMON.cell, COMMON.bborder, COMMON.aligns, css`
-        text-align: right;`),
+        text-align: right;
+        `),
     dimnamecell: css(COMMON.cell, COMMON.bborder, COMMON.aligns, css`
         position: sticky;
-        background-color: var(--panel_bg);
+        background-color: var(--header_bg);
         left: 0;
         top: 0;
         z-index: 3;
@@ -73,7 +75,7 @@ const VSTYLE = {
     dimvaluecell: css(COMMON.cell, COMMON.bborder, COMMON.aligns, css`
         text-align: right;
         position: sticky;
-        background-color: var(--panel_bg);
+        background-color: var(--header_bg);
         top: 0;
         z-index: 1;
         padding: 15px 16px 4px 16px;
@@ -97,7 +99,7 @@ const VSTYLE = {
 const HSTYLE = {
     namecell: css(COMMON.cell, COMMON.bborder, COMMON.aligns, css`
         position: sticky;
-        background-color: var(--panel_bg);
+        background-color: var(--header_bg);
         top: 0;
         z-index: 1;
 
@@ -111,7 +113,7 @@ const HSTYLE = {
         text-align: right;`),
     dimnamecell: css(COMMON.cell, COMMON.bborder, COMMON.aligns, css`
         position: sticky;
-        background-color: var(--panel_bg);
+        background-color: var(--header_bg);
         top: 0;
         z-index: 3;
         left: 0;
@@ -149,28 +151,35 @@ function build_all(): GridStyles {
 
     const opts = {
         dim: theme.colors.textSemiWeak,
-        hl: theme.colors.textBlue,
+        // the blue is darken for light theme to meet a11y
+        hl: theme.isDark ? theme.colors.textBlue : '#1d70c9',
         panel_bg: theme.colors.panelBg,
         border_bg: theme.colors.border1,
         dash_bg: theme.colors.dashboardBg,
+        header_bg: theme.colors.pageHeaderBg,
     }
 
     const container = css(COMMON.scrollbars, css`
         overflow: auto;
-
         --panel_bg: ${opts.panel_bg};
         --dim: ${opts.dim};
         --hl: ${opts.hl};
         --border_bg: ${opts.border_bg};
+        --header_bg: ${opts.header_bg};
         &[data-is_transparent] {
             --panel_bg: ${opts.dash_bg};
         }
         `
         )
 
+    // fit-content should fix the horizontal sticky
+    const grid = css`
+        width: fit-content;
+    `
+
     return {
-        vertical: {...VSTYLE, container: container},
-        horizontal: {...HSTYLE, container: container}
+        vertical: {...VSTYLE, container: container, grid },
+        horizontal: {...HSTYLE, container: container, grid }
     }
 }
 
