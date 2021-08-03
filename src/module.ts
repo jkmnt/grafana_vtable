@@ -5,7 +5,6 @@ import { CodeEditor, CodeEditorSuggestionItem, CodeEditorSuggestionItemKind} fro
 import { VTable, VTableOptions } from './vtable';
 
 import {config as gf_config} from "@grafana/runtime"
-import Options from '@grafana/ui/slate-plugins/slate-prism/options';
 
 interface CustomFieldConfig {
     display_mode: string;

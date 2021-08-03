@@ -12,10 +12,10 @@
   "author": "jkmnt",
   "license": "MIT",
   "devDependencies": {
-    "@grafana/data": "latest",
-    "@grafana/toolkit": "latest",
-    "@grafana/ui": "latest",
-    "@grafana/runtime": "latest",
+    "@grafana/data": "7.5.9",
+    "@grafana/toolkit": "7.5.9",
+    "@grafana/ui": "7.5.9",
+    "@grafana/runtime": "7.5.9",
     "emotion": "10.0.27"
   },
   "engines": {
