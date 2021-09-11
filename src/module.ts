@@ -4,8 +4,6 @@ import { FieldOverrideContext, getFieldDisplayName, Labels, PanelPlugin } from '
 import { CodeEditor, CodeEditorSuggestionItem, CodeEditorSuggestionItemKind } from '@grafana/ui';
 import { VTable, VTableOptions } from './vtable';
 
-import { config as gf_config } from '@grafana/runtime';
-
 interface CustomFieldConfig {
   display_mode: string;
 }
@@ -92,104 +90,99 @@ const fetch_fields = async (context: FieldOverrideContext) => {
   return Promise.resolve(options);
 };
 
-export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable);
-
-plugin.setPanelOptions((builder) => {
-  builder
-    .addSelect({
-      path: 'dimension_field',
-      name: 'Dimension field name',
-      settings: {
-        allowCustomValue: true,
-        options: [],
-        getOptions: fetch_fields,
-      },
-      defaultValue: '',
-    })
-    .addBooleanSwitch({
-      path: 'is_horizontal',
-      name: 'Horizontal layout ',
-      defaultValue: false,
-    })
-    .addBooleanSwitch({
-      path: 'show_common_unit',
-      name: 'Show common unit',
-      defaultValue: true,
-    })
-    .addSelect({
-      path: 'group_by_label',
-      name: 'Group by label',
-      settings: {
-        allowCustomValue: true,
-        options: [],
-        getOptions: fetch_groups,
-      },
-      defaultValue: '',
-    })
-    .addTextInput({
-      path: 'custom_columns',
-      name: 'Custom column widths and text alignments',
-      description: 'Comma-separated format string: r100, c200, l300, etc',
-    })
-    .addSelect({
-      path: 'sort.field',
-      name: 'By field',
-      settings: {
-        allowCustomValue: true,
-        options: [],
-        getOptions: fetch_fields,
-      },
-      defaultValue: '',
-      category: ['Sort'],
-    })
-    .addBooleanSwitch({
-      path: 'sort.desc',
-      name: 'Descending',
-      category: ['Sort'],
-    })
-    .addBooleanSwitch({
-      path: 'sort.zeronull',
-      name: 'Treat zeros as nulls',
-      category: ['Sort'],
-    })
-    .addBooleanSwitch({
-      path: 'sort.nullfirst',
-      name: 'Nulls go first',
-      category: ['Sort'],
-    })
-    .addBooleanSwitch({
-      path: 'use_formatcode',
-      name: 'Use formatting code (DANGER!)',
-      description: gf_config.disableSanitizeHtml
-        ? ''
-        : 'Feature is disabled. Set disable_sanitize_html = false in Grafana config to activate it.',
-      category: ['Custom formatting'],
-      defaultValue: false,
-    })
-    .addCustomEditor({
-      id: 'formatcode',
-      path: 'formatcode',
-      name: 'Code',
-      showIf: (options) => options.use_formatcode && gf_config.disableSanitizeHtml,
-      category: ['Custom formatting'],
-      editor: JsEditor,
-      defaultValue: DEF_CODE,
-    });
-});
-
-plugin.useFieldConfig({
-  useCustomConfig: (builder) => {
-    builder.addRadio({
-      path: 'display_mode',
-      name: 'Cell display mode',
-      settings: {
-        options: [
-          { value: 'auto', label: 'Auto' },
-          { value: 'fg', label: 'Color text' },
-          { value: 'bg', label: 'Color background' },
-        ],
-      },
-      defaultValue: 'auto',
-    });
-  },
-});
+export const plugin = new PanelPlugin<VTableOptions, CustomFieldConfig>(VTable)
+  .setPanelOptions((builder) => {
+    builder
+      .addSelect({
+        path: 'dimension_field',
+        name: 'Dimension field name',
+        settings: {
+          allowCustomValue: true,
+          options: [],
+          getOptions: fetch_fields,
+        },
+        defaultValue: '',
+      })
+      .addBooleanSwitch({
+        path: 'is_horizontal',
+        name: 'Horizontal layout ',
+        defaultValue: false,
+      })
+      .addBooleanSwitch({
+        path: 'show_common_unit',
+        name: 'Show common unit',
+        defaultValue: true,
+      })
+      .addSelect({
+        path: 'group_by_label',
+        name: 'Group by label',
+        settings: {
+          allowCustomValue: true,
+          options: [],
+          getOptions: fetch_groups,
+        },
+        defaultValue: '',
+      })
+      .addTextInput({
+        path: 'custom_columns',
+        name: 'Custom column widths and text alignments',
+        description: 'Comma-separated format string: r100, c200, l300, etc',
+      })
+      .addSelect({
+        path: 'sort.field',
+        name: 'By field',
+        settings: {
+          allowCustomValue: true,
+          options: [],
+          getOptions: fetch_fields,
+        },
+        defaultValue: '',
+        category: ['Sort'],
+      })
+      .addBooleanSwitch({
+        path: 'sort.desc',
+        name: 'Descending',
+        category: ['Sort'],
+      })
+      .addBooleanSwitch({
+        path: 'sort.zeronull',
+        name: 'Treat zeros as nulls',
+        category: ['Sort'],
+      })
+      .addBooleanSwitch({
+        path: 'sort.nullfirst',
+        name: 'Nulls go first',
+        category: ['Sort'],
+      })
+      .addBooleanSwitch({
+        path: 'use_formatcode',
+        name: 'Use formatting code',
+        category: ['Custom formatting'],
+        defaultValue: false,
+      })
+      .addCustomEditor({
+        id: 'formatcode',
+        path: 'formatcode',
+        name: 'Code',
+        showIf: (options) => options.use_formatcode,
+        category: ['Custom formatting'],
+        editor: JsEditor,
+        defaultValue: DEF_CODE,
+      });
+  })
+  .useFieldConfig({
+    useCustomConfig: (builder) => {
+      builder.addRadio({
+        path: 'display_mode',
+        name: 'Cell display mode',
+        settings: {
+          options: [
+            { value: 'auto', label: 'Auto' },
+            { value: 'fg', label: 'Color text' },
+            { value: 'bg', label: 'Color background' },
+          ],
+        },
+        defaultValue: 'auto',
+      });
+    },
+  });
